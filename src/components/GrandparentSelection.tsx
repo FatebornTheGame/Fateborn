@@ -1,132 +1,98 @@
 import { useState } from 'react';
 import { archetypes } from '../data/archetypes';
-import type { Archetype, Gender, Selection } from '../types';
+import type { Archetype } from '../types';
 
-const GENDER = {
-  abuelo: {
-    label: 'Abuelo',
-    symbol: '♂',
-    color: '#93c5fd',
-    glow: 'rgba(147, 197, 253, 0.25)',
-    bg: 'rgba(147, 197, 253, 0.07)',
-    border: 'rgba(147, 197, 253, 0.35)',
-    badgeBg: 'rgba(59, 130, 246, 0.15)',
-  },
-  abuela: {
-    label: 'Abuela',
-    symbol: '♀',
-    color: '#f9a8d4',
-    glow: 'rgba(249, 168, 212, 0.25)',
-    bg: 'rgba(249, 168, 212, 0.07)',
-    border: 'rgba(249, 168, 212, 0.35)',
-    badgeBg: 'rgba(236, 72, 153, 0.15)',
-  },
-} as const;
+// Brand colors
+const GOLD = '#c9a84c';
+const GOLD_LIGHT = '#e8d08a';
+const GOLD_DIM = '#3a2a10';
 
-function StatBar({
-  name,
-  value,
-  color,
-}: {
-  name: string;
-  value: number;
-  color: string;
-}) {
+// ─── Stat bar ────────────────────────────────────────────────────────────────
+
+function StatBar({ name, value, color }: { name: string; value: number; color: string }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
       <span
         style={{
-          color: '#6b7280',
-          fontSize: '10px',
-          width: '76px',
+          color: '#8a7558',
+          fontSize: '11px',
+          width: '90px',
           textAlign: 'right',
           flexShrink: 0,
-          letterSpacing: '0.05em',
+          letterSpacing: '0.06em',
           textTransform: 'uppercase',
+          fontFamily: "'Cinzel', serif",
         }}
       >
         {name}
       </span>
-      <div
-        style={{
-          flex: 1,
-          background: 'rgba(255,255,255,0.04)',
-          borderRadius: '99px',
-          height: '4px',
-          overflow: 'hidden',
-        }}
-      >
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px' }}>
         <div
           style={{
-            width: `${value * 10}%`,
-            height: '100%',
-            background: color,
+            width: '70%',
+            background: 'rgba(255,255,255,0.06)',
             borderRadius: '99px',
-            transition: 'width 0.5s ease',
+            height: '4px',
+            overflow: 'hidden',
+            border: '1px solid rgba(255,255,255,0.05)',
+            flexShrink: 0,
           }}
-        />
+        >
+          <div
+            style={{
+              width: `${value * 10}%`,
+              height: '100%',
+              background: `linear-gradient(90deg, ${color}88, ${color})`,
+              borderRadius: '99px',
+              transition: 'width 0.5s ease',
+              boxShadow: `0 0 6px ${color}70`,
+            }}
+          />
+        </div>
+        <span style={{ color: '#6b5c3e', fontSize: '12px', fontFamily: "'Cinzel', serif", lineHeight: 1 }}>
+          {value}
+        </span>
       </div>
-      <span
-        style={{
-          color: '#4b5563',
-          fontSize: '10px',
-          width: '14px',
-          flexShrink: 0,
-          fontVariantNumeric: 'tabular-nums',
-        }}
-      >
-        {value}
-      </span>
     </div>
   );
 }
 
+// ─── Archetype card ───────────────────────────────────────────────────────────
+
 function ArchetypeCard({
   archetype,
-  selection,
-  onAssign,
-  abuelosCount,
-  abuelasCount,
+  count,
+  totalSelected,
+  onAdd,
+  onRemove,
 }: {
   archetype: Archetype;
-  selection: Selection | undefined;
-  onAssign: (id: string, gender: Gender) => void;
-  abuelosCount: number;
-  abuelasCount: number;
+  count: number;          // veces que este arquetipo está seleccionado
+  totalSelected: number;  // total de slots ocupados
+  onAdd: () => void;
+  onRemove: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
-  const selectedGender = selection?.gender;
-  const isSelected = !!selectedGender;
-
-  const accentColor = selectedGender
-    ? GENDER[selectedGender].color
-    : archetype.accentColor;
-
-  const canAssign = (gender: Gender) => {
-    if (selectedGender === gender) return true; // deselect
-    if (selectedGender && selectedGender !== gender) {
-      return gender === 'abuelo' ? abuelosCount < 2 : abuelasCount < 2;
-    }
-    return gender === 'abuelo' ? abuelosCount < 2 : abuelasCount < 2;
-  };
+  const isSelected = count > 0;
+  const canAdd = totalSelected < 4;
 
   const borderColor = isSelected
-    ? GENDER[selectedGender].border
+    ? `rgba(201,168,76,0.5)`
     : hovered
-    ? archetype.accentColor + '60'
-    : archetype.accentColor + '22';
+    ? `${archetype.accentColor}55`
+    : `${archetype.accentColor}18`;
 
   const boxShadow = isSelected
-    ? `0 0 24px ${GENDER[selectedGender].glow}, 0 0 80px ${GENDER[selectedGender].glow}`
+    ? `0 0 20px rgba(201,168,76,0.2), 0 4px 24px rgba(0,0,0,0.6)`
     : hovered
-    ? `0 0 16px ${archetype.accentColor}20`
-    : 'none';
+    ? `0 0 14px ${archetype.accentColor}25, 0 4px 20px rgba(0,0,0,0.5)`
+    : `0 2px 12px rgba(0,0,0,0.4)`;
 
   const cardBg = isSelected
-    ? GENDER[selectedGender].bg
+    ? 'rgba(201,168,76,0.06)'
     : hovered
-    ? 'rgba(255,255,255,0.03)'
-    : 'rgba(10, 8, 18, 0.8)';
+    ? 'rgba(255,255,255,0.025)'
+    : 'rgba(13,10,6,0.85)';
 
   return (
     <div
@@ -136,150 +102,187 @@ function ArchetypeCard({
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-        padding: '20px',
-        borderRadius: '12px',
+        padding: '16px 16px 14px',
+        borderRadius: '8px',
         border: `1px solid ${borderColor}`,
         background: cardBg,
         boxShadow,
         transition: 'all 0.3s ease',
-        backdropFilter: 'blur(12px)',
+        backdropFilter: 'blur(8px)',
       }}
     >
-      {/* Gender badge */}
-      {selectedGender && (
+      {/* Top accent line */}
+      <div style={{
+        position: 'absolute', top: 0, left: '20%', right: '20%', height: '1px',
+        background: isSelected
+          ? `linear-gradient(90deg, transparent, ${GOLD}, transparent)`
+          : `linear-gradient(90deg, transparent, ${archetype.accentColor}60, transparent)`,
+        transition: 'all 0.3s ease',
+      }} />
+
+      {/* Header: emoji + nombre + contador */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+        <span style={{ fontSize: '24px', lineHeight: 1, flexShrink: 0, filter: 'drop-shadow(0 0 4px rgba(0,0,0,0.8))' }}>
+          {archetype.symbol}
+        </span>
         <div
+          className="cinzel"
           style={{
-            position: 'absolute',
-            top: '-11px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            padding: '2px 12px',
-            borderRadius: '99px',
-            fontSize: '10px',
+            color: isSelected ? GOLD_LIGHT : `${archetype.accentColor}ee`,
+            fontSize: '16px',
             fontWeight: 700,
-            letterSpacing: '0.15em',
+            letterSpacing: '0.06em',
             textTransform: 'uppercase',
-            background: GENDER[selectedGender].badgeBg,
-            border: `1px solid ${GENDER[selectedGender].border}`,
-            color: GENDER[selectedGender].color,
-            whiteSpace: 'nowrap',
-            fontFamily: "'Cinzel', serif",
+            lineHeight: 1.1,
+            flex: 1,
+            transition: 'color 0.3s ease',
           }}
         >
-          {GENDER[selectedGender].symbol} {GENDER[selectedGender].label}
+          {archetype.name}
         </div>
-      )}
-
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-        <span style={{ fontSize: '26px', lineHeight: 1 }}>{archetype.symbol}</span>
-        <div>
-          <div
-            className="cinzel"
-            style={{
-              color: accentColor,
-              fontSize: '12px',
-              fontWeight: 700,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              transition: 'color 0.3s ease',
-            }}
-          >
-            {archetype.name}
+        {/* Contador de instancias */}
+        {isSelected && (
+          <div style={{
+            width: '28px',
+            height: '28px',
+            borderRadius: '50%',
+            background: 'rgba(201,168,76,0.15)',
+            border: `1px solid rgba(201,168,76,0.5)`,
+            color: GOLD_LIGHT,
+            fontSize: '14px',
+            fontWeight: 700,
+            fontFamily: "'Cinzel', serif",
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            {count}
           </div>
-        </div>
+        )}
       </div>
 
+      {/* Separator */}
+      <div style={{
+        height: '1px',
+        background: `linear-gradient(90deg, ${archetype.accentColor}40, transparent)`,
+        marginBottom: '10px',
+      }} />
+
       {/* Description */}
-      <p
-        className="crimson"
-        style={{
-          color: '#6b7280',
-          fontSize: '13px',
-          lineHeight: '1.55',
-          marginBottom: '14px',
-          flexGrow: 0,
-        }}
-      >
+      <p className="crimson" style={{
+        color: '#a08c6a',
+        fontSize: '14px',
+        lineHeight: '1.6',
+        marginBottom: '14px',
+        fontStyle: 'italic',
+        flex: 1,
+      }}>
         {archetype.description}
       </p>
 
       {/* Stats */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px', flex: 1 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '7px', marginBottom: '14px' }}>
         {archetype.stats.map((stat) => (
-          <StatBar key={stat.name} name={stat.name} value={stat.value} color={accentColor} />
+          <StatBar
+            key={stat.name}
+            name={stat.name}
+            value={stat.value}
+            color={isSelected ? GOLD : archetype.accentColor}
+          />
         ))}
       </div>
 
-      {/* Gender buttons */}
+      {/* Botones AÑADIR / QUITAR */}
       <div style={{ display: 'flex', gap: '8px' }}>
-        {(['abuelo', 'abuela'] as Gender[]).map((gender) => {
-          const cfg = GENDER[gender];
-          const isActive = selectedGender === gender;
-          const disabled = !canAssign(gender);
-
-          return (
-            <button
-              key={gender}
-              onClick={() => !disabled && onAssign(archetype.id, gender)}
-              disabled={disabled}
-              style={{
-                flex: 1,
-                padding: '6px 0',
-                borderRadius: '8px',
-                border: `1px solid ${isActive ? cfg.border : 'rgba(255,255,255,0.07)'}`,
-                background: isActive ? cfg.badgeBg : 'rgba(255,255,255,0.02)',
-                color: isActive ? cfg.color : disabled ? '#2d3748' : '#4b5563',
-                fontSize: '11px',
-                fontWeight: 600,
-                letterSpacing: '0.08em',
-                cursor: disabled ? 'not-allowed' : 'pointer',
-                transition: 'all 0.2s ease',
-                fontFamily: "'Cinzel', serif",
-              }}
-            >
-              {cfg.symbol} {cfg.label}
-            </button>
-          );
-        })}
+        <button
+          onClick={onAdd}
+          disabled={!canAdd}
+          style={{
+            flex: 1,
+            padding: '9px 0',
+            borderRadius: '5px',
+            border: `1px solid ${canAdd ? 'rgba(201,168,76,0.4)' : 'rgba(255,255,255,0.06)'}`,
+            background: canAdd ? 'rgba(201,168,76,0.08)' : 'rgba(255,255,255,0.02)',
+            color: canAdd ? GOLD_LIGHT : GOLD_DIM,
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            cursor: canAdd ? 'pointer' : 'not-allowed',
+            transition: 'all 0.2s ease',
+            fontFamily: "'Cinzel', serif",
+          }}
+        >
+          + Añadir
+        </button>
+        <button
+          onClick={onRemove}
+          disabled={!isSelected}
+          style={{
+            flex: 1,
+            padding: '9px 0',
+            borderRadius: '5px',
+            border: `1px solid ${isSelected ? 'rgba(160,50,40,0.5)' : 'rgba(255,255,255,0.04)'}`,
+            background: isSelected ? 'rgba(160,50,40,0.08)' : 'rgba(255,255,255,0.01)',
+            color: isSelected ? '#d4706a' : '#2a1a10',
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            cursor: isSelected ? 'pointer' : 'not-allowed',
+            transition: 'all 0.2s ease',
+            fontFamily: "'Cinzel', serif",
+          }}
+        >
+          − Quitar
+        </button>
       </div>
     </div>
   );
 }
 
-function SelectionSlot({ archetype, gender }: { archetype?: Archetype; gender: Gender }) {
-  const cfg = GENDER[gender];
-  const filled = !!archetype;
+// ─── Slot ─────────────────────────────────────────────────────────────────────
 
+function AncestorSlot({ index, archetype }: { index: number; archetype?: Archetype }) {
+  const filled = !!archetype;
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        padding: '8px 14px',
-        borderRadius: '10px',
-        border: `1px solid ${filled ? cfg.border : 'rgba(255,255,255,0.06)'}`,
-        background: filled ? cfg.bg : 'rgba(255,255,255,0.02)',
-        minWidth: '140px',
-        transition: 'all 0.3s ease',
-      }}
-    >
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '6px',
+      padding: '12px 16px',
+      borderRadius: '8px',
+      border: `1px solid ${filled ? 'rgba(201,168,76,0.4)' : 'rgba(255,255,255,0.06)'}`,
+      background: filled ? 'rgba(201,168,76,0.06)' : 'rgba(255,255,255,0.02)',
+      minWidth: '150px',
+      transition: 'all 0.3s ease',
+      boxShadow: filled ? '0 0 16px rgba(201,168,76,0.15)' : 'none',
+    }}>
+      <span className="cinzel" style={{
+        color: filled ? 'rgba(201,168,76,0.6)' : '#2a1f10',
+        fontSize: '9px',
+        letterSpacing: '0.2em',
+        textTransform: 'uppercase',
+        fontWeight: 700,
+      }}>
+        Abuelo {index + 1}
+      </span>
       {filled ? (
-        <>
-          <span style={{ fontSize: '16px' }}>{archetype!.symbol}</span>
-          <span
-            className="cinzel"
-            style={{ color: cfg.color, fontSize: '10px', fontWeight: 600, letterSpacing: '0.1em' }}
-          >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '18px', lineHeight: 1 }}>{archetype!.symbol}</span>
+          <span className="cinzel" style={{
+            color: GOLD_LIGHT,
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.07em',
+          }}>
             {archetype!.name}
           </span>
-        </>
+        </div>
       ) : (
-        <span
-          className="crimson"
-          style={{ color: '#2d3748', fontSize: '13px', fontStyle: 'italic' }}
-        >
+        <span className="crimson" style={{ color: '#3a2a18', fontSize: '13px', fontStyle: 'italic' }}>
           — vacío —
         </span>
       )}
@@ -287,228 +290,186 @@ function SelectionSlot({ archetype, gender }: { archetype?: Archetype; gender: G
   );
 }
 
-export default function GrandparentSelection({ onConfirm }: { onConfirm: (selections: Selection[]) => void }) {
-  const [selections, setSelections] = useState<Selection[]>([]);
+// ─── Ornament ─────────────────────────────────────────────────────────────────
 
-  const abuelosCount = selections.filter((s) => s.gender === 'abuelo').length;
-  const abuelasCount = selections.filter((s) => s.gender === 'abuela').length;
-  const isComplete = abuelosCount === 2 && abuelasCount === 2;
+function Diamond({ color }: { color: string }) {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" fill={color} style={{ flexShrink: 0 }}>
+      <polygon points="5,0 10,5 5,10 0,5" />
+    </svg>
+  );
+}
 
-  const handleAssign = (archetypeId: string, gender: Gender) => {
-    const existing = selections.find((s) => s.archetypeId === archetypeId);
+// ─── Main screen ──────────────────────────────────────────────────────────────
 
-    if (existing?.gender === gender) {
-      setSelections(selections.filter((s) => s.archetypeId !== archetypeId));
-      return;
-    }
+export default function GrandparentSelection({
+  onConfirm,
+}: {
+  onConfirm: (selected: string[]) => void;
+}) {
+  // Array de hasta 4 archetypeIds — pueden repetirse
+  const [selected, setSelected] = useState<string[]>([]);
 
-    if (existing) {
-      const targetCount = gender === 'abuelo' ? abuelosCount : abuelasCount;
-      if (targetCount < 2) {
-        setSelections(selections.map((s) => (s.archetypeId === archetypeId ? { ...s, gender } : s)));
-      }
-      return;
-    }
+  const countOf = (id: string) => selected.filter((s) => s === id).length;
+  const isComplete = selected.length === 4;
+  const remaining = 4 - selected.length;
 
-    const targetCount = gender === 'abuelo' ? abuelosCount : abuelasCount;
-    if (targetCount < 2) {
-      setSelections([...selections, { archetypeId, gender }]);
-    }
+  const handleAdd = (id: string) => {
+    if (selected.length < 4) setSelected([...selected, id]);
   };
 
-  const getSlotArchetype = (gender: Gender, index: number): Archetype | undefined => {
-    const genderSelections = selections.filter((s) => s.gender === gender);
-    if (!genderSelections[index]) return undefined;
-    return archetypes.find((a) => a.id === genderSelections[index].archetypeId);
+  const handleRemove = (id: string) => {
+    const idx = selected.lastIndexOf(id);
+    if (idx === -1) return;
+    setSelected([...selected.slice(0, idx), ...selected.slice(idx + 1)]);
+  };
+
+  const getSlotArchetype = (index: number): Archetype | undefined => {
+    const id = selected[index];
+    return id ? archetypes.find((a) => a.id === id) : undefined;
   };
 
   return (
     <div
+      className="leather-bg"
       style={{
         minHeight: '100vh',
         width: '100%',
-        background: 'radial-gradient(ellipse at 50% 0%, #0e0820 0%, #04030a 60%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '48px 24px',
+        padding: '40px 0 56px',
         position: 'relative',
         overflow: 'hidden',
       }}
     >
-      {/* Background decoration */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage:
-            'radial-gradient(circle at 20% 20%, rgba(139,92,246,0.04) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(59,130,246,0.04) 0%, transparent 50%)',
-          pointerEvents: 'none',
-        }}
-      />
+      {/* Vignette */}
+      <div style={{
+        position: 'fixed', inset: 0,
+        background: 'radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(5,3,2,0.7) 100%)',
+        pointerEvents: 'none', zIndex: 0,
+      }} />
 
-      {/* Title */}
-      <div style={{ textAlign: 'center', marginBottom: '12px' }}>
-        <h1
-          className="cinzel shimmer-text"
+      <div style={{
+        position: 'relative', zIndex: 1,
+        width: '100%', maxWidth: '1400px',
+        padding: '0 40px',
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+      }}>
+
+        {/* Banner */}
+        <img
+          src="/fateborn_title.png"
+          alt="FATEBORN"
           style={{
-            fontSize: 'clamp(36px, 6vw, 64px)',
-            fontWeight: 900,
-            letterSpacing: '0.25em',
-            margin: 0,
-            lineHeight: 1,
-          }}
-        >
-          FATEBORN
-        </h1>
-        <p
-          className="crimson"
-          style={{
-            color: '#4b5563',
-            fontSize: '16px',
-            letterSpacing: '0.3em',
-            textTransform: 'uppercase',
-            marginTop: '10px',
-            fontStyle: 'italic',
-          }}
-        >
-          El linaje forja tu destino
-        </p>
-      </div>
-
-      {/* Divider */}
-      <div
-        style={{
-          width: '120px',
-          height: '1px',
-          background: 'linear-gradient(90deg, transparent, rgba(167,139,250,0.4), transparent)',
-          margin: '20px 0',
-        }}
-      />
-
-      {/* Instruction */}
-      <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-        <p
-          className="cinzel"
-          style={{
-            color: '#9ca3af',
-            fontSize: '11px',
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            margin: 0,
-          }}
-        >
-          Elige 2 abuelos y 2 abuelas para forjar tu herencia
-        </p>
-      </div>
-
-      {/* Selection summary */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '32px',
-          marginBottom: '36px',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-        }}
-      >
-        {/* Abuelos */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-          <span
-            className="cinzel"
-            style={{ color: GENDER.abuelo.color, fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
-          >
-            {GENDER.abuelo.symbol} Abuelos ({abuelosCount}/2)
-          </span>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <SelectionSlot archetype={getSlotArchetype('abuelo', 0)} gender="abuelo" />
-            <SelectionSlot archetype={getSlotArchetype('abuelo', 1)} gender="abuelo" />
-          </div>
-        </div>
-
-        {/* Separator */}
-        <div
-          style={{
-            width: '1px',
-            background: 'rgba(255,255,255,0.06)',
-            alignSelf: 'stretch',
+            width: '100%', maxWidth: '600px', height: 'auto',
+            marginBottom: '4px', mixBlendMode: 'screen', display: 'block',
           }}
         />
 
-        {/* Abuelas */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-          <span
-            className="cinzel"
-            style={{ color: GENDER.abuela.color, fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase' }}
-          >
-            {GENDER.abuela.symbol} Abuelas ({abuelasCount}/2)
-          </span>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <SelectionSlot archetype={getSlotArchetype('abuela', 0)} gender="abuela" />
-            <SelectionSlot archetype={getSlotArchetype('abuela', 1)} gender="abuela" />
-          </div>
+        {/* Ornament divider */}
+        <div className="ornament-divider" style={{ marginBottom: '16px' }}>
+          <Diamond color={`${GOLD}50`} />
         </div>
-      </div>
 
-      {/* Archetype grid */}
-      <div
-        style={{
+        {/* Subtítulo */}
+        <p className="cinzel" style={{
+          color: '#6b5c3e',
+          fontSize: '12px',
+          letterSpacing: '0.22em',
+          textTransform: 'uppercase',
+          margin: '0 0 28px',
+          textAlign: 'center',
+        }}>
+          De su sangre naces. De tus decisiones te forjas.
+        </p>
+
+        {/* Panel de slots */}
+        <div style={{
+          display: 'flex', gap: '12px',
+          marginBottom: '36px',
+          flexWrap: 'wrap', justifyContent: 'center',
+          width: '100%',
+          padding: '24px 40px',
+          borderRadius: '10px',
+          border: '1px solid rgba(201,168,76,0.15)',
+          background: 'rgba(0,0,0,0.3)',
+          backdropFilter: 'blur(8px)',
+        }}>
+          {[0, 1, 2, 3].map((i) => (
+            <AncestorSlot key={i} index={i} archetype={getSlotArchetype(i)} />
+          ))}
+        </div>
+
+        {/* Grid de arquetipos */}
+        <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+          gridTemplateColumns: 'repeat(4, 1fr)',
           gap: '16px',
           width: '100%',
-          maxWidth: '1100px',
           marginBottom: '40px',
-        }}
-      >
-        {archetypes.map((archetype) => (
-          <ArchetypeCard
-            key={archetype.id}
-            archetype={archetype}
-            selection={selections.find((s) => s.archetypeId === archetype.id)}
-            onAssign={handleAssign}
-            abuelosCount={abuelosCount}
-            abuelasCount={abuelasCount}
-          />
-        ))}
-      </div>
+        }}>
+          {archetypes.map((archetype) => (
+            <ArchetypeCard
+              key={archetype.id}
+              archetype={archetype}
+              count={countOf(archetype.id)}
+              totalSelected={selected.length}
+              onAdd={() => handleAdd(archetype.id)}
+              onRemove={() => handleRemove(archetype.id)}
+            />
+          ))}
+        </div>
 
-      {/* Confirm button */}
-      <button
-        onClick={() => isComplete && onConfirm(selections)}
-        disabled={!isComplete}
-        style={{
-          padding: '14px 48px',
-          borderRadius: '10px',
-          border: `1px solid ${isComplete ? 'rgba(167,139,250,0.5)' : 'rgba(255,255,255,0.06)'}`,
-          background: isComplete
-            ? 'linear-gradient(135deg, rgba(109,40,217,0.3), rgba(79,70,229,0.3))'
-            : 'rgba(255,255,255,0.02)',
-          color: isComplete ? '#c4b5fd' : '#374151',
-          fontSize: '13px',
-          fontWeight: 700,
-          letterSpacing: '0.2em',
-          textTransform: 'uppercase',
-          cursor: isComplete ? 'pointer' : 'not-allowed',
-          transition: 'all 0.3s ease',
-          fontFamily: "'Cinzel', serif",
-          boxShadow: isComplete ? '0 0 30px rgba(139,92,246,0.2), 0 0 80px rgba(139,92,246,0.08)' : 'none',
-        }}
-        onMouseEnter={(e) => {
-          if (isComplete) {
-            (e.currentTarget as HTMLButtonElement).style.boxShadow =
-              '0 0 40px rgba(139,92,246,0.35), 0 0 100px rgba(139,92,246,0.15)';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (isComplete) {
-            (e.currentTarget as HTMLButtonElement).style.boxShadow =
-              '0 0 30px rgba(139,92,246,0.2), 0 0 80px rgba(139,92,246,0.08)';
-          }
-        }}
-      >
-        {isComplete ? 'Comenzar el Viaje →' : `Selecciona ${4 - selections.length} arquetipo${4 - selections.length !== 1 ? 's' : ''} más`}
-      </button>
+        {/* Botón confirmar */}
+        <button
+          onClick={() => isComplete && onConfirm(selected)}
+          disabled={!isComplete}
+          style={{
+            padding: '18px 72px',
+            borderRadius: '7px',
+            border: `1px solid ${isComplete ? 'rgba(201,168,76,0.55)' : 'rgba(255,255,255,0.05)'}`,
+            background: isComplete
+              ? 'linear-gradient(135deg, rgba(201,168,76,0.18), rgba(139,100,30,0.25))'
+              : 'rgba(255,255,255,0.02)',
+            color: isComplete ? GOLD_LIGHT : '#2a1f10',
+            fontSize: '15px',
+            fontWeight: 700,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            cursor: isComplete ? 'pointer' : 'not-allowed',
+            transition: 'all 0.3s ease',
+            fontFamily: "'Cinzel', serif",
+            boxShadow: isComplete
+              ? `0 0 24px rgba(201,168,76,0.2), 0 0 60px rgba(201,168,76,0.08), inset 0 1px 0 rgba(201,168,76,0.15)`
+              : 'none',
+          }}
+          onMouseEnter={(e) => {
+            if (isComplete) {
+              const b = e.currentTarget as HTMLButtonElement;
+              b.style.boxShadow = '0 0 36px rgba(201,168,76,0.35), 0 0 80px rgba(201,168,76,0.12), inset 0 1px 0 rgba(201,168,76,0.2)';
+              b.style.borderColor = 'rgba(201,168,76,0.7)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (isComplete) {
+              const b = e.currentTarget as HTMLButtonElement;
+              b.style.boxShadow = '0 0 24px rgba(201,168,76,0.2), 0 0 60px rgba(201,168,76,0.08), inset 0 1px 0 rgba(201,168,76,0.15)';
+              b.style.borderColor = 'rgba(201,168,76,0.55)';
+            }
+          }}
+        >
+          {isComplete
+            ? 'Comenzar el Viaje →'
+            : `Selecciona ${remaining} ancestro${remaining !== 1 ? 's' : ''} más`}
+        </button>
+
+        {/* Bottom ornament */}
+        <div className="ornament-divider" style={{ marginTop: '40px', maxWidth: '300px' }}>
+          <Diamond color={`${GOLD}30`} />
+        </div>
+
+      </div>
     </div>
   );
 }

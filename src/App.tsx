@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import './App.css';
 import GrandparentSelection from './components/GrandparentSelection';
-import type { Selection } from './types';
-
 function App() {
-  const [confirmed, setConfirmed] = useState<Selection[] | null>(null);
+  const [confirmed, setConfirmed] = useState<string[] | null>(null);
 
   if (confirmed) {
     return (

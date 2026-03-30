@@ -4,7 +4,13 @@
       "Bash(find 'C:\\\\Users\\\\F O R T Y W A N\\\\fateborn' -not -path */node_modules/* -not -path */.git/* -type f)",
       "Bash(npm install:*)",
       "Bash(npx tsc:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(cp \"/c/Users/F O R T Y W A N/Desktop/FATEBORN/fateborn_banner.png\" \"/c/Users/F O R T Y W A N/fateborn/public/fateborn_banner.png\")",
+      "Bash(cp \"/c/Users/F O R T Y W A N/Desktop/FATEBORN/fateborn_logo_1a1.png\" \"/c/Users/F O R T Y W A N/fateborn/public/fateborn_logo_1a1.png\")",
+      "Read(//c/Users/F O R T Y W A N/Desktop/FATEBORN//**)",
+      "Read(//c/Users/F O R T Y W A N/Desktop//**)",
+      "Bash(cp \"/c/Users/F O R T Y W A N/Desktop/FATEBORN/fateborn banner.png\" \"/c/Users/F O R T Y W A N/fateborn/public/fateborn_banner.png\")",
+      "Bash(cp \"/c/Users/F O R T Y W A N/Desktop/FATEBORN/fateborn logo 1a1.png\" \"/c/Users/F O R T Y W A N/fateborn/public/fateborn_logo.png\")"
     ]
   }
 }

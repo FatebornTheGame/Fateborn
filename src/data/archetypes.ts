@@ -6,7 +6,7 @@ export const archetypes: Archetype[] = [
     name: 'El Atleta',
     symbol: '⚔️',
     description: 'Cuerpo forjado en la disciplina y el sacrificio. Su fuerza corre por las venas de su linaje.',
-    accentColor: '#f87171',
+    accentColor: '#c0392b',
     stats: [
       { name: 'Fuerza', value: 9 },
       { name: 'Resistencia', value: 8 },
@@ -19,7 +19,7 @@ export const archetypes: Archetype[] = [
     name: 'El Académico',
     symbol: '📜',
     description: 'Mente afilada por años de estudio. Su sabiduría ilumina el camino hacia lo desconocido.',
-    accentColor: '#60a5fa',
+    accentColor: '#2e86c1',
     stats: [
       { name: 'Inteligencia', value: 9 },
       { name: 'Sabiduría', value: 8 },
@@ -32,7 +32,7 @@ export const archetypes: Archetype[] = [
     name: 'El Artista',
     symbol: '🎨',
     description: 'Alma creativa que ve belleza donde otros solo ven vacío. Transforma el mundo con su visión.',
-    accentColor: '#c084fc',
+    accentColor: '#7d3c98',
     stats: [
       { name: 'Creatividad', value: 9 },
       { name: 'Percepción', value: 8 },
@@ -45,7 +45,7 @@ export const archetypes: Archetype[] = [
     name: 'El Líder',
     symbol: '👑',
     description: 'Nació para guiar a otros. Su presencia inspira lealtad y su voz mueve multitudes.',
-    accentColor: '#fbbf24',
+    accentColor: '#c9a84c',
     stats: [
       { name: 'Carisma', value: 9 },
       { name: 'Persuasión', value: 8 },
@@ -58,7 +58,7 @@ export const archetypes: Archetype[] = [
     name: 'El Obrero',
     symbol: '⚒️',
     description: 'Manos que construyeron el mundo. Su tenacidad y destreza no conocen límites.',
-    accentColor: '#fb923c',
+    accentColor: '#935116',
     stats: [
       { name: 'Fuerza', value: 8 },
       { name: 'Resistencia', value: 9 },
@@ -71,7 +71,7 @@ export const archetypes: Archetype[] = [
     name: 'El Emprendedor',
     symbol: '🏪',
     description: 'Visión de futuro y astucia en los negocios. La fortuna favorece siempre al más audaz.',
-    accentColor: '#34d399',
+    accentColor: '#1e8449',
     stats: [
       { name: 'Astucia', value: 8 },
       { name: 'Carisma', value: 8 },
@@ -84,7 +84,7 @@ export const archetypes: Archetype[] = [
     name: 'El Cuidador',
     symbol: '🌿',
     description: 'Corazón de oro que sana las heridas del alma y el cuerpo. Encuentra fuerza en dar.',
-    accentColor: '#f472b6',
+    accentColor: '#8b1a2a',
     stats: [
       { name: 'Empatía', value: 9 },
       { name: 'Paciencia', value: 8 },
@@ -97,7 +97,7 @@ export const archetypes: Archetype[] = [
     name: 'El Explorador',
     symbol: '🧭',
     description: 'El horizonte siempre lo llama. Su curiosidad abre puertas a mundos desconocidos.',
-    accentColor: '#22d3ee',
+    accentColor: '#117a65',
     stats: [
       { name: 'Agilidad', value: 8 },
       { name: 'Curiosidad', value: 9 },
