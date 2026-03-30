@@ -1,0 +1,108 @@
+import type { Archetype } from '../types';
+
+export const archetypes: Archetype[] = [
+  {
+    id: 'atleta',
+    name: 'El Atleta',
+    symbol: '⚔️',
+    description: 'Cuerpo forjado en la disciplina y el sacrificio. Su fuerza corre por las venas de su linaje.',
+    accentColor: '#f87171',
+    stats: [
+      { name: 'Fuerza', value: 9 },
+      { name: 'Resistencia', value: 8 },
+      { name: 'Agilidad', value: 8 },
+      { name: 'Salud', value: 7 },
+    ],
+  },
+  {
+    id: 'academico',
+    name: 'El Académico',
+    symbol: '📜',
+    description: 'Mente afilada por años de estudio. Su sabiduría ilumina el camino hacia lo desconocido.',
+    accentColor: '#60a5fa',
+    stats: [
+      { name: 'Inteligencia', value: 9 },
+      { name: 'Sabiduría', value: 8 },
+      { name: 'Memoria', value: 8 },
+      { name: 'Percepción', value: 6 },
+    ],
+  },
+  {
+    id: 'artista',
+    name: 'El Artista',
+    symbol: '🎨',
+    description: 'Alma creativa que ve belleza donde otros solo ven vacío. Transforma el mundo con su visión.',
+    accentColor: '#c084fc',
+    stats: [
+      { name: 'Creatividad', value: 9 },
+      { name: 'Percepción', value: 8 },
+      { name: 'Carisma', value: 7 },
+      { name: 'Expresión', value: 8 },
+    ],
+  },
+  {
+    id: 'lider',
+    name: 'El Líder',
+    symbol: '👑',
+    description: 'Nació para guiar a otros. Su presencia inspira lealtad y su voz mueve multitudes.',
+    accentColor: '#fbbf24',
+    stats: [
+      { name: 'Carisma', value: 9 },
+      { name: 'Persuasión', value: 8 },
+      { name: 'Liderazgo', value: 9 },
+      { name: 'Intuición', value: 7 },
+    ],
+  },
+  {
+    id: 'obrero',
+    name: 'El Obrero',
+    symbol: '⚒️',
+    description: 'Manos que construyeron el mundo. Su tenacidad y destreza no conocen límites.',
+    accentColor: '#fb923c',
+    stats: [
+      { name: 'Fuerza', value: 8 },
+      { name: 'Resistencia', value: 9 },
+      { name: 'Destreza', value: 7 },
+      { name: 'Disciplina', value: 8 },
+    ],
+  },
+  {
+    id: 'emprendedor',
+    name: 'El Emprendedor',
+    symbol: '🏪',
+    description: 'Visión de futuro y astucia en los negocios. La fortuna favorece siempre al más audaz.',
+    accentColor: '#34d399',
+    stats: [
+      { name: 'Astucia', value: 8 },
+      { name: 'Carisma', value: 8 },
+      { name: 'Fortuna', value: 7 },
+      { name: 'Visión', value: 9 },
+    ],
+  },
+  {
+    id: 'cuidador',
+    name: 'El Cuidador',
+    symbol: '🌿',
+    description: 'Corazón de oro que sana las heridas del alma y el cuerpo. Encuentra fuerza en dar.',
+    accentColor: '#f472b6',
+    stats: [
+      { name: 'Empatía', value: 9 },
+      { name: 'Paciencia', value: 8 },
+      { name: 'Sabiduría', value: 7 },
+      { name: 'Compasión', value: 9 },
+    ],
+  },
+  {
+    id: 'explorador',
+    name: 'El Explorador',
+    symbol: '🧭',
+    description: 'El horizonte siempre lo llama. Su curiosidad abre puertas a mundos desconocidos.',
+    accentColor: '#22d3ee',
+    stats: [
+      { name: 'Agilidad', value: 8 },
+      { name: 'Curiosidad', value: 9 },
+      { name: 'Adaptación', value: 8 },
+      { name: 'Valentía', value: 7 },
+    ],
+  },
+];
