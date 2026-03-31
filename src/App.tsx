@@ -8,9 +8,10 @@ import YouthScreen from './components/YouthScreen';
 import AdulthoodScreen from './components/AdulthoodScreen';
 import MaturityScreen from './components/MaturityScreen';
 import OldAgeScreen from './components/OldAgeScreen';
+import DeathScreen from './components/DeathScreen';
 import type { Character } from './types';
 
-type Screen = 'ancestors' | 'birth' | 'childhood' | 'adolescence' | 'youth' | 'adulthood' | 'maturity' | 'oldage' | 'game';
+type Screen = 'ancestors' | 'birth' | 'childhood' | 'adolescence' | 'youth' | 'adulthood' | 'maturity' | 'oldage' | 'death';
 
 function App() {
   const [screen, setScreen]       = useState<Screen>('ancestors');
@@ -54,7 +55,7 @@ function App() {
 
   const handleOldAgeComplete = (updated: Character) => {
     setCharacter(updated);
-    setScreen('game');
+    setScreen('death');
   };
 
   if (screen === 'ancestors') {
@@ -124,51 +125,20 @@ function App() {
     );
   }
 
-  // Placeholder — Pantalla de muerte en construcción
-  return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: '#0d0b08',
-      color: '#e8d08a',
-      fontFamily: "'Cinzel', serif",
-      gap: '20px',
-      textAlign: 'center',
-      padding: '40px',
-    }}>
-      <img
-        src="/fateborn_title.png"
-        alt="FATEBORN"
-        style={{ width: '320px', mixBlendMode: 'screen', marginBottom: '8px' }}
-      />
-      <h2 style={{ fontSize: '14px', letterSpacing: '0.3em', color: '#c9a84c', margin: 0 }}>
-        {character?.name}
-      </h2>
-      <p style={{ fontSize: '12px', letterSpacing: '0.15em', color: '#3a2a18', margin: 0 }}>
-        La pantalla de muerte está en construcción...
-      </p>
-      <button
-        onClick={() => setScreen('ancestors')}
-        style={{
-          marginTop: '24px',
-          padding: '10px 28px',
-          border: '1px solid rgba(201,168,76,0.3)',
-          background: 'rgba(201,168,76,0.06)',
-          color: '#c9a84c',
-          borderRadius: '6px',
-          cursor: 'pointer',
-          fontFamily: "'Cinzel', serif",
-          fontSize: '11px',
-          letterSpacing: '0.15em',
+  if (screen === 'death' && character) {
+    return (
+      <DeathScreen
+        character={character}
+        onRestart={() => {
+          setCharacter(null);
+          setAncestorIds([]);
+          setScreen('ancestors');
         }}
-      >
-        ← Nueva Partida
-      </button>
-    </div>
-  );
+      />
+    );
+  }
+
+  return null;
 }
 
 export default App;

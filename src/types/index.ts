@@ -39,6 +39,7 @@ export type NarrativeFlags = Record<string, boolean | string | number>;
 export interface Character {
   name: string;
   gender: 'hombre' | 'mujer';
+  birthYear: number;
   ancestorIds: string[];
   stats: CharacterStats;
   flags: NarrativeFlags;

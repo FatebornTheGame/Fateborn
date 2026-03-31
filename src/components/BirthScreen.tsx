@@ -542,7 +542,7 @@ export default function BirthScreen({
         {/* ── CTA button ─────────────────────────────────────────────────── */}
         <button
           className="fade-up"
-          onClick={() => canConfirm && gender && onConfirm({ name: name.trim(), gender, stats: stats as unknown as import('../types').CharacterStats, ancestorIds, flags: {} })}
+          onClick={() => canConfirm && gender && onConfirm({ name: name.trim(), gender, birthYear: 1943 + Math.floor(Math.random() * 21), stats: stats as unknown as import('../types').CharacterStats, ancestorIds, flags: {} })}
           disabled={!canConfirm}
           style={{
             animationDelay: '1.9s',
