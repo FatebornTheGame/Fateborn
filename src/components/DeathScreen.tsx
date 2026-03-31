@@ -344,6 +344,7 @@ export default function DeathScreen({
   const [revealed,   setRevealed]   = useState(false);
   const [barsActive, setBarsActive] = useState(false);
   const [showDynasty, setShowDynasty] = useState(false);
+  const [showCredits, setShowCredits] = useState(false);
 
   useEffect(() => {
     const t1 = setTimeout(() => setRevealed(true), 300);
@@ -631,6 +632,37 @@ export default function DeathScreen({
             Nueva Vida
           </button>
 
+          {/* Créditos */}
+          <button
+            onClick={() => setShowCredits(true)}
+            style={{
+              padding: '16px 28px',
+              borderRadius: '7px',
+              border: '1px solid rgba(201,168,76,0.2)',
+              background: 'transparent',
+              color: 'rgba(201,168,76,0.35)',
+              fontSize: '11px',
+              fontWeight: 600,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+              fontFamily: "'Cinzel', serif",
+              transition: 'all 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              const b = e.currentTarget as HTMLButtonElement;
+              b.style.color = 'rgba(201,168,76,0.65)';
+              b.style.borderColor = 'rgba(201,168,76,0.4)';
+            }}
+            onMouseLeave={(e) => {
+              const b = e.currentTarget as HTMLButtonElement;
+              b.style.color = 'rgba(201,168,76,0.35)';
+              b.style.borderColor = 'rgba(201,168,76,0.2)';
+            }}
+          >
+            Créditos
+          </button>
+
           {/* Continuar con tu descendiente */}
           <button
             onClick={() => setShowDynasty(true)}
@@ -673,5 +705,118 @@ export default function DeathScreen({
 
       </div>
     </div>
+
+    {/* ── Modal de créditos ── */}
+    {showCredits && (
+      <div
+        onClick={() => setShowCredits(false)}
+        style={{
+          position:        'fixed',
+          inset:           0,
+          backgroundColor: 'rgba(0,0,0,0.88)',
+          zIndex:          20000,
+          display:         'flex',
+          alignItems:      'center',
+          justifyContent:  'center',
+          padding:         '2rem',
+        }}
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            background:   '#100e0b',
+            border:       '1px solid rgba(201,168,76,0.25)',
+            borderRadius: '10px',
+            padding:      'clamp(2rem, 5vw, 3.5rem)',
+            maxWidth:     '540px',
+            width:        '100%',
+            textAlign:    'center',
+          }}
+        >
+          <div style={{
+            fontFamily:    '"Cinzel", serif',
+            fontSize:      '11px',
+            letterSpacing: '0.3em',
+            color:         'rgba(201,168,76,0.45)',
+            marginBottom:  '2rem',
+            textTransform: 'uppercase',
+          }}>
+            Créditos
+          </div>
+
+          <div style={{
+            fontFamily:   '"Cinzel", serif',
+            fontSize:     'clamp(1.1rem, 3vw, 1.5rem)',
+            color:        GOLD,
+            marginBottom: '0.4rem',
+            letterSpacing: '0.05em',
+          }}>
+            Serat
+          </div>
+          <div style={{
+            fontFamily:    'sans-serif',
+            fontSize:      '13px',
+            color:         'rgba(201,168,76,0.55)',
+            marginBottom:  '0.25rem',
+            letterSpacing: '0.02em',
+          }}>
+            Piano Textures
+          </div>
+          <div style={{
+            fontFamily:    'sans-serif',
+            fontSize:      '11px',
+            color:         'rgba(201,168,76,0.35)',
+            marginBottom:  '2rem',
+            letterSpacing: '0.02em',
+          }}>
+            Licencia Creative Commons Attribution (CC BY)<br />
+            freemusicarchive.org
+          </div>
+
+          <div style={{
+            borderTop:    '1px solid rgba(201,168,76,0.1)',
+            paddingTop:   '1.5rem',
+            fontFamily:   '"Cinzel", serif',
+            fontSize:     '10px',
+            letterSpacing: '0.1em',
+            color:         'rgba(201,168,76,0.25)',
+            lineHeight:    1.8,
+          }}>
+            FATEBORN · Juego narrativo<br />
+            Diseño y desarrollo: fatebornthegame
+          </div>
+
+          <button
+            onClick={() => setShowCredits(false)}
+            style={{
+              marginTop:     '2rem',
+              padding:       '10px 32px',
+              borderRadius:  '6px',
+              border:        '1px solid rgba(201,168,76,0.25)',
+              background:    'transparent',
+              color:         'rgba(201,168,76,0.45)',
+              fontSize:      '10px',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              cursor:        'pointer',
+              fontFamily:    "'Cinzel', serif",
+              transition:    'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              const b = e.currentTarget as HTMLButtonElement;
+              b.style.color = 'rgba(201,168,76,0.75)';
+              b.style.borderColor = 'rgba(201,168,76,0.45)';
+            }}
+            onMouseLeave={(e) => {
+              const b = e.currentTarget as HTMLButtonElement;
+              b.style.color = 'rgba(201,168,76,0.45)';
+              b.style.borderColor = 'rgba(201,168,76,0.25)';
+            }}
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    )}
   );
 }

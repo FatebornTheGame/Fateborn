@@ -16,7 +16,7 @@ type Screen =
   | 'ancestors' | 'birth' | 'childhood' | 'adolescence'
   | 'youth' | 'adulthood' | 'maturity' | 'oldage' | 'death';
 
-// ─── Títulos de etapa vital (aparecen en pantalla negra durante 1.5 s) ─────
+// ─── Títulos de etapa vital ────────────────────────────────────────────────
 const STAGE_TITLES: Partial<Record<Screen, { name: string; years: string }>> = {
   childhood:   { name: 'INFANCIA',     years: '0 — 12 AÑOS'  },
   adolescence: { name: 'ADOLESCENCIA', years: '13 — 18 AÑOS' },
@@ -26,9 +26,11 @@ const STAGE_TITLES: Partial<Record<Screen, { name: string; years: string }>> = {
   oldage:      { name: 'VEJEZ',        years: '71+ AÑOS'     },
 };
 
-const FADE_MS        = 800;
-const DEATH_FADE_MS  = 2000;
-const STAGE_HOLD_MS  = 1500;
+const FADE_MS       = 800;
+const DEATH_FADE_MS = 2000;
+const STAGE_HOLD_MS = 1500;
+// Tiempo máximo que puede durar una transición completa antes del safety reset
+const SAFETY_MS     = 6000;
 
 // ─── App ──────────────────────────────────────────────────────────────────
 function App() {
@@ -39,57 +41,75 @@ function App() {
   const toggleMute = () => setMuted(audioManager.toggleMute());
 
   // Transición
-  const [overlayOpaque, setOverlayOpaque]       = useState(false);
-  const [fadeDuration, setFadeDuration]         = useState(FADE_MS);
-  const [stageTitle, setStageTitle]             = useState<{ name: string; years: string } | null>(null);
-  const [transitioning, setTransitioning]       = useState(false);
-  const pendingScreenRef = useRef<Screen | null>(null);
-  const timerRef         = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [overlayOpaque, setOverlayOpaque] = useState(false);
+  const [fadeDuration,  setFadeDuration]  = useState(FADE_MS);
+  const [stageTitle, setStageTitle]       = useState<{ name: string; years: string } | null>(null);
+  const [transitioning, setTransitioning] = useState(false);
 
-  const clearTimer = () => {
-    if (timerRef.current !== null) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
+  const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const safetyRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearTimers = () => {
+    if (timerRef.current  !== null) { clearTimeout(timerRef.current);  timerRef.current  = null; }
+    if (safetyRef.current !== null) { clearTimeout(safetyRef.current); safetyRef.current = null; }
   };
 
+  /** Fuerza el fin de cualquier transición atascada */
+  const forceTransitionEnd = useCallback(() => {
+    if (timerRef.current !== null) { clearTimeout(timerRef.current); timerRef.current = null; }
+    setStageTitle(null);
+    setOverlayOpaque(false);
+    setTransitioning(false);
+  }, []);
+
   const navigateTo = useCallback((next: Screen) => {
-    clearTimer();
+    clearTimers();
     const isDeath  = next === 'death';
     const fadeMs   = isDeath ? DEATH_FADE_MS : FADE_MS;
     const hasTitle = next in STAGE_TITLES;
 
-    pendingScreenRef.current = next;
-    setFadeDuration(fadeMs);
     setTransitioning(true);
-    setOverlayOpaque(true); // → fade a negro
 
-    timerRef.current = setTimeout(() => {
-      // Pantalla completamente negra: cambiamos la pantalla (y la música)
-      window.scrollTo(0, 0);
-      setScreen(next);
+    // Safety: si algo falla y la pantalla se queda en negro, forzar fin
+    safetyRef.current = setTimeout(forceTransitionEnd, SAFETY_MS);
 
-      if (hasTitle && !isDeath) {
-        // Mostrar título de etapa durante STAGE_HOLD_MS
-        setStageTitle(STAGE_TITLES[next]!);
-
-        timerRef.current = setTimeout(() => {
-          setStageTitle(null);
-          setOverlayOpaque(false); // → fade desde negro
-
-          timerRef.current = setTimeout(() => {
-            setTransitioning(false);
-          }, FADE_MS);
-        }, STAGE_HOLD_MS);
-      } else {
-        setOverlayOpaque(false); // → fade desde negro
+    // Primero aplicar fadeDuration y solo en el siguiente frame cambiar opacity.
+    // Esto evita que el navegador ignore la CSS transition cuando ambas propiedades
+    // cambian en el mismo render (bug específico en transición a muerte con 2000ms).
+    setFadeDuration(fadeMs);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setOverlayOpaque(true); // → fade a negro
 
         timerRef.current = setTimeout(() => {
-          setTransitioning(false);
+          // Pantalla completamente negra
+          window.scrollTo(0, 0);
+          setScreen(next);
+
+          if (hasTitle && !isDeath) {
+            setStageTitle(STAGE_TITLES[next]!);
+
+            timerRef.current = setTimeout(() => {
+              setStageTitle(null);
+              setOverlayOpaque(false); // → fade desde negro
+
+              timerRef.current = setTimeout(() => {
+                clearTimers();
+                setTransitioning(false);
+              }, FADE_MS);
+            }, STAGE_HOLD_MS);
+          } else {
+            setOverlayOpaque(false); // → fade desde negro
+
+            timerRef.current = setTimeout(() => {
+              clearTimers();
+              setTransitioning(false);
+            }, fadeMs);
+          }
         }, fadeMs);
-      }
-    }, fadeMs);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+      });
+    });
+  }, [forceTransitionEnd]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Handlers ─────────────────────────────────────────────────────────
   const handleAncestorsConfirmed = (ids: string[]) => {
@@ -168,18 +188,18 @@ function App() {
       {/* ── Overlay de transición cinematográfica ── */}
       <div
         style={{
-          position:       'fixed',
-          inset:          0,
+          position:        'fixed',
+          inset:           0,
           backgroundColor: '#000',
-          opacity:        overlayOpaque ? 1 : 0,
-          transition:     `opacity ${fadeDuration}ms ease`,
-          pointerEvents:  transitioning ? 'all' : 'none',
-          zIndex:         10000,
-          display:        'flex',
-          flexDirection:  'column',
-          alignItems:     'center',
-          justifyContent: 'center',
-          gap:            '1rem',
+          opacity:         overlayOpaque ? 1 : 0,
+          transition:      `opacity ${fadeDuration}ms ease`,
+          pointerEvents:   transitioning ? 'all' : 'none',
+          zIndex:          10000,
+          display:         'flex',
+          flexDirection:   'column',
+          alignItems:      'center',
+          justifyContent:  'center',
+          gap:             '1rem',
         }}
       >
         {stageTitle && (
@@ -252,6 +272,23 @@ function App() {
           </svg>
         )}
       </button>
+
+      {/* ── Crédito de música (licencia CC BY) — discreto, esquina inferior izquierda ── */}
+      <div style={{
+        position:   'fixed',
+        bottom:     '12px',
+        left:       '16px',
+        zIndex:     9998,
+        fontFamily: 'sans-serif',
+        fontSize:   '9px',
+        letterSpacing: '0.04em',
+        color:      'rgba(201,168,76,0.22)',
+        pointerEvents: 'none',
+        lineHeight: 1.4,
+        userSelect: 'none',
+      }}>
+        Música: Serat — Piano Textures (CC BY) · freemusicarchive.org
+      </div>
     </>
   );
 }
