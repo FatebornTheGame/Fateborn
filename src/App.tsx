@@ -1,22 +1,29 @@
 import { useState } from 'react';
 import './App.css';
 import GrandparentSelection from './components/GrandparentSelection';
-import BirthScreen, { type CharacterData } from './components/BirthScreen';
+import BirthScreen from './components/BirthScreen';
+import ChildhoodScreen from './components/ChildhoodScreen';
+import type { Character } from './types';
 
-type Screen = 'ancestors' | 'birth' | 'game';
+type Screen = 'ancestors' | 'birth' | 'childhood' | 'game';
 
 function App() {
   const [screen, setScreen]       = useState<Screen>('ancestors');
   const [ancestorIds, setAncestorIds] = useState<string[]>([]);
-  const [character, setCharacter]   = useState<CharacterData | null>(null);
+  const [character, setCharacter] = useState<Character | null>(null);
 
   const handleAncestorsConfirmed = (ids: string[]) => {
     setAncestorIds(ids);
     setScreen('birth');
   };
 
-  const handleBirthConfirmed = (data: CharacterData) => {
-    setCharacter(data);
+  const handleBirthConfirmed = (char: Character) => {
+    setCharacter(char);
+    setScreen('childhood');
+  };
+
+  const handleChildhoodComplete = (updated: Character) => {
+    setCharacter(updated);
     setScreen('game');
   };
 
@@ -33,7 +40,16 @@ function App() {
     );
   }
 
-  // Placeholder pantalla de juego
+  if (screen === 'childhood' && character) {
+    return (
+      <ChildhoodScreen
+        character={character}
+        onComplete={handleChildhoodComplete}
+      />
+    );
+  }
+
+  // Placeholder — Adolescencia en construcción
   return (
     <div style={{
       minHeight: '100vh',
@@ -57,7 +73,7 @@ function App() {
         {character?.name}
       </h2>
       <p style={{ fontSize: '12px', letterSpacing: '0.15em', color: '#3a2a18', margin: 0 }}>
-        El mundo aún está en construcción...
+        La adolescencia está en construcción...
       </p>
       <button
         onClick={() => setScreen('ancestors')}

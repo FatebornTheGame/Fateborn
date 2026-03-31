@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { archetypes } from '../data/archetypes';
+import type { Character } from '../types';
 
 // ─── Brand colors ──────────────────────────────────────────────────────────────
 const GOLD       = '#c9a84c';
@@ -233,18 +234,12 @@ function StatGroup({
 
 // ─── Main screen ───────────────────────────────────────────────────────────────
 
-export interface CharacterData {
-  name: string;
-  stats: Record<string, number>;
-  ancestorIds: string[];
-}
-
 export default function BirthScreen({
   ancestorIds,
   onConfirm,
 }: {
   ancestorIds: string[];
-  onConfirm: (data: CharacterData) => void;
+  onConfirm: (character: Character) => void;
 }) {
   const [name, setName] = useState('');
   const [barsActive, setBarsActive] = useState(false);
@@ -486,7 +481,7 @@ export default function BirthScreen({
         {/* ── CTA button ─────────────────────────────────────────────────── */}
         <button
           className="fade-up"
-          onClick={() => canConfirm && onConfirm({ name: name.trim(), stats, ancestorIds })}
+          onClick={() => canConfirm && onConfirm({ name: name.trim(), stats: stats as unknown as import('../types').CharacterStats, ancestorIds, flags: {} })}
           disabled={!canConfirm}
           style={{
             animationDelay: '1.9s',
