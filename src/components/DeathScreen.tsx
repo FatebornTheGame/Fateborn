@@ -340,7 +340,7 @@ export default function DeathScreen({
   character: Character;
   onRestart: () => void;
 }) {
-  useTrack('/music/cast-vejez.mp3');
+  useTrack('/music/dark-decision.mp3');
   const [revealed,   setRevealed]   = useState(false);
   const [barsActive, setBarsActive] = useState(false);
   const [showDynasty, setShowDynasty] = useState(false);
