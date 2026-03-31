@@ -3,9 +3,10 @@ import './App.css';
 import GrandparentSelection from './components/GrandparentSelection';
 import BirthScreen from './components/BirthScreen';
 import ChildhoodScreen from './components/ChildhoodScreen';
+import AdolescenceScreen from './components/AdolescenceScreen';
 import type { Character } from './types';
 
-type Screen = 'ancestors' | 'birth' | 'childhood' | 'game';
+type Screen = 'ancestors' | 'birth' | 'childhood' | 'adolescence' | 'game';
 
 function App() {
   const [screen, setScreen]       = useState<Screen>('ancestors');
@@ -23,6 +24,11 @@ function App() {
   };
 
   const handleChildhoodComplete = (updated: Character) => {
+    setCharacter(updated);
+    setScreen('adolescence');
+  };
+
+  const handleAdolescenceComplete = (updated: Character) => {
     setCharacter(updated);
     setScreen('game');
   };
@@ -49,7 +55,16 @@ function App() {
     );
   }
 
-  // Placeholder — Adolescencia en construcción
+  if (screen === 'adolescence' && character) {
+    return (
+      <AdolescenceScreen
+        character={character}
+        onComplete={handleAdolescenceComplete}
+      />
+    );
+  }
+
+  // Placeholder — Juventud en construcción
   return (
     <div style={{
       minHeight: '100vh',
@@ -73,7 +88,7 @@ function App() {
         {character?.name}
       </h2>
       <p style={{ fontSize: '12px', letterSpacing: '0.15em', color: '#3a2a18', margin: 0 }}>
-        La adolescencia está en construcción...
+        La juventud está en construcción...
       </p>
       <button
         onClick={() => setScreen('ancestors')}
