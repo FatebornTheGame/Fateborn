@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTrack } from '../hooks/useTrack';
 import { archetypes } from '../data/archetypes';
 import type { Archetype } from '../types';
 
@@ -307,6 +308,7 @@ export default function GrandparentSelection({
 }: {
   onConfirm: (selected: string[]) => void;
 }) {
+  useTrack('/music/opening.mp3');
   // Array de hasta 4 archetypeIds — pueden repetirse
   const [selected, setSelected] = useState<string[]>([]);
 

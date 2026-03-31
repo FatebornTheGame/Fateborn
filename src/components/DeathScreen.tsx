@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useTrack } from '../hooks/useTrack';
 import type { Character, CharacterStats, NarrativeFlags } from '../types';
 
 // ─── Brand colors ──────────────────────────────────────────────────────────────
@@ -339,6 +340,7 @@ export default function DeathScreen({
   character: Character;
   onRestart: () => void;
 }) {
+  useTrack('/music/cast-vejez.mp3');
   const [revealed,   setRevealed]   = useState(false);
   const [barsActive, setBarsActive] = useState(false);
   const [showDynasty, setShowDynasty] = useState(false);

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTrack } from '../hooks/useTrack';
 import { OLD_AGE_EVENTS, type EventOption } from '../data/oldAgeEvents';
 import type { Character, CharacterStats } from '../types';
 
@@ -304,6 +305,7 @@ export default function OldAgeScreen({
   character: Character;
   onComplete: (updated: Character) => void;
 }) {
+  useTrack('/music/cast-vejez.mp3');
   const [currentEvent, setCurrentEvent] = useState(0);
   const [currentCharacter, setCurrentCharacter] = useState<Character>(character);
   const [allDone, setAllDone] = useState(false);

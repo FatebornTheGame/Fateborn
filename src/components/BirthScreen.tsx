@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useTrack } from '../hooks/useTrack';
 import { archetypes } from '../data/archetypes';
 import type { Character } from '../types';
 
@@ -241,6 +242,7 @@ export default function BirthScreen({
   ancestorIds: string[];
   onConfirm: (character: Character) => void;
 }) {
+  useTrack('/music/opening.mp3');
   const [name, setName] = useState('');
   const [gender, setGender] = useState<'hombre' | 'mujer' | null>(null);
   const [barsActive, setBarsActive] = useState(false);

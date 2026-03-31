@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTrack } from '../hooks/useTrack';
 import { YOUTH_EVENTS, type EventOption } from '../data/youthEvents';
 import type { Character, CharacterStats } from '../types';
 
@@ -264,6 +265,7 @@ export default function YouthScreen({
   character: Character;
   onComplete: (updated: Character) => void;
 }) {
+  useTrack('/music/viewpoint.mp3');
   const [currentEvent, setCurrentEvent] = useState(0);
   const [currentCharacter, setCurrentCharacter] = useState<Character>(character);
   const [completedChoices, setCompletedChoices] = useState<EventOption[]>([]);

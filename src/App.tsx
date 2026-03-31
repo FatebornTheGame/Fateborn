@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import './App.css';
 import GrandparentSelection from './components/GrandparentSelection';
 import BirthScreen from './components/BirthScreen';
@@ -10,20 +10,7 @@ import MaturityScreen from './components/MaturityScreen';
 import OldAgeScreen from './components/OldAgeScreen';
 import DeathScreen from './components/DeathScreen';
 import type { Character } from './types';
-import { useAmbientMusic, FADE_MS_SLOW } from './hooks/useAmbientMusic';
-
-// ─── Música por pantalla ───────────────────────────────────────────────────
-const TRACK: Record<string, string | null> = {
-  ancestors:   '/music/opening.mp3',
-  birth:       '/music/opening.mp3',
-  childhood:   '/music/young-filmmaker.mp3',
-  adolescence: '/music/timelapse.mp3',
-  youth:       '/music/viewpoint.mp3',
-  adulthood:   '/music/dark-decision.mp3',
-  maturity:    '/music/old-chantry.mp3',
-  oldage:      '/music/cast-vejez.mp3',
-  death:       '/music/cast-vejez.mp3',
-};
+import { audioManager } from './utils/audioManager';
 
 type Screen =
   | 'ancestors' | 'birth' | 'childhood' | 'adolescence'
@@ -48,7 +35,8 @@ function App() {
   const [screen, setScreen]           = useState<Screen>('ancestors');
   const [ancestorIds, setAncestorIds] = useState<string[]>([]);
   const [character, setCharacter]     = useState<Character | null>(null);
-  const { play, muted, toggleMute }   = useAmbientMusic();
+  const [muted, setMuted]             = useState(audioManager.muted);
+  const toggleMute = () => setMuted(audioManager.toggleMute());
 
   // Transición
   const [overlayOpaque, setOverlayOpaque]       = useState(false);
@@ -100,22 +88,6 @@ function App() {
         }, fadeMs);
       }
     }, fadeMs);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Música al cambiar de pantalla
-  useEffect(() => {
-    play(TRACK[screen] ?? null, screen === 'death' ? FADE_MS_SLOW : undefined);
-  }, [screen]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Retry autoplay en primera interacción del usuario
-  useEffect(() => {
-    const retry = () => { play(TRACK[screen] ?? null); };
-    window.addEventListener('pointerdown', retry, { once: true });
-    window.addEventListener('keydown',     retry, { once: true });
-    return () => {
-      window.removeEventListener('pointerdown', retry);
-      window.removeEventListener('keydown',     retry);
-    };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Handlers ─────────────────────────────────────────────────────────
