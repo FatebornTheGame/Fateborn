@@ -66,6 +66,7 @@ function App() {
 
     timerRef.current = setTimeout(() => {
       // Pantalla completamente negra: cambiamos la pantalla (y la música)
+      window.scrollTo(0, 0);
       setScreen(next);
 
       if (hasTitle && !isDeath) {
