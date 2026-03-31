@@ -242,7 +242,7 @@ export default function BirthScreen({
   ancestorIds: string[];
   onConfirm: (character: Character) => void;
 }) {
-  useTrack('/music/opening.mp3');
+  useTrack('/music/trails.mp3');
   const [name, setName] = useState('');
   const [gender, setGender] = useState<'hombre' | 'mujer' | null>(null);
   const [barsActive, setBarsActive] = useState(false);
