@@ -365,6 +365,7 @@ export default function DeathScreen({
   const deathYear  = character.birthYear + 81;
 
   return (
+    <>
     <div
       className="leather-bg"
       style={{
@@ -818,5 +819,6 @@ export default function DeathScreen({
         </div>
       </div>
     )}
+    </>
   );
 }
