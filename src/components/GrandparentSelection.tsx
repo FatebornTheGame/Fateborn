@@ -267,7 +267,7 @@ function AncestorSlot({ index, archetype }: { index: number; archetype?: Archety
         textTransform: 'uppercase',
         fontWeight: 700,
       }}>
-        Abuelo {index + 1}
+        {index < 2 ? `Abuelo ${index + 1}` : `Abuela ${index - 1}`}
       </span>
       {filled ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
