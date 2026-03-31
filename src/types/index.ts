@@ -38,6 +38,7 @@ export type NarrativeFlags = Record<string, boolean | string | number>;
 // Estado completo del personaje
 export interface Character {
   name: string;
+  gender: 'hombre' | 'mujer';
   ancestorIds: string[];
   stats: CharacterStats;
   flags: NarrativeFlags;

@@ -242,6 +242,7 @@ export default function BirthScreen({
   onConfirm: (character: Character) => void;
 }) {
   const [name, setName] = useState('');
+  const [gender, setGender] = useState<'hombre' | 'mujer' | null>(null);
   const [barsActive, setBarsActive] = useState(false);
 
   // Computed once on mount
@@ -253,7 +254,7 @@ export default function BirthScreen({
     return () => clearTimeout(t);
   }, []);
 
-  const canConfirm = name.trim().length >= 2;
+  const canConfirm = name.trim().length >= 2 && gender !== null;
 
   return (
     <div
@@ -326,6 +327,66 @@ export default function BirthScreen({
               {line}
             </p>
           ))}
+        </div>
+
+        {/* ── Gender selector ────────────────────────────────────────────── */}
+        <div
+          className="fade-up"
+          style={{ animationDelay: '1.4s', width: '100%', maxWidth: '440px', marginBottom: '32px' }}
+        >
+          <label className="cinzel" style={{
+            display: 'block',
+            textAlign: 'center',
+            fontSize: '10px',
+            letterSpacing: '0.3em',
+            textTransform: 'uppercase',
+            color: '#5a4a2e',
+            marginBottom: '14px',
+          }}>
+            Tu género
+          </label>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            {(['hombre', 'mujer'] as const).map((g) => {
+              const selected = gender === g;
+              return (
+                <button
+                  key={g}
+                  onClick={() => setGender(g)}
+                  style={{
+                    flex: 1,
+                    padding: '14px 0',
+                    borderRadius: '7px',
+                    border: `1px solid ${selected ? 'rgba(201,168,76,0.6)' : 'rgba(255,255,255,0.07)'}`,
+                    background: selected ? 'rgba(201,168,76,0.1)' : 'rgba(0,0,0,0.3)',
+                    color: selected ? GOLD_LIGHT : '#5a4530',
+                    fontFamily: "'Cinzel', serif",
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    letterSpacing: '0.25em',
+                    textTransform: 'uppercase',
+                    cursor: 'pointer',
+                    transition: 'all 0.25s ease',
+                    boxShadow: selected ? '0 0 20px rgba(201,168,76,0.15)' : 'none',
+                    backdropFilter: 'blur(6px)',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!selected) {
+                      (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(201,168,76,0.3)';
+                      (e.currentTarget as HTMLButtonElement).style.color = '#c8b080';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!selected) {
+                      (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.07)';
+                      (e.currentTarget as HTMLButtonElement).style.color = '#5a4530';
+                    }
+                  }}
+                >
+                  {g === 'hombre' ? 'Hombre' : 'Mujer'}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* ── Name input ─────────────────────────────────────────────────── */}
@@ -481,7 +542,7 @@ export default function BirthScreen({
         {/* ── CTA button ─────────────────────────────────────────────────── */}
         <button
           className="fade-up"
-          onClick={() => canConfirm && onConfirm({ name: name.trim(), stats: stats as unknown as import('../types').CharacterStats, ancestorIds, flags: {} })}
+          onClick={() => canConfirm && gender && onConfirm({ name: name.trim(), gender, stats: stats as unknown as import('../types').CharacterStats, ancestorIds, flags: {} })}
           disabled={!canConfirm}
           style={{
             animationDelay: '1.9s',

@@ -12,7 +12,7 @@ export interface LifeEvent {
   id: string;
   age: number;
   title: string;
-  narrative: string;
+  getNarrative: (character: Character) => string;
   getOptions: (character: Character) => EventOption[];
 }
 
@@ -40,100 +40,122 @@ export const ADOLESCENCE_EVENTS: LifeEvent[] = [
     id: 'primer_amor',
     age: 13,
     title: 'El primer amor',
-    narrative: 'Hay alguien. No sabes exactamente cuándo empezó, pero ahora no puedes dejar de pensar en esa persona. Te pone nervioso de una forma que no habías sentido antes. Tienes que hacer algo.',
-    getOptions: () => [
-      {
-        id: 'amor_confesion',
-        text: 'Te lanzas y le dices lo que sientes. No sabes lo que va a pasar, pero no puedes callarlo más.',
-        consequence: 'Hay un momento de silencio que se hace eterno. Luego, pase lo que pase, algo en ti se asienta.',
-        statDeltas: { carisma: 1, riesgo: 0.5 },
-        flag: { key: 'primer_amor', value: 'confesion' },
-      },
-      {
-        id: 'amor_distancia',
-        text: 'Te quedas callado. Lo observas desde lejos y aprendes a convivir con ese peso.',
-        consequence: 'Guardas ese sentimiento tan dentro que se convierte en parte de ti sin que nadie lo sepa.',
-        statDeltas: { emocional: 1, estabilidad: 0.5 },
-        flag: { key: 'primer_amor', value: 'distancia' },
-      },
-      {
-        id: 'amor_amistad',
-        text: 'Te acercas despacio. Primero la amistad. Luego ya verás.',
-        consequence: 'Aprendes que hay formas de querer que no necesitan nombre para ser reales.',
-        statDeltas: { emocional: 0.5, carisma: 1 },
-        flag: { key: 'primer_amor', value: 'amistad' },
-      },
-    ],
+    getNarrative: () =>
+      'Hay alguien. No sabes exactamente cuándo empezó, pero ahora no puedes dejar de pensar en esa persona. Te pone nervioso de una forma que no habías sentido antes. Tienes que hacer algo.',
+    getOptions: (character) => {
+      const m = character.gender === 'hombre';
+      return [
+        {
+          id: 'amor_confesion',
+          text: 'Te lanzas y le dices lo que sientes. No sabes lo que va a pasar, pero no puedes callarlo más.',
+          consequence: `Hay un momento de silencio que se hace eterno. Luego, pase lo que pase, algo en ti se asienta.`,
+          statDeltas: { carisma: 1, riesgo: 0.5 },
+          flag: { key: 'primer_amor', value: 'confesion' },
+        },
+        {
+          id: 'amor_distancia',
+          text: `Te quedas ${m ? 'callado' : 'callada'}. ${m ? 'Lo' : 'La'} observas desde lejos y aprendes a convivir con ese peso.`,
+          consequence: `Guardas ese sentimiento tan dentro que se convierte en parte de ti sin que nadie lo sepa.`,
+          statDeltas: { emocional: 1, estabilidad: 0.5 },
+          flag: { key: 'primer_amor', value: 'distancia' },
+        },
+        {
+          id: 'amor_amistad',
+          text: `Te acercas despacio. Primero la amistad. Luego ya verás.`,
+          consequence: `Aprendes que hay formas de querer que no necesitan nombre para ser reales.`,
+          statDeltas: { emocional: 0.5, carisma: 1 },
+          flag: { key: 'primer_amor', value: 'amistad' },
+        },
+      ];
+    },
   },
   {
     id: 'tension_familiar',
     age: 14,
     title: 'La decisión',
-    narrative: 'Las discusiones en casa son cada vez más frecuentes. El ambiente es denso, pesado. Hay noches en que el silencio duele más que los gritos. Llevas semanas buscando cómo sobrevivir a esto.',
-    getOptions: () => [
-      {
-        id: 'decision_evasion',
-        text: 'Te encierras en tu habitación. Música alta, puerta cerrada. No escuchas si no oyes.',
-        consequence: 'Construyes un refugio interior que nadie puede tocar. Es tuyo y de nadie más.',
-        statDeltas: { estabilidad: 1, emocional: -0.5 },
-        flag: { key: 'hogar_adolescencia', value: 'evasion' },
-      },
-      {
-        id: 'decision_mediador',
-        text: 'Intentas mediar. Poner palabras donde solo hay reproches.',
-        consequence: 'Aprendes que las personas que más quieres pueden decepcionarte, y sigues queriéndolas igual.',
-        statDeltas: { emocional: 1, carisma: 0.5 },
-        flag: { key: 'hogar_adolescencia', value: 'mediador' },
-      },
-      {
-        id: 'decision_exterior',
-        text: 'Pasas el tiempo fuera de casa. Con amigos, en la calle, en cualquier sitio menos ahí.',
-        consequence: 'El mundo exterior se vuelve más familiar que tu propia casa. No sabes si eso te salvó o te perdió.',
-        statDeltas: { riesgo: 0.5, disciplina: 0.5 },
-        flag: { key: 'hogar_adolescencia', value: 'exterior' },
-      },
-    ],
+    getNarrative: () =>
+      'Las discusiones en casa son cada vez más frecuentes. El ambiente es denso, pesado. Hay noches en que el silencio duele más que los gritos. Llevas semanas buscando cómo sobrevivir a esto.',
+    getOptions: (character) => {
+      const m = character.gender === 'hombre';
+      return [
+        {
+          id: 'decision_evasion',
+          text: 'Te encierras en tu habitación. Música alta, puerta cerrada. No escuchas si no oyes.',
+          consequence: `Construyes un refugio interior que nadie puede tocar. Es tuyo y de nadie más.`,
+          statDeltas: { estabilidad: 1, emocional: -0.5 },
+          flag: { key: 'hogar_adolescencia', value: 'evasion' },
+        },
+        {
+          id: 'decision_mediador',
+          text: 'Intentas mediar. Poner palabras donde solo hay reproches.',
+          consequence: `Aprendes que las personas que más quieres pueden decepcionarte, y sigues queriéndolas igual.`,
+          statDeltas: { emocional: 1, carisma: 0.5 },
+          flag: { key: 'hogar_adolescencia', value: 'mediador' },
+        },
+        {
+          id: 'decision_exterior',
+          text: 'Pasas el tiempo fuera de casa. Con amigos, en la calle, en cualquier sitio menos ahí.',
+          consequence: `El mundo exterior se vuelve más familiar que tu propia casa. No sabes si eso te salvó o te ${m ? 'perdió' : 'perdió'}.`,
+          statDeltas: { riesgo: 0.5, disciplina: 0.5 },
+          flag: { key: 'hogar_adolescencia', value: 'exterior' },
+        },
+      ];
+    },
   },
   {
     id: 'tentacion',
     age: 16,
     title: 'La tentación',
-    narrative: 'Estás en una fiesta. La música está alta, las luces bajas. Alguien que apenas conoces te ofrece algo con una sonrisa que da a entender que todo el mundo lo hace. Todos te están mirando.',
-    getOptions: () => [
-      {
-        id: 'tentacion_rechazo',
-        text: 'Lo rechazas sin darle más vueltas. No es lo tuyo y no te importa lo que piensen.',
-        consequence: 'Hay un instante de silencio incómodo. Luego la noche sigue como si nada.',
-        statDeltas: { disciplina: 1, estabilidad: 0.5 },
-        flag: { key: 'tentacion', value: 'rechazo' },
-      },
-      {
-        id: 'tentacion_probar',
-        text: 'Lo pruebas. Solo una vez, te dices a ti mismo.',
-        consequence: 'Esa noche cambia algo. No sabes todavía si para bien o para mal.',
-        statDeltas: { riesgo: 1, emocional: 0.5 },
-        flag: { key: 'tentacion', value: 'probar' },
-      },
-      {
-        id: 'tentacion_fachada',
-        text: 'Finges que lo pruebas. Lo suficiente para no quedar fuera. No lo suficiente para que importe.',
-        consequence: 'Aprendes que a veces la mejor salida es la que nadie nota.',
-        statDeltas: { carisma: 1, disciplina: 0.5 },
-        flag: { key: 'tentacion', value: 'fachada' },
-      },
-    ],
+    getNarrative: () =>
+      'Estás en una fiesta. La música está alta, las luces bajas. Alguien que apenas conoces te ofrece algo con una sonrisa que da a entender que todo el mundo lo hace. Todos te están mirando.',
+    getOptions: (character) => {
+      const m = character.gender === 'hombre';
+      return [
+        {
+          id: 'tentacion_rechazo',
+          text: `Lo rechazas sin darle más vueltas. No es lo tuyo y no te importa lo que piensen.`,
+          consequence: `Hay un instante de silencio incómodo. Luego la noche sigue como si nada.`,
+          statDeltas: { disciplina: 1, estabilidad: 0.5 },
+          flag: { key: 'tentacion', value: 'rechazo' },
+        },
+        {
+          id: 'tentacion_probar',
+          text: `Lo pruebas. Solo una vez, te dices a ti ${m ? 'mismo' : 'misma'}.`,
+          consequence: `Esa noche cambia algo. No sabes todavía si para bien o para mal.`,
+          statDeltas: { riesgo: 1, emocional: 0.5 },
+          flag: { key: 'tentacion', value: 'probar' },
+        },
+        {
+          id: 'tentacion_fachada',
+          text: `Finges que lo pruebas. Lo suficiente para no quedar fuera. No lo suficiente para que importe.`,
+          consequence: `Aprendes que a veces la mejor salida es la que nadie nota.`,
+          statDeltas: { carisma: 1, disciplina: 0.5 },
+          flag: { key: 'tentacion', value: 'fachada' },
+        },
+      ];
+    },
   },
   {
     id: 'eleccion_futuro',
     age: 17,
     title: 'El futuro',
-    narrative: 'Todo el mundo a tu alrededor parece tenerlo claro. Tú también empiezas a sentirlo: hay algo dentro de ti que tira más fuerte que el resto. No es un plan todavía, pero es una dirección.',
+    getNarrative: (character) => {
+      const m = character.gender === 'hombre';
+      return `Todo el mundo a tu alrededor parece tenerlo claro. Tú también empiezas a sentirlo: hay algo dentro de ti que tira más fuerte que el resto. No es un plan todavía, pero es una dirección.`;
+    },
     getOptions: (character) => {
       const top = topStats(character.stats);
       const pool = Object.keys(FUTURE_OPTIONS) as (keyof CharacterStats)[];
       const rest = pool.filter((k) => !top.includes(k));
       const third = rest[Math.floor(Math.random() * rest.length)];
-      return [top[0], top[1], third].map((k) => FUTURE_OPTIONS[k]);
+      return [top[0], top[1], third].map((k) => {
+        const opt = { ...FUTURE_OPTIONS[k] };
+        // Gender agreement for "atado/atada"
+        if (k === 'riesgo' && character.gender === 'mujer') {
+          opt.text = 'No te imaginas atada a un escritorio. Quieres algo con movimiento, con riesgo.';
+        }
+        return opt;
+      });
     },
   },
 ];

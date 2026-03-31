@@ -3,7 +3,7 @@ import type { Character, CharacterStats } from '../types';
 export interface EventOption {
   id: string;
   text: string;
-  consequence: string;          // texto narrativo de consecuencia
+  consequence: string;
   statDeltas: Partial<CharacterStats>;
   flag?: { key: string; value: boolean | string | number };
 }
@@ -12,7 +12,7 @@ export interface LifeEvent {
   id: string;
   age: number;
   title: string;
-  narrative: string;
+  getNarrative: (character: Character) => string;
   getOptions: (character: Character) => EventOption[];
 }
 
@@ -41,7 +41,8 @@ export const CHILDHOOD_EVENTS: LifeEvent[] = [
     id: 'regalo_padre',
     age: 6,
     title: 'El regalo',
-    narrative: 'Tu padre llega a casa con algo envuelto en papel de periódico. Lo deja sobre la mesa y te mira esperando. Puedes elegir, dice. Solo uno.',
+    getNarrative: () =>
+      'Tu padre llega a casa con algo envuelto en papel de periódico. Lo deja sobre la mesa y te mira esperando. Puedes elegir, dice. Solo uno.',
     getOptions: () => [
       {
         id: 'libro',
@@ -70,7 +71,8 @@ export const CHILDHOOD_EVENTS: LifeEvent[] = [
     id: 'bully_colegio',
     age: 9,
     title: 'El conflicto',
-    narrative: 'Hay un compañero que hace tu vida imposible. Cada día encuentra una forma nueva de recordarte que eres diferente. Llevas semanas aguantando. Hoy decides hacer algo.',
+    getNarrative: () =>
+      'Hay un compañero que hace tu vida imposible. Cada día encuentra una forma nueva de recordarte que eres diferente. Llevas semanas aguantando. Hoy decides hacer algo.',
     getOptions: () => [
       {
         id: 'ignorar',
@@ -99,10 +101,10 @@ export const CHILDHOOD_EVENTS: LifeEvent[] = [
     id: 'primer_talento',
     age: 11,
     title: 'El talento',
-    narrative: 'Hay algo que haces diferente. No lo elegiste — simplemente apareció. Tus profesores lo notan, tus amigos también. Tú empiezas a darte cuenta de lo que eres.',
+    getNarrative: (character) =>
+      `Hay algo que ${character.gender === 'hombre' ? 'haces' : 'haces'} diferente. No lo elegiste — simplemente apareció. Tus profesores lo notan, tus amigos también. Tú empiezas a darte cuenta de lo que eres.`,
     getOptions: (character) => {
       const top = topStats(character.stats);
-      // Always show 3 options: top 2 stats + one random different one
       const pool = Object.keys(TALENT_OPTIONS) as (keyof CharacterStats)[];
       const rest = pool.filter((k) => !top.includes(k));
       const third = rest[Math.floor(Math.random() * rest.length)];

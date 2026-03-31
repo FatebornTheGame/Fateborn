@@ -211,7 +211,7 @@ function EventCard({
         fontStyle: 'italic',
         margin: '0 0 24px',
       }}>
-        {event.narrative}
+        {event.getNarrative(character)}
       </p>
 
       {/* Options */}

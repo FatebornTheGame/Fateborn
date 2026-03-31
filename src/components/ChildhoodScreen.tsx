@@ -143,6 +143,7 @@ function EventCard({
 }) {
   const [chosen, setChosen] = useState<EventOption | null>(null);
   const [visible, setVisible] = useState(false);
+  const [options] = useState(() => event.getOptions(character));
 
   useEffect(() => {
     if (isActive) {
@@ -151,10 +152,8 @@ function EventCard({
     }
   }, [isActive]);
 
-  const options = event.getOptions(character);
-
   const handleSelect = (option: EventOption) => {
-    if (chosen) return;
+    if (isDone) return;
     setChosen(option);
   };
 
@@ -218,7 +217,7 @@ function EventCard({
         marginBottom: '24px',
         margin: '0 0 24px',
       }}>
-        {event.narrative}
+        {event.getNarrative(character)}
       </p>
 
       {/* Options */}
@@ -228,7 +227,7 @@ function EventCard({
             key={opt.id}
             option={opt}
             selected={chosen?.id === opt.id}
-            revealed={!!chosen}
+            revealed={isDone}
             onSelect={() => handleSelect(opt)}
           />
         ))}
