@@ -14,7 +14,7 @@ import { useAmbientMusic, FADE_MS_SLOW } from './hooks/useAmbientMusic';
 
 const TRACK: Record<string, string | null> = {
   ancestors:   '/music/opening.mp3',
-  birth:       '/music/winter-quarters.mp3',
+  birth:       '/music/opening.mp3',
   childhood:   '/music/young-filmmaker.mp3',
   adolescence: '/music/timelapse.mp3',
   youth:       '/music/viewpoint.mp3',

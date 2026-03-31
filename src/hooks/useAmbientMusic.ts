@@ -46,6 +46,15 @@ export function useAmbientMusic() {
 
   // fadeMs controls the fade-in duration of the NEW track
   const play = useCallback((src: string | null, fadeMs = FADE_MS) => {
+    const prev = audioRef.current;
+
+    // Same track already playing → do nothing
+    if (src && prev && !prev.paused) {
+      const currentFile = prev.src.split('/').pop();
+      const newFile     = src.split('/').pop();
+      if (currentFile === newFile) return;
+    }
+
     const startNew = (newSrc: string) => {
       const audio = new Audio(newSrc);
       audio.loop = true;
@@ -54,8 +63,6 @@ export function useAmbientMusic() {
       audio.play().catch(() => {});
       fadeIn(audio, fadeMs);
     };
-
-    const prev = audioRef.current;
 
     if (prev && !prev.paused) {
       fadeOutAndStop(prev, () => { if (src) startNew(src); });
