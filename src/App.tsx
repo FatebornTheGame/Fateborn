@@ -6,9 +6,10 @@ import ChildhoodScreen from './components/ChildhoodScreen';
 import AdolescenceScreen from './components/AdolescenceScreen';
 import YouthScreen from './components/YouthScreen';
 import AdulthoodScreen from './components/AdulthoodScreen';
+import MaturityScreen from './components/MaturityScreen';
 import type { Character } from './types';
 
-type Screen = 'ancestors' | 'birth' | 'childhood' | 'adolescence' | 'youth' | 'adulthood' | 'game';
+type Screen = 'ancestors' | 'birth' | 'childhood' | 'adolescence' | 'youth' | 'adulthood' | 'maturity' | 'game';
 
 function App() {
   const [screen, setScreen]       = useState<Screen>('ancestors');
@@ -41,6 +42,11 @@ function App() {
   };
 
   const handleAdulthoodComplete = (updated: Character) => {
+    setCharacter(updated);
+    setScreen('maturity');
+  };
+
+  const handleMaturityComplete = (updated: Character) => {
     setCharacter(updated);
     setScreen('game');
   };
@@ -94,7 +100,16 @@ function App() {
     );
   }
 
-  // Placeholder — Madurez en construcción
+  if (screen === 'maturity' && character) {
+    return (
+      <MaturityScreen
+        character={character}
+        onComplete={handleMaturityComplete}
+      />
+    );
+  }
+
+  // Placeholder — Vejez en construcción
   return (
     <div style={{
       minHeight: '100vh',
@@ -118,7 +133,7 @@ function App() {
         {character?.name}
       </h2>
       <p style={{ fontSize: '12px', letterSpacing: '0.15em', color: '#3a2a18', margin: 0 }}>
-        La madurez está en construcción...
+        La vejez está en construcción...
       </p>
       <button
         onClick={() => setScreen('ancestors')}
