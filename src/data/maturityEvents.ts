@@ -21,8 +21,8 @@ export const MATURITY_EVENTS: LifeEvent[] = [
     id: 'balance',
     age: 53,
     title: 'El balance',
-    getNarrative: () =>
-      'Cincuenta y tres años. Por primera vez tienes suficiente distancia para ver la forma completa de tu vida. No como la estabas viviendo, sino como realmente fue. Lo que ves no es ni tan bueno ni tan malo como esperabas.',
+    getNarrative: (character) =>
+      `Cincuenta y tres años, ${character.name}. Por primera vez tienes suficiente distancia para ver la forma completa de tu vida. No como la estabas viviendo, sino como realmente fue. Lo que ves no es ni tan bueno ni tan malo como esperabas.`,
     getOptions: (character) => {
       const m = character.gender === 'hombre';
       return [
@@ -124,10 +124,8 @@ export const MATURITY_EVENTS: LifeEvent[] = [
     id: 'tiempo',
     age: 68,
     title: 'El tiempo',
-    getNarrative: (character) => {
-      const m = character.gender === 'hombre';
-      return `Sesenta y ocho años. El tiempo ya no es algo que gestionas — es algo que sientes. Los días tienen el mismo número de horas, pero pesan diferente. Hay una forma de vivir estos años que todavía puedes elegir.`;
-    },
+    getNarrative: (character) =>
+      `Sesenta y ocho años, ${character.name}. El tiempo ya no es algo que gestionas — es algo que sientes. Los días tienen el mismo número de horas, pero pesan diferente. Hay una forma de vivir estos años que todavía puedes elegir.`,
     getOptions: (character) => {
       const m = character.gender === 'hombre';
       return [

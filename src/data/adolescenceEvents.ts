@@ -42,7 +42,7 @@ export const ADOLESCENCE_EVENTS: LifeEvent[] = [
     title: 'El primer amor',
     getNarrative: (character) => {
       const m = character.gender === 'hombre';
-      return `Hay alguien. No sabes exactamente cuándo empezó, pero ahora no puedes dejar de pensar en esa persona. Te pone ${m ? 'nervioso' : 'nerviosa'} de una forma que no habías sentido antes. Tienes que hacer algo.`;
+      return `Hay alguien. No sabes exactamente cuándo empezó, pero ahora no puedes dejar de pensar en esa persona. Te pone ${m ? 'nervioso' : 'nerviosa'} de una forma que no habías sentido antes, ${character.name}. Tienes que hacer algo.`;
     },
     getOptions: (character) => {
       const m = character.gender === 'hombre';
@@ -141,8 +141,8 @@ export const ADOLESCENCE_EVENTS: LifeEvent[] = [
     id: 'eleccion_futuro',
     age: 17,
     title: 'El futuro',
-    getNarrative: () =>
-      'Todo el mundo a tu alrededor parece tenerlo claro. Tú también empiezas a sentirlo: hay algo dentro de ti que tira más fuerte que el resto. No es un plan todavía, pero es una dirección.',
+    getNarrative: (character) =>
+      `Todo el mundo a tu alrededor parece tenerlo claro, ${character.name}. Tú también empiezas a sentirlo: hay algo dentro de ti que tira más fuerte que el resto. No es un plan todavía, pero es una dirección.`,
     getOptions: (character) => {
       const top = topStats(character.stats);
       const pool = Object.keys(FUTURE_OPTIONS) as (keyof CharacterStats)[];

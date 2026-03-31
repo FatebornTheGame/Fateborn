@@ -44,8 +44,8 @@ export const YOUTH_EVENTS: LifeEvent[] = [
     id: 'encrucijada',
     age: 19,
     title: 'La encrucijada',
-    getNarrative: () =>
-      'Tienes diecinueve años y el mundo se abre de golpe. No hay mapa, no hay instrucciones. Solo hay tres puertas delante de ti y tienes que elegir cuál abrir primero.',
+    getNarrative: (character) =>
+      `Tienes diecinueve años, ${character.name}, y el mundo se abre de golpe. No hay mapa, no hay instrucciones. Solo hay tres puertas delante de ti y tienes que elegir cuál abrir primero.`,
     getOptions: () => [
       {
         id: 'encrucijada_universidad',
@@ -125,7 +125,7 @@ export const YOUTH_EVENTS: LifeEvent[] = [
     title: 'La pérdida',
     getNarrative: (character) => {
       const m = character.gender === 'hombre';
-      return `Alguien que estaba en el centro de tu vida ya no está. No importa cómo pasó — lo que importa es que hay un hueco donde antes había algo. Estás ${m ? 'solo' : 'sola'} con eso.`;
+      return `Alguien que estaba en el centro de tu vida ya no está, ${character.name}. No importa cómo pasó — lo que importa es que hay un hueco donde antes había algo. Estás ${m ? 'solo' : 'sola'} con eso.`;
     },
     getOptions: (character) => {
       const m = character.gender === 'hombre';

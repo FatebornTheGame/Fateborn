@@ -73,7 +73,7 @@ function calcScores(flags: NarrativeFlags, stats: CharacterStats): Scores {
 
 // ─── Epitafio dinámico ─────────────────────────────────────────────────────────
 
-function generateEpitafio(flags: NarrativeFlags, gender: 'hombre' | 'mujer'): string[] {
+function generateEpitafio(flags: NarrativeFlags, gender: 'hombre' | 'mujer', name: string): string[] {
   const m = gender === 'hombre';
   const sentences: string[] = [];
 
@@ -106,10 +106,9 @@ function generateEpitafio(flags: NarrativeFlags, gender: 'hombre' | 'mujer'): st
     institucion:   `Fue el ancla de todos los que ${m ? 'lo' : 'la'} rodearon, la clase de persona que hace que los demás se sientan seguros.`,
     estabilidad:   `Fue el ancla de todos los que ${m ? 'lo' : 'la'} rodearon, la clase de persona que hace que los demás se sientan seguros.`,
   };
-  sentences.push(
-    identityMap[vocacion] ?? identityMap[talento] ??
-    `Vivió con la intensidad de quien sabe que el tiempo no es infinito.`
-  );
+  const rawIdentity = identityMap[vocacion] ?? identityMap[talento] ??
+    `Vivió con la intensidad de quien sabe que el tiempo no es infinito.`;
+  sentences.push(name + ' ' + rawIdentity.charAt(0).toLowerCase() + rawIdentity.slice(1));
 
   // 2 — Amor / Relaciones
   const familia  = flags.familia as string;
@@ -357,7 +356,7 @@ export default function DeathScreen({
   }, [revealed]);
 
   const scores    = useMemo(() => calcScores(character.flags, character.stats), []);
-  const epitafio  = useMemo(() => generateEpitafio(character.flags, character.gender), []);
+  const epitafio  = useMemo(() => generateEpitafio(character.flags, character.gender, character.name), []);
   const decisions = useMemo(() => getDefiningDecisions(character.flags), []);
   const fraseFinal = getFraseFinal(scores.total);
   const deathYear  = character.birthYear + 81;

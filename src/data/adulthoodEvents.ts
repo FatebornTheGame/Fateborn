@@ -21,10 +21,8 @@ export const ADULTHOOD_EVENTS: LifeEvent[] = [
     id: 'familia',
     age: 33,
     title: 'La familia',
-    getNarrative: (character) => {
-      const m = character.gender === 'hombre';
-      return `Tienes treinta y tres años y la pregunta ya no puedes ignorarla. ¿Qué quieres construir? ¿Con quién? Hay personas esperando una respuesta tuya. Tú también llevas tiempo esperándola.`;
-    },
+    getNarrative: (character) =>
+      `Tienes treinta y tres años, ${character.name}, y la pregunta ya no puedes ignorarla. ¿Qué quieres construir? ¿Con quién? Hay personas esperando una respuesta tuya. Tú también llevas tiempo esperándola.`,
     getOptions: (character) => {
       const m = character.gender === 'hombre';
       return [
@@ -91,10 +89,8 @@ export const ADULTHOOD_EVENTS: LifeEvent[] = [
     id: 'legado',
     age: 43,
     title: 'El legado',
-    getNarrative: (character) => {
-      const m = character.gender === 'hombre';
-      return `Cuarenta y tres años. Por primera vez te preguntas no qué quieres conseguir, sino qué quieres dejar. La pregunta del legado llega siempre demasiado tarde o demasiado pronto. Hoy te ha llegado a ti.`;
-    },
+    getNarrative: (character) =>
+      `Cuarenta y tres años, ${character.name}. Por primera vez te preguntas no qué quieres conseguir, sino qué quieres dejar. La pregunta del legado llega siempre demasiado tarde o demasiado pronto. Hoy te ha llegado a ti.`,
     getOptions: (character) => {
       const m = character.gender === 'hombre';
       return [

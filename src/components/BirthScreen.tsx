@@ -308,7 +308,7 @@ export default function BirthScreen({
           {[
             <>Tu abuelo <em style={{ color: GOLD_LIGHT, fontStyle: 'normal' }}>{archetypeName(ancestorIds[0], false)}</em> y tu abuela <em style={{ color: GOLD_LIGHT, fontStyle: 'normal' }}>{archetypeName(ancestorIds[2], true)}</em> forjaron a tu padre.</>,
             <>Tu abuelo <em style={{ color: GOLD_LIGHT, fontStyle: 'normal' }}>{archetypeName(ancestorIds[1], false)}</em> y tu abuela <em style={{ color: GOLD_LIGHT, fontStyle: 'normal' }}>{archetypeName(ancestorIds[3], true)}</em> forjaron a tu madre.</>,
-            <>De su sangre naces tú.</>,
+            <>De su sangre naces tú{name.trim().length >= 2 ? `, ${name.trim()}.` : '.'}</>,
           ].map((line, i) => (
             <p
               key={i}

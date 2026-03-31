@@ -21,10 +21,8 @@ export const OLD_AGE_EVENTS: LifeEvent[] = [
     id: 'recuerdos',
     age: 73,
     title: 'Los recuerdos',
-    getNarrative: (character) => {
-      const m = character.gender === 'hombre';
-      return `A esta edad los recuerdos ya no llegan cuando los llamas — llegan cuando quieren. Aparecen en mitad de la noche, en el olor de algo, en una voz que se parece a otra. Y en ellos estás tú, ${m ? 'más joven' : 'más joven'}, tomando decisiones que ya no puedes cambiar.`;
-    },
+    getNarrative: (character) =>
+      `A esta edad los recuerdos ya no llegan cuando los llamas — llegan cuando quieren. Aparecen en mitad de la noche, en el olor de algo, en una voz que se parece a otra. Y en ellos estás tú, ${character.name}, más joven, tomando decisiones que ya no puedes cambiar.`,
     getOptions: (character) => {
       const m = character.gender === 'hombre';
       return [
@@ -91,10 +89,8 @@ export const OLD_AGE_EVENTS: LifeEvent[] = [
     id: 'ultimo_dia',
     age: 81,
     title: 'El último día',
-    getNarrative: (character) => {
-      const m = character.gender === 'hombre';
-      return `Lo sientes. No con miedo, o no solo con miedo. Hay algo más — una claridad que no habías tenido antes. Las cosas pequeñas se vuelven grandes. Las cosas grandes se vuelven pequeñas. Sabes que hoy importa de una forma que los otros días no importaron.`;
-    },
+    getNarrative: (character) =>
+      `Lo sientes, ${character.name}. No con miedo, o no solo con miedo. Hay algo más — una claridad que no habías tenido antes. Las cosas pequeñas se vuelven grandes. Las cosas grandes se vuelven pequeñas. Sabes que hoy importa de una forma que los otros días no importaron.`,
     getOptions: (character) => {
       const m = character.gender === 'hombre';
       return [

@@ -71,8 +71,8 @@ export const CHILDHOOD_EVENTS: LifeEvent[] = [
     id: 'bully_colegio',
     age: 9,
     title: 'El conflicto',
-    getNarrative: () =>
-      'Hay un compañero que hace tu vida imposible. Cada día encuentra una forma nueva de recordarte que eres diferente. Llevas semanas aguantando. Hoy decides hacer algo.',
+    getNarrative: (character) =>
+      `Hay un compañero que hace tu vida imposible. Cada día encuentra una forma nueva de recordarte que eres diferente. Llevas semanas aguantando, ${character.name}. Hoy decides hacer algo.`,
     getOptions: () => [
       {
         id: 'ignorar',
@@ -101,8 +101,8 @@ export const CHILDHOOD_EVENTS: LifeEvent[] = [
     id: 'primer_talento',
     age: 11,
     title: 'El talento',
-    getNarrative: () =>
-      'Hay algo que haces diferente. No lo elegiste — simplemente apareció. Tus profesores lo notan, tus amigos también. Tú empiezas a darte cuenta de lo que eres.',
+    getNarrative: (character) =>
+      `Hay algo que haces diferente, ${character.name}. No lo elegiste — simplemente apareció. Tus profesores lo notan, tus amigos también. Tú empiezas a darte cuenta de lo que eres.`,
     getOptions: (character) => {
       const top = topStats(character.stats);
       const pool = Object.keys(TALENT_OPTIONS) as (keyof CharacterStats)[];
