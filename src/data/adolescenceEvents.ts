@@ -77,8 +77,7 @@ export const ADOLESCENCE_EVENTS: LifeEvent[] = [
     title: 'La decisión',
     getNarrative: () =>
       'Las discusiones en casa son cada vez más frecuentes. El ambiente es denso, pesado. Hay noches en que el silencio duele más que los gritos. Llevas semanas buscando cómo sobrevivir a esto.',
-    getOptions: (character) => {
-      const m = character.gender === 'hombre';
+    getOptions: (_character) => {
       return [
         {
           id: 'decision_evasion',

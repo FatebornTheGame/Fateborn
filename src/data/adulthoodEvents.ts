@@ -54,8 +54,7 @@ export const ADULTHOOD_EVENTS: LifeEvent[] = [
     id: 'crisis',
     age: 38,
     title: 'La crisis',
-    getNarrative: (character) => {
-      const m = character.gender === 'hombre';
+    getNarrative: (_character) => {
       return `Todo lo que construiste empieza a crujir. No es un desastre repentino — es algo más lento y más profundo. Te despiertas un día y ves las grietas en sitios donde antes solo veías estructura. Tienes que decidir qué haces con eso.`;
     },
     getOptions: (character) => {
@@ -122,12 +121,10 @@ export const ADULTHOOD_EVENTS: LifeEvent[] = [
     id: 'reconciliacion',
     age: 48,
     title: 'La reconciliación',
-    getNarrative: (character) => {
-      const m = character.gender === 'hombre';
+    getNarrative: (_character) => {
       return `Alguien del pasado reaparece. No lo esperabas, o quizás sí lo esperabas pero no así. Hay una historia entre vosotros que nunca se cerró del todo. Ahora tienes que decidir qué haces con ella.`;
     },
-    getOptions: (character) => {
-      const m = character.gender === 'hombre';
+    getOptions: (_character) => {
       return [
         {
           id: 'reconciliacion_abrir',

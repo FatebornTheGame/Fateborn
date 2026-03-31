@@ -54,12 +54,10 @@ export const MATURITY_EVENTS: LifeEvent[] = [
     id: 'salud',
     age: 58,
     title: 'La salud',
-    getNarrative: (character) => {
-      const m = character.gender === 'hombre';
+    getNarrative: (_character) => {
       return `Tu cuerpo empieza a hablar de formas que antes ignorabas. No es una crisis, pero es una advertencia. Llevas décadas tratándolo como una herramienta. Ahora te pide algo diferente.`;
     },
-    getOptions: (character) => {
-      const m = character.gender === 'hombre';
+    getOptions: (_character) => {
       return [
         {
           id: 'salud_cuidar',
@@ -93,8 +91,7 @@ export const MATURITY_EVENTS: LifeEvent[] = [
       const m = character.gender === 'hombre';
       return `Alguien joven te busca. No sabe exactamente qué necesita, pero sabe que tú tienes algo que ${m ? 'él' : 'ella'} no tiene todavía: tiempo vivido. Lo que hagas con esa confianza importa.`;
     },
-    getOptions: (character) => {
-      const m = character.gender === 'hombre';
+    getOptions: (_character) => {
       return [
         {
           id: 'sabiduria_experiencia',
@@ -126,8 +123,7 @@ export const MATURITY_EVENTS: LifeEvent[] = [
     title: 'El tiempo',
     getNarrative: (character) =>
       `Sesenta y ocho años, ${character.name}. El tiempo ya no es algo que gestionas — es algo que sientes. Los días tienen el mismo número de horas, pero pesan diferente. Hay una forma de vivir estos años que todavía puedes elegir.`,
-    getOptions: (character) => {
-      const m = character.gender === 'hombre';
+    getOptions: (_character) => {
       return [
         {
           id: 'tiempo_intensidad',
