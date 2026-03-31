@@ -40,8 +40,10 @@ export const ADOLESCENCE_EVENTS: LifeEvent[] = [
     id: 'primer_amor',
     age: 13,
     title: 'El primer amor',
-    getNarrative: () =>
-      'Hay alguien. No sabes exactamente cuándo empezó, pero ahora no puedes dejar de pensar en esa persona. Te pone nervioso de una forma que no habías sentido antes. Tienes que hacer algo.',
+    getNarrative: (character) => {
+      const m = character.gender === 'hombre';
+      return `Hay alguien. No sabes exactamente cuándo empezó, pero ahora no puedes dejar de pensar en esa persona. Te pone ${m ? 'nervioso' : 'nerviosa'} de una forma que no habías sentido antes. Tienes que hacer algo.`;
+    },
     getOptions: (character) => {
       const m = character.gender === 'hombre';
       return [
@@ -95,7 +97,7 @@ export const ADOLESCENCE_EVENTS: LifeEvent[] = [
         {
           id: 'decision_exterior',
           text: 'Pasas el tiempo fuera de casa. Con amigos, en la calle, en cualquier sitio menos ahí.',
-          consequence: `El mundo exterior se vuelve más familiar que tu propia casa. No sabes si eso te salvó o te ${m ? 'perdió' : 'perdió'}.`,
+          consequence: `El mundo exterior se vuelve más familiar que tu propia casa. No sabes si eso te salvó o te perdió.`,
           statDeltas: { riesgo: 0.5, disciplina: 0.5 },
           flag: { key: 'hogar_adolescencia', value: 'exterior' },
         },
@@ -139,10 +141,8 @@ export const ADOLESCENCE_EVENTS: LifeEvent[] = [
     id: 'eleccion_futuro',
     age: 17,
     title: 'El futuro',
-    getNarrative: (character) => {
-      const m = character.gender === 'hombre';
-      return `Todo el mundo a tu alrededor parece tenerlo claro. Tú también empiezas a sentirlo: hay algo dentro de ti que tira más fuerte que el resto. No es un plan todavía, pero es una dirección.`;
-    },
+    getNarrative: () =>
+      'Todo el mundo a tu alrededor parece tenerlo claro. Tú también empiezas a sentirlo: hay algo dentro de ti que tira más fuerte que el resto. No es un plan todavía, pero es una dirección.',
     getOptions: (character) => {
       const top = topStats(character.stats);
       const pool = Object.keys(FUTURE_OPTIONS) as (keyof CharacterStats)[];
