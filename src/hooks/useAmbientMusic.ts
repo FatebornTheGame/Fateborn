@@ -1,8 +1,8 @@
 import { useRef, useState, useCallback } from 'react';
 
-const FADE_STEPS = 50;
-const FADE_MS    = 2000;
-const STEP_MS    = FADE_MS / FADE_STEPS;
+const FADE_STEPS      = 50;
+const FADE_MS         = 2000;
+const FADE_MS_SLOW    = 5000;   // fade más lento para la pantalla de muerte
 
 export function useAmbientMusic() {
   const audioRef  = useRef<HTMLAudioElement | null>(null);
@@ -17,20 +17,22 @@ export function useAmbientMusic() {
     }
   };
 
-  const fadeIn = (audio: HTMLAudioElement) => {
-    if (mutedRef.current) return; // stay silent while muted
+  const fadeIn = (audio: HTMLAudioElement, fadeMs = FADE_MS) => {
+    if (mutedRef.current) return;
     let step = 0;
+    const stepMs = fadeMs / FADE_STEPS;
     timerRef.current = setInterval(() => {
       step++;
       audio.volume = Math.min(1, step / FADE_STEPS);
       if (step >= FADE_STEPS) clearTimer();
-    }, STEP_MS);
+    }, stepMs);
   };
 
   const fadeOutAndStop = (audio: HTMLAudioElement, then?: () => void) => {
     clearTimer();
     const startVol = audio.volume;
     let step = 0;
+    const stepMs = FADE_MS / FADE_STEPS;
     timerRef.current = setInterval(() => {
       step++;
       audio.volume = Math.max(0, startVol * (1 - step / FADE_STEPS));
@@ -39,17 +41,18 @@ export function useAmbientMusic() {
         audio.pause();
         then?.();
       }
-    }, STEP_MS);
+    }, stepMs);
   };
 
-  const play = useCallback((src: string | null) => {
+  // fadeMs controls the fade-in duration of the NEW track
+  const play = useCallback((src: string | null, fadeMs = FADE_MS) => {
     const startNew = (newSrc: string) => {
       const audio = new Audio(newSrc);
       audio.loop = true;
       audio.volume = 0;
       audioRef.current = audio;
       audio.play().catch(() => {});
-      fadeIn(audio);
+      fadeIn(audio, fadeMs);
     };
 
     const prev = audioRef.current;
@@ -74,3 +77,5 @@ export function useAmbientMusic() {
 
   return { play, muted, toggleMute };
 }
+
+export { FADE_MS_SLOW };

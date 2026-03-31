@@ -10,17 +10,17 @@ import MaturityScreen from './components/MaturityScreen';
 import OldAgeScreen from './components/OldAgeScreen';
 import DeathScreen from './components/DeathScreen';
 import type { Character } from './types';
-import { useAmbientMusic } from './hooks/useAmbientMusic';
+import { useAmbientMusic, FADE_MS_SLOW } from './hooks/useAmbientMusic';
 
 const TRACK: Record<string, string | null> = {
-  ancestors:   null,
-  birth:       null,
+  ancestors:   '/music/opening.mp3',
+  birth:       '/music/winter-quarters.mp3',
   childhood:   '/music/young-filmmaker.mp3',
   adolescence: '/music/timelapse.mp3',
   youth:       '/music/viewpoint.mp3',
-  adulthood:   '/music/winter-quarters.mp3',
+  adulthood:   '/music/dark-decision.mp3',
   maturity:    '/music/old-chantry.mp3',
-  oldage:      '/music/dark-decision.mp3',
+  oldage:      '/music/cast-vejez.mp3',
   death:       '/music/cast-vejez.mp3',
 };
 
@@ -33,7 +33,7 @@ function App() {
   const { play, muted, toggleMute } = useAmbientMusic();
 
   useEffect(() => {
-    play(TRACK[screen] ?? null);
+    play(TRACK[screen] ?? null, screen === 'death' ? FADE_MS_SLOW : undefined);
   }, [screen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleAncestorsConfirmed = (ids: string[]) => {
