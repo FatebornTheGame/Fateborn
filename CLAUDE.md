@@ -42,12 +42,25 @@ Infancia (0-12) → Adolescencia (13-18) → Juventud (19-30) → Adultez (31-50
 ## Pantallas construidas
 1. GrandparentSelection — selección de 4 ancestros
 2. BirthScreen — narrativa de nacimiento + stats heredados + genes ocultos
+3. ChildhoodScreen — Infancia con eventos narrativos
+4. AdolescenceScreen — Adolescencia con eventos narrativos
+5. YouthScreen — Juventud con eventos narrativos
+6. AdulthoodScreen — Adultez con eventos narrativos
+7. MaturityScreen — Madurez con eventos narrativos
+8. OldAgeScreen — Vejez con eventos narrativos
+9. DeathScreen — Resumen de vida, epitafio dinámico, puntuación de legado
+
+## Sistema de stats dinámicos
+- Cada decisión del jugador modifica los 9 stats vía `statDeltas` en cada EventOption
+- La función `applyDeltas` aplica los cambios con clamp 0-10 y 1 decimal
+- Al confirmar una decisión se dispara un flash visual en el `StatsPanel`:
+  - Positivo: número parpadea en dorado (stat-flash-pos, 1s)
+  - Negativo: número parpadea en granate (stat-flash-neg, 1s)
+- El `StatsPanel` (botón Σ, esquina inferior izquierda) muestra los 9 stats en tiempo real agrupados en Cognitivo / Social / Vital, accesible desde cualquier pantalla de vida
+- El epitafio final de DeathScreen usa el `dominantStat` del personaje como capa primaria de identidad si los flags no proveen un match
 
 ## Próximas pantallas a construir
-3. ChildhoodScreen — Infancia con primeros eventos narrativos
-4. Sistema de eventos con consecuencias diferidas
-5. Pantalla de muerte con resumen de vida
-6. Modo Dinastía
+- Modo Dinastía (herencia generacional)
 
 ## Reglas de diseño
 - Nunca hay game over seco — siempre hay reflexión narrativa

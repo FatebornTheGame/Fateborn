@@ -118,6 +118,23 @@ body {
   animation: gene-pulse 3s ease-in-out infinite;
 }
 
+/* ── Stat flash animations ── */
+
+@keyframes stat-flash-pos {
+  0%   { color: rgba(201,168,76,0.45); }
+  25%  { color: #e8d08a; text-shadow: 0 0 10px rgba(201,168,76,0.9); }
+  100% { color: rgba(201,168,76,0.45); }
+}
+
+@keyframes stat-flash-neg {
+  0%   { color: rgba(201,168,76,0.45); }
+  25%  { color: #c06070; text-shadow: 0 0 10px rgba(139,26,42,0.9); }
+  100% { color: rgba(201,168,76,0.45); }
+}
+
+.stat-flash-pos { animation: stat-flash-pos 1s ease forwards; }
+.stat-flash-neg { animation: stat-flash-neg 1s ease forwards; }
+
 ::-webkit-scrollbar {
   width: 6px;
 }

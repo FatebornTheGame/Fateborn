@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTrack } from '../hooks/useTrack';
+import { useStatFlash } from '../hooks/useStatFlash';
+import StatsPanel from './StatsPanel';
 import { MATURITY_EVENTS, type EventOption } from '../data/maturityEvents';
 import type { Character, CharacterStats } from '../types';
 
@@ -266,6 +268,7 @@ export default function MaturityScreen({
   onComplete: (updated: Character) => void;
 }) {
   useTrack('/music/winter-quarters.mp3');
+  const { flashMap, triggerFlash } = useStatFlash();
   const [currentEvent, setCurrentEvent] = useState(0);
   const [currentCharacter, setCurrentCharacter] = useState<Character>(character);
   const [completedChoices, setCompletedChoices] = useState<EventOption[]>([]);
@@ -282,6 +285,7 @@ export default function MaturityScreen({
       flags: updatedFlags,
     };
 
+    triggerFlash(option.statDeltas);
     setCurrentCharacter(updated);
     setCompletedChoices([...completedChoices, option]);
 
@@ -306,6 +310,7 @@ export default function MaturityScreen({
         overflow: 'hidden',
       }}
     >
+      <StatsPanel stats={currentCharacter.stats} flashMap={flashMap} name={currentCharacter.name} />
       {/* Vignette */}
       <div style={{
         position: 'fixed', inset: 0,

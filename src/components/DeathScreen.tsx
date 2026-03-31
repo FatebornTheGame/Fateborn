@@ -2,6 +2,12 @@ import { useState, useEffect, useMemo } from 'react';
 import { useTrack } from '../hooks/useTrack';
 import type { Character, CharacterStats, NarrativeFlags } from '../types';
 
+/** Devuelve el nombre de la stat más alta del personaje */
+function dominantStat(stats: CharacterStats): keyof CharacterStats {
+  return (Object.entries(stats) as [keyof CharacterStats, number][])
+    .reduce((a, b) => (b[1] > a[1] ? b : a))[0];
+}
+
 // ─── Brand colors ──────────────────────────────────────────────────────────────
 const GOLD       = '#c9a84c';
 const GOLD_LIGHT = '#e8d08a';
@@ -74,15 +80,15 @@ function calcScores(flags: NarrativeFlags, stats: CharacterStats): Scores {
 
 // ─── Epitafio dinámico ─────────────────────────────────────────────────────────
 
-function generateEpitafio(flags: NarrativeFlags, gender: 'hombre' | 'mujer', name: string): string[] {
+function generateEpitafio(flags: NarrativeFlags, stats: CharacterStats, gender: 'hombre' | 'mujer', name: string): string[] {
   const m = gender === 'hombre';
   const sentences: string[] = [];
 
-  // 1 — Identidad / talento
+  // 1 — Identidad: primero por flags, si no coincide usa el stat dominante
   const vocacion = flags.vocacion as string;
   const talento  = flags.talento_infancia as string;
 
-  const identityMap: Record<string, string> = {
+  const identityByFlag: Record<string, string> = {
     ciencias:      `Tuvo una mente que nunca dejó de buscar respuestas, incluso cuando las preguntas se volvían incómodas.`,
     investigacion: `Tuvo una mente que nunca dejó de buscar respuestas, incluso cuando las preguntas se volvían incómodas.`,
     logica:        `Tuvo una mente que nunca dejó de buscar respuestas, incluso cuando las preguntas se volvían incómodas.`,
@@ -107,8 +113,23 @@ function generateEpitafio(flags: NarrativeFlags, gender: 'hombre' | 'mujer', nam
     institucion:   `Fue el ancla de todos los que ${m ? 'lo' : 'la'} rodearon, la clase de persona que hace que los demás se sientan seguros.`,
     estabilidad:   `Fue el ancla de todos los que ${m ? 'lo' : 'la'} rodearon, la clase de persona que hace que los demás se sientan seguros.`,
   };
-  const rawIdentity = identityMap[vocacion] ?? identityMap[talento] ??
-    `Vivió con la intensidad de quien sabe que el tiempo no es infinito.`;
+
+  // Si no hay match por flag, usamos el stat dominante como identidad principal
+  const identityByStat: Record<keyof CharacterStats, string> = {
+    logica:       `Tuvo una mente que nunca dejó de buscar respuestas, incluso cuando las preguntas se volvían incómodas.`,
+    creatividad:  `Dejó en el mundo cosas que no existían antes de que ${m ? 'él' : 'ella'} llegara.`,
+    disciplina:   `Construyó su vida con la misma constancia con la que se construyen las cosas que duran.`,
+    carisma:      `Las personas que ${m ? 'lo' : 'la'} conocieron recuerdan cómo hacía que cada una se sintiera vista.`,
+    emocional:    `Vivió hacia afuera, siempre ${m ? 'atento' : 'atenta'} a lo que los demás no podían decir en voz alta.`,
+    ambicion:     `Quiso siempre más, y eso ${m ? 'lo' : 'la'} llevó más lejos de lo que nadie esperaba.`,
+    fisico:       `Encontró en el movimiento una forma de entender el mundo que las palabras no alcanzaban.`,
+    riesgo:       `Eligió el camino más difícil cada vez que tuvo opción, y pocas veces lo lamentó.`,
+    estabilidad:  `Fue el ancla de todos los que ${m ? 'lo' : 'la'} rodearon, la clase de persona que hace que los demás se sientan seguros.`,
+  };
+
+  const rawIdentity = identityByFlag[vocacion] ?? identityByFlag[talento]
+    ?? identityByStat[dominantStat(stats)]
+    ?? `Vivió con la intensidad de quien sabe que el tiempo no es infinito.`;
   sentences.push(name + ' ' + rawIdentity.charAt(0).toLowerCase() + rawIdentity.slice(1));
 
   // 2 — Amor / Relaciones
@@ -359,7 +380,7 @@ export default function DeathScreen({
   }, [revealed]);
 
   const scores    = useMemo(() => calcScores(character.flags, character.stats), []);
-  const epitafio  = useMemo(() => generateEpitafio(character.flags, character.gender, character.name), []);
+  const epitafio  = useMemo(() => generateEpitafio(character.flags, character.stats, character.gender, character.name), []);
   const decisions = useMemo(() => getDefiningDecisions(character.flags), []);
   const fraseFinal = getFraseFinal(scores.total);
   const deathYear  = character.birthYear + 81;

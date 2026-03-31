@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTrack } from '../hooks/useTrack';
+import { useStatFlash } from '../hooks/useStatFlash';
+import StatsPanel from './StatsPanel';
 import { ADOLESCENCE_EVENTS, type EventOption } from '../data/adolescenceEvents';
 import type { Character, CharacterStats } from '../types';
 
@@ -267,6 +269,7 @@ export default function AdolescenceScreen({
   onComplete: (updated: Character) => void;
 }) {
   useTrack('/music/timelapse.mp3');
+  const { flashMap, triggerFlash } = useStatFlash();
   const [currentEvent, setCurrentEvent] = useState(0);
   const [currentCharacter, setCurrentCharacter] = useState<Character>(character);
   const [completedChoices, setCompletedChoices] = useState<EventOption[]>([]);
@@ -283,6 +286,7 @@ export default function AdolescenceScreen({
       flags: updatedFlags,
     };
 
+    triggerFlash(option.statDeltas);
     setCurrentCharacter(updated);
     setCompletedChoices([...completedChoices, option]);
 
@@ -307,6 +311,7 @@ export default function AdolescenceScreen({
         overflow: 'hidden',
       }}
     >
+      <StatsPanel stats={currentCharacter.stats} flashMap={flashMap} name={currentCharacter.name} />
       {/* Vignette */}
       <div style={{
         position: 'fixed', inset: 0,

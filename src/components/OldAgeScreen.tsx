@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTrack } from '../hooks/useTrack';
+import { useStatFlash } from '../hooks/useStatFlash';
+import StatsPanel from './StatsPanel';
 import { OLD_AGE_EVENTS, type EventOption } from '../data/oldAgeEvents';
 import type { Character, CharacterStats } from '../types';
 
@@ -306,6 +308,7 @@ export default function OldAgeScreen({
   onComplete: (updated: Character) => void;
 }) {
   useTrack('/music/cast-vejez.mp3');
+  const { flashMap, triggerFlash } = useStatFlash();
   const [currentEvent, setCurrentEvent] = useState(0);
   const [currentCharacter, setCurrentCharacter] = useState<Character>(character);
   const [allDone, setAllDone] = useState(false);
@@ -321,6 +324,7 @@ export default function OldAgeScreen({
       flags: updatedFlags,
     };
 
+    triggerFlash(option.statDeltas);
     setCurrentCharacter(updated);
 
     if (currentEvent + 1 >= OLD_AGE_EVENTS.length) {
@@ -344,6 +348,7 @@ export default function OldAgeScreen({
         overflow: 'hidden',
       }}
     >
+      <StatsPanel stats={currentCharacter.stats} flashMap={flashMap} name={currentCharacter.name} />
       {/* Vignette — más intensa */}
       <div style={{
         position: 'fixed', inset: 0,
