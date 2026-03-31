@@ -770,8 +770,7 @@ export default function DeathScreen({
             marginBottom:  '2rem',
             letterSpacing: '0.02em',
           }}>
-            Licencia Creative Commons Attribution (CC BY)<br />
-            freemusicarchive.org
+            Licencia Creative Commons Attribution (CC BY)
           </div>
 
           <div style={{

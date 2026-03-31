@@ -287,7 +287,7 @@ function App() {
         lineHeight: 1.4,
         userSelect: 'none',
       }}>
-        Música: Serat — Piano Textures (CC BY) · freemusicarchive.org
+        Música: Serat — Piano Textures
       </div>
     </>
   );
