@@ -265,7 +265,7 @@ export default function AdulthoodScreen({
   character: Character;
   onComplete: (updated: Character) => void;
 }) {
-  useTrack('/music/dark-decision.mp3');
+  useTrack('/music/old-chantry.mp3');
   const [currentEvent, setCurrentEvent] = useState(0);
   const [currentCharacter, setCurrentCharacter] = useState<Character>(character);
   const [completedChoices, setCompletedChoices] = useState<EventOption[]>([]);
