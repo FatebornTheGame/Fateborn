@@ -2,114 +2,96 @@
  * AudioManager — singleton que controla TODA la música del juego.
  * Solo puede haber una pista sonando en cualquier momento.
  *
- * Uso:
- *   audioManager.playTrack('/music/foo.mp3', 800)  // fade-in en 800 ms
- *   audioManager.stopAll(800)                       // fade-out en 800 ms
+ * Mute real: pausa el audio (no solo baja el volumen).
+ * iOS ignora HTMLAudioElement.volume vía JS, por eso usamos pause/play.
  */
 
-const STEPS = 50; // pasos para el fade
+const STEPS    = 50;
+const FADE_MS  = 800;
 
 class AudioManager {
-  private audio: HTMLAudioElement | null = null;
-  /** Audio que está en proceso de fade-out (para poder pararlo si llega uno nuevo) */
+  private audio:       HTMLAudioElement | null = null;
   private fadingAudio: HTMLAudioElement | null = null;
-  private currentSrc: string | null = null;
-  private timer: ReturnType<typeof setInterval> | null = null;
+  private currentSrc:  string | null           = null;
+  private timer:       ReturnType<typeof setInterval> | null = null;
   private _muted = false;
 
-  // ── helpers internos ────────────────────────────────────────────────────
+  // ── helpers ────────────────────────────────────────────────────────────────
 
-  /**
-   * Cancela el timer activo Y para inmediatamente cualquier audio en fade-out.
-   * Esto garantiza que nunca queden dos pistas sonando a la vez.
-   */
   private clearTimer() {
-    if (this.timer) {
-      clearInterval(this.timer);
-      this.timer = null;
-    }
-    if (this.fadingAudio) {
-      this.fadingAudio.pause();
-      this.fadingAudio = null;
-    }
+    if (this.timer) { clearInterval(this.timer); this.timer = null; }
+    if (this.fadingAudio) { this.fadingAudio.pause(); this.fadingAudio = null; }
   }
 
-  private startFadeIn(audio: HTMLAudioElement, ms: number) {
+  private startFadeIn(audio: HTMLAudioElement, ms = FADE_MS) {
+    audio.volume = 0;
     let step = 0;
     this.timer = setInterval(() => {
       step++;
       audio.volume = Math.min(1, step / STEPS);
-      if (step >= STEPS) {
-        clearInterval(this.timer!);
-        this.timer = null;
-      }
+      if (step >= STEPS) { clearInterval(this.timer!); this.timer = null; }
     }, ms / STEPS);
   }
 
-  // ── API pública ─────────────────────────────────────────────────────────
+  // ── API pública ────────────────────────────────────────────────────────────
 
-  /**
-   * Reproduce una pista. Si ya está sonando la misma, no hace nada.
-   * Si hay otra pista, la para y arranca la nueva con fade-in.
-   */
-  playTrack(src: string, fadeInMs = 800) {
-    // Misma pista ya sonando → no reiniciar
-    if (this.audio && !this.audio.paused && this.currentSrc === src) return;
+  playTrack(src: string, fadeInMs = FADE_MS) {
+    // Misma pista ya configurada
+    if (this.currentSrc === src) {
+      if (this._muted)                             return; // cargada, esperando unmute
+      if (this.audio && !this.audio.paused)        return; // ya sonando
+    }
 
-    // Cancela cualquier fade en curso y para el audio en fade-out
     this.clearTimer();
 
-    // Para el audio actual (si existe)
-    if (this.audio && !this.audio.paused) {
-      this.audio.pause();
-    }
-    this.audio = null;
+    // Libera el audio anterior
+    const old = this.audio;
+    if (old && !old.paused) old.pause();
+    this.audio      = null;
     this.currentSrc = null;
 
-    // Arranca la nueva pista
     const audio = new Audio(src);
-    audio.loop = true;
+    audio.loop   = true;
     audio.volume = 0;
-    this.audio = audio;
+    this.audio      = audio;
     this.currentSrc = src;
 
-    const play = audio.play();
-    if (play !== undefined) {
-      play.catch(() => {
-        // Autoplay bloqueado por el navegador → reintento en primera interacción
+    // Si está muteado: carga el elemento pero NO arranca la reproducción.
+    // Cuando el usuario desmutee, play() se llamará desde toggleMute().
+    if (this._muted) return;
+
+    const p = audio.play();
+    if (p !== undefined) {
+      p.catch(() => {
+        // Autoplay bloqueado → reintentar en la primera interacción del usuario
         const retry = () => {
-          if (this.audio !== audio) return; // ya no es la pista activa
+          if (this.audio !== audio || this._muted) return;
+          audio.volume = 0;
           audio.play().catch(() => {});
-          if (!this._muted) this.startFadeIn(audio, fadeInMs);
+          this.startFadeIn(audio, fadeInMs);
         };
         window.addEventListener('pointerdown', retry, { once: true });
         window.addEventListener('keydown',     retry, { once: true });
+        window.addEventListener('touchstart',  retry, { once: true });
       });
     }
-
-    if (!this._muted) this.startFadeIn(audio, fadeInMs);
+    this.startFadeIn(audio, fadeInMs);
   }
 
-  /**
-   * Detiene la música con fade-out.
-   * Si se llama playTrack() mientras el fade-out está en curso,
-   * clearTimer() cancela el fade y para el audio inmediatamente.
-   */
-  stopAll(fadeOutMs = 800) {
+  stopAll(fadeOutMs = FADE_MS) {
     this.clearTimer();
 
-    const audio = this.audio;
+    const audio      = this.audio;
+    this.audio       = null;
+    this.currentSrc  = null;
+
+    // Si el audio ya estaba pausado (p.ej. muteado) no hay nada que desvandecer
     if (!audio || audio.paused) return;
 
-    // Desvincula de this.audio para que playTrack() no lo vea como activo
-    this.audio = null;
-    this.currentSrc = null;
-
-    // Lo referencia en fadingAudio: si llega playTrack(), clearTimer() lo parará
     this.fadingAudio = audio;
-
-    const startVol = audio.volume;
+    const startVol   = audio.volume;
     let step = 0;
+
     this.timer = setInterval(() => {
       step++;
       audio.volume = Math.max(0, startVol * (1 - step / STEPS));
@@ -122,13 +104,47 @@ class AudioManager {
     }, fadeOutMs / STEPS);
   }
 
-  // ── Mute ────────────────────────────────────────────────────────────────
+  // ── Mute ──────────────────────────────────────────────────────────────────
 
   get muted() { return this._muted; }
 
+  /**
+   * Alterna mute.
+   * MUTE:   pausa el audio inmediatamente (funciona en iOS).
+   * UNMUTE: reanuda con fade-in; si play() es bloqueado, reintenta
+   *         en la siguiente interacción del usuario.
+   */
   toggleMute(): boolean {
     this._muted = !this._muted;
-    if (this.audio) this.audio.volume = this._muted ? 0 : 1;
+
+    if (this._muted) {
+      // ── MUTE ──
+      this.clearTimer();
+      if (this.audio && !this.audio.paused) {
+        this.audio.pause();
+      }
+    } else {
+      // ── UNMUTE ──
+      if (this.audio && this.currentSrc) {
+        const audio = this.audio;
+        audio.volume = 0;
+        const p = audio.play();
+        if (p !== undefined) {
+          p.catch(() => {
+            const retry = () => {
+              if (this.audio !== audio || this._muted) return;
+              audio.volume = 0;
+              audio.play().catch(() => {});
+              this.startFadeIn(audio);
+            };
+            window.addEventListener('pointerdown', retry, { once: true });
+            window.addEventListener('touchstart',  retry, { once: true });
+          });
+        }
+        this.startFadeIn(audio);
+      }
+    }
+
     return this._muted;
   }
 }

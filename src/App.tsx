@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useIsMobile } from './hooks/useIsMobile';
 import './App.css';
 import GrandparentSelection from './components/GrandparentSelection';
@@ -58,6 +58,21 @@ function App() {
   const [ancestorIds, setAncestorIds] = useState<string[]>([]);
   const [character, setCharacter]     = useState<Character | null>(null);
   const [muted, setMuted]             = useState(audioManager.muted);
+  const muteRef = useRef<HTMLButtonElement>(null);
+
+  // Listener nativo con { passive: false } para que preventDefault()
+  // funcione en iOS/Android y evite que touchend dispare también click.
+  useEffect(() => {
+    const btn = muteRef.current;
+    if (!btn) return;
+    const handle = (e: TouchEvent) => {
+      e.preventDefault();
+      setMuted(audioManager.toggleMute());
+    };
+    btn.addEventListener('touchend', handle, { passive: false });
+    return () => btn.removeEventListener('touchend', handle);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const toggleMute = () => setMuted(audioManager.toggleMute());
   const isMobile = useIsMobile();
 
@@ -250,8 +265,8 @@ function App() {
 
       {/* ── Botón de mute ── */}
       <button
+        ref={muteRef}
         onClick={toggleMute}
-        onTouchEnd={(e) => { e.preventDefault(); toggleMute(); }}
         title={muted ? 'Activar música' : 'Silenciar música'}
         style={{
           position:       'fixed',
