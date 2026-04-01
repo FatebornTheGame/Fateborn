@@ -13,6 +13,8 @@ import DeathScreen from './components/DeathScreen';
 import VitalLoadIndicator from './components/VitalLoadIndicator';
 import CharacterPortrait, { getDominantGroup } from './components/CharacterPortrait';
 import InitiativeMenu from './components/InitiativeMenu';
+import SymptomNotification from './components/SymptomNotification';
+import BreakingBadHUD from './components/BreakingBadHUD';
 import type { LifeStage } from './components/CharacterPortrait';
 import type { Character } from './types';
 import { useGameStore } from './store/gameStore';
@@ -328,6 +330,12 @@ function App() {
           time={time}
         />
       )}
+
+      {/* ── Notificaciones de síntomas (no interrumpen el juego) ── */}
+      <SymptomNotification />
+
+      {/* ── Breaking Bad HUD: "La línea que cruzaste" ── */}
+      <BreakingBadHUD />
 
       {/* ── Retrato del personaje (top-left durante el juego) ── */}
       {GAMEPLAY_SCREENS.has(screen) && character && (

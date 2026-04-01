@@ -1,5 +1,8 @@
 import { create } from 'zustand';
 import type { Character, CharacterStats } from '../types';
+import type { ActiveDisease, DiseaseCategory } from '../systems/diseaseSystem';
+import { BB_STATE_DEFAULT } from '../arcs/breakingBad';
+import type { BBState, BBPhase } from '../arcs/breakingBad';
 
 // ─── Economy ─────────────────────────────────────────────────────────────────
 
@@ -57,6 +60,21 @@ export interface Time {
   asignacionSemanal:  AsignacionSemanal;
 }
 
+// ─── Health ───────────────────────────────────────────────────────────────────
+
+export interface SymptomNotif {
+  id:       string;
+  text:     string;
+  disease:  string;
+  category: DiseaseCategory;
+}
+
+export interface Health {
+  diseases:     ActiveDisease[];
+  bbState:      BBState;
+  symptomQueue: SymptomNotif[];
+}
+
 // ─── Country ─────────────────────────────────────────────────────────────────
 
 export type CountryTier = 1 | 2 | 3 | 4; // 1 = desarrollado, 4 = frágil
@@ -82,11 +100,12 @@ export interface GameState {
   character:   Character | null;
   ancestorIds: string[];
 
-  // New RPG slices
+  // RPG slices
   economy:  Economy;
   career:   Career;
   time:     Time;
   country:  Country;
+  health:   Health;
 
   // Actions — character
   setCharacter:   (char: Character | null) => void;
@@ -95,23 +114,38 @@ export interface GameState {
   addFlag:        (key: string, value: boolean | string | number) => void;
 
   // Actions — economy
-  setLiquidez:          (amount: number) => void;
-  updateEconomy:        (patch: Partial<Economy>) => void;
-  addInversion:         (item: InversionItem) => void;
-  addInmueble:          (inmueble: Inmueble) => void;
+  setLiquidez:   (amount: number) => void;
+  updateEconomy: (patch: Partial<Economy>) => void;
+  addInversion:  (item: InversionItem) => void;
+  addInmueble:   (inmueble: Inmueble) => void;
 
   // Actions — career
-  updateCareer:         (patch: Partial<Career>) => void;
-  ganarExperiencia:     (años: number) => void;
-  cambiarProfesion:     (profesion: string, nivel: NivelCarrera, ingreso: number) => void;
+  updateCareer:     (patch: Partial<Career>) => void;
+  ganarExperiencia: (años: number) => void;
+  cambiarProfesion: (profesion: string, nivel: NivelCarrera, ingreso: number) => void;
 
   // Actions — time
-  avanzarSemana:        () => void;
-  setAsignacion:        (asignacion: Partial<AsignacionSemanal>) => void;
-  updateCargaVital:     (carga: number) => void;
+  avanzarSemana:    () => void;
+  setAsignacion:    (asignacion: Partial<AsignacionSemanal>) => void;
+  updateCargaVital: (carga: number) => void;
 
   // Actions — country
-  setCountry:           (country: Country) => void;
+  setCountry: (country: Country) => void;
+
+  // Actions — health / diseases
+  addDisease:       (disease: ActiveDisease) => void;
+  updateDisease:    (diseaseId: string, patch: Partial<ActiveDisease>) => void;
+  removeDisease:    (diseaseId: string) => void;
+
+  // Actions — breaking bad arc
+  unlockBB:             () => void;
+  activateBB:           () => void;
+  setBBPhase:           (phase: BBPhase) => void;
+  incrementLineaCruzada:(delta: number) => void;
+
+  // Actions — symptom notifications
+  pushSymptom:  (notif: SymptomNotif) => void;
+  shiftSymptom: () => void;
 
   // Reset
   resetGame: () => void;
@@ -162,6 +196,14 @@ const DEFAULT_COUNTRY: Country = {
   },
 };
 
+// ─── Defaults ─── health ──────────────────────────────────────────────────────
+
+const DEFAULT_HEALTH: Health = {
+  diseases:     [],
+  bbState:      { ...BB_STATE_DEFAULT },
+  symptomQueue: [],
+};
+
 // ─── Store ────────────────────────────────────────────────────────────────────
 
 export const useGameStore = create<GameState>((set) => ({
@@ -172,6 +214,7 @@ export const useGameStore = create<GameState>((set) => ({
   career:      { ...DEFAULT_CAREER },
   time:        { ...DEFAULT_TIME },
   country:     { ...DEFAULT_COUNTRY },
+  health:      { ...DEFAULT_HEALTH, bbState: { ...BB_STATE_DEFAULT }, diseases: [], symptomQueue: [] },
 
   // ── Character actions ──
   setCharacter: (char) => set({ character: char }),
@@ -282,6 +325,77 @@ export const useGameStore = create<GameState>((set) => ({
   // ── Country actions ──
   setCountry: (country) => set({ country }),
 
+  // ── Health / disease actions ──
+  addDisease: (disease) => set((state) => ({
+    health: {
+      ...state.health,
+      diseases: [...state.health.diseases, disease],
+    },
+  })),
+
+  updateDisease: (diseaseId, patch) => set((state) => ({
+    health: {
+      ...state.health,
+      diseases: state.health.diseases.map(d =>
+        d.diseaseId === diseaseId ? { ...d, ...patch } : d
+      ),
+    },
+  })),
+
+  removeDisease: (diseaseId) => set((state) => ({
+    health: {
+      ...state.health,
+      diseases: state.health.diseases.filter(d => d.diseaseId !== diseaseId),
+    },
+  })),
+
+  // ── Breaking Bad arc ──
+  unlockBB: () => set((state) => ({
+    health: {
+      ...state.health,
+      bbState: { ...state.health.bbState, unlocked: true },
+    },
+  })),
+
+  activateBB: () => set((state) => ({
+    health: {
+      ...state.health,
+      bbState: { ...state.health.bbState, active: true },
+    },
+  })),
+
+  setBBPhase: (phase) => set((state) => ({
+    health: {
+      ...state.health,
+      bbState: { ...state.health.bbState, phase },
+    },
+  })),
+
+  incrementLineaCruzada: (delta) => set((state) => ({
+    health: {
+      ...state.health,
+      bbState: {
+        ...state.health.bbState,
+        lineaCruzada: Math.min(100, Math.max(0, state.health.bbState.lineaCruzada + delta)),
+      },
+    },
+  })),
+
+  // ── Symptom notifications ──
+  pushSymptom: (notif) => set((state) => ({
+    health: {
+      ...state.health,
+      symptomQueue: [...state.health.symptomQueue, notif],
+    },
+  })),
+
+  shiftSymptom: () => set((state) => ({
+    health: {
+      ...state.health,
+      symptomQueue: state.health.symptomQueue.slice(1),
+    },
+  })),
+
   // ── Reset ──
   resetGame: () => set({
     character:   null,
@@ -290,5 +404,6 @@ export const useGameStore = create<GameState>((set) => ({
     career:      { ...DEFAULT_CAREER },
     time:        { ...DEFAULT_TIME },
     country:     { ...DEFAULT_COUNTRY },
+    health:      { ...DEFAULT_HEALTH, bbState: { ...BB_STATE_DEFAULT }, diseases: [], symptomQueue: [] },
   }),
 }));
