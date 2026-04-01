@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTrack } from '../hooks/useTrack';
 import { useStatFlash } from '../hooks/useStatFlash';
+import { useIsMobile } from '../hooks/useIsMobile';
 import StatsPanel from './StatsPanel';
 import { MATURITY_EVENTS, type EventOption } from '../data/maturityEvents';
 import type { Character, CharacterStats } from '../types';
@@ -269,6 +270,7 @@ export default function MaturityScreen({
 }) {
   useTrack('/music/winter-quarters.mp3');
   const { flashMap, triggerFlash } = useStatFlash();
+  const isMobile = useIsMobile();
   const [currentEvent, setCurrentEvent] = useState(0);
   const [currentCharacter, setCurrentCharacter] = useState<Character>(character);
   const [completedChoices, setCompletedChoices] = useState<EventOption[]>([]);
@@ -305,7 +307,7 @@ export default function MaturityScreen({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '40px 0 64px',
+        padding: isMobile ? '24px 0 48px' : '40px 0 64px',
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -321,7 +323,7 @@ export default function MaturityScreen({
       <div style={{
         position: 'relative', zIndex: 1,
         width: '100%', maxWidth: '1100px',
-        padding: '0 40px',
+        padding: isMobile ? '0 16px' : '0 40px',
         display: 'flex', flexDirection: 'column', alignItems: 'center',
       }}>
 
@@ -456,11 +458,13 @@ export default function MaturityScreen({
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', width: isMobile ? '100%' : 'auto' }}>
               <button
                 onClick={() => onComplete(currentCharacter)}
                 style={{
-                  padding: '18px 72px',
+                  padding: isMobile ? '16px 24px' : '18px 72px',
+
+                  width: isMobile ? '100%' : 'auto',
                   borderRadius: '7px',
                   border: '1px solid rgba(201,168,76,0.55)',
                   background: 'linear-gradient(135deg, rgba(201,168,76,0.18), rgba(139,100,30,0.25))',

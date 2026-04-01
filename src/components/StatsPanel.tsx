@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useIsMobile } from '../hooks/useIsMobile';
 import type { CharacterStats } from '../types';
 
 const GOLD   = '#c9a84c';
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export default function StatsPanel({ stats, flashMap, name }: Props) {
+  const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
 
   return (
@@ -65,14 +67,15 @@ export default function StatsPanel({ stats, flashMap, name }: Props) {
           style={{
             position:        'fixed',
             bottom:          '88px',
-            left:            '16px',
+            left:            isMobile ? '8px' : '16px',
+            right:           isMobile ? '8px' : 'auto',
             zIndex:          9999,
             background:      'rgba(10,8,6,0.94)',
             border:          '1px solid rgba(201,168,76,0.2)',
             borderRadius:    '10px',
             padding:         '18px 20px',
             backdropFilter:  'blur(12px)',
-            minWidth:        '220px',
+            minWidth:        isMobile ? 'unset' : '220px',
             boxShadow:       '0 8px 32px rgba(0,0,0,0.6)',
           }}
         >

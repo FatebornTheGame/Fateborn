@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTrack } from '../hooks/useTrack';
 import { useStatFlash } from '../hooks/useStatFlash';
+import { useIsMobile } from '../hooks/useIsMobile';
 import StatsPanel from './StatsPanel';
 import { OLD_AGE_EVENTS, type EventOption } from '../data/oldAgeEvents';
 import type { Character, CharacterStats } from '../types';
@@ -309,6 +310,7 @@ export default function OldAgeScreen({
 }) {
   useTrack('/music/cast-vejez.mp3');
   const { flashMap, triggerFlash } = useStatFlash();
+  const isMobile = useIsMobile();
   const [currentEvent, setCurrentEvent] = useState(0);
   const [currentCharacter, setCurrentCharacter] = useState<Character>(character);
   const [allDone, setAllDone] = useState(false);
@@ -343,7 +345,7 @@ export default function OldAgeScreen({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '40px 0 64px',
+        padding: isMobile ? '24px 0 48px' : '40px 0 64px',
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -364,7 +366,7 @@ export default function OldAgeScreen({
       <div style={{
         position: 'relative', zIndex: 1,
         width: '100%', maxWidth: '1100px',
-        padding: '0 40px',
+        padding: isMobile ? '0 16px' : '0 40px',
         display: 'flex', flexDirection: 'column', alignItems: 'center',
       }}>
 

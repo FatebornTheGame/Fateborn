@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTrack } from '../hooks/useTrack';
+import { useIsMobile } from '../hooks/useIsMobile';
 import { archetypes } from '../data/archetypes';
 import type { Character } from '../types';
 
@@ -243,6 +244,7 @@ export default function BirthScreen({
   onConfirm: (character: Character) => void;
 }) {
   useTrack('/music/trails.mp3');
+  const isMobile = useIsMobile();
   const [name, setName] = useState('');
   const [gender, setGender] = useState<'hombre' | 'mujer' | null>(null);
   const [barsActive, setBarsActive] = useState(false);
@@ -282,7 +284,7 @@ export default function BirthScreen({
       <div style={{
         position: 'relative', zIndex: 1,
         width: '100%', maxWidth: '1100px',
-        padding: '0 40px',
+        padding: isMobile ? '0 16px' : '0 40px',
         display: 'flex', flexDirection: 'column', alignItems: 'center',
       }}>
 
@@ -316,7 +318,7 @@ export default function BirthScreen({
               key={i}
               className={`crimson fade-up`}
               style={{
-                fontSize: i === 2 ? '22px' : '18px',
+                fontSize: i === 2 ? (isMobile ? '18px' : '22px') : (isMobile ? '15px' : '18px'),
                 lineHeight: 1.7,
                 color: i === 2 ? GOLD_LIGHT : '#b09070',
                 margin: '0 0 6px',
@@ -469,8 +471,8 @@ export default function BirthScreen({
           {/* 3-column stat groups */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '16px',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+            gap: '12px',
             width: '100%',
           }}>
             {STAT_GROUPS.map((group, gi) => (
@@ -548,7 +550,8 @@ export default function BirthScreen({
           disabled={!canConfirm}
           style={{
             animationDelay: '1.9s',
-            padding: '18px 72px',
+            padding: isMobile ? '16px 24px' : '18px 72px',
+            width: isMobile ? '100%' : 'auto',
             borderRadius: '7px',
             border: `1px solid ${canConfirm ? 'rgba(201,168,76,0.55)' : 'rgba(255,255,255,0.05)'}`,
             background: canConfirm

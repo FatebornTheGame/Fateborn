@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTrack } from '../hooks/useTrack';
+import { useIsMobile } from '../hooks/useIsMobile';
 import { archetypes } from '../data/archetypes';
 import type { Archetype } from '../types';
 
@@ -257,7 +258,6 @@ function AncestorSlot({ index, archetype }: { index: number; archetype?: Archety
       borderRadius: '8px',
       border: `1px solid ${filled ? 'rgba(201,168,76,0.4)' : 'rgba(255,255,255,0.06)'}`,
       background: filled ? 'rgba(201,168,76,0.06)' : 'rgba(255,255,255,0.02)',
-      minWidth: '150px',
       transition: 'all 0.3s ease',
       boxShadow: filled ? '0 0 16px rgba(201,168,76,0.15)' : 'none',
     }}>
@@ -309,6 +309,7 @@ export default function GrandparentSelection({
   onConfirm: (selected: string[]) => void;
 }) {
   useTrack('/music/opening.mp3');
+  const isMobile = useIsMobile();
   // Array de hasta 4 archetypeIds — pueden repetirse
   const [selected, setSelected] = useState<string[]>([]);
 
@@ -355,7 +356,7 @@ export default function GrandparentSelection({
       <div style={{
         position: 'relative', zIndex: 1,
         width: '100%', maxWidth: '1400px',
-        padding: '0 40px',
+        padding: isMobile ? '0 16px' : '0 40px',
         display: 'flex', flexDirection: 'column', alignItems: 'center',
       }}>
 
@@ -388,11 +389,11 @@ export default function GrandparentSelection({
 
         {/* Panel de slots */}
         <div style={{
-          display: 'flex', gap: '12px',
+          display: 'flex', gap: '8px',
           marginBottom: '36px',
           flexWrap: 'wrap', justifyContent: 'center',
           width: '100%',
-          padding: '24px 40px',
+          padding: isMobile ? '14px 12px' : '24px 40px',
           borderRadius: '10px',
           border: '1px solid rgba(201,168,76,0.15)',
           background: 'rgba(0,0,0,0.3)',
@@ -406,8 +407,8 @@ export default function GrandparentSelection({
         {/* Grid de arquetipos */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '16px',
+          gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+          gap: isMobile ? '10px' : '16px',
           width: '100%',
           marginBottom: '40px',
         }}>
@@ -428,7 +429,8 @@ export default function GrandparentSelection({
           onClick={() => isComplete && onConfirm(selected)}
           disabled={!isComplete}
           style={{
-            padding: '18px 72px',
+            padding: isMobile ? '16px 24px' : '18px 72px',
+            width: isMobile ? '100%' : 'auto',
             borderRadius: '7px',
             border: `1px solid ${isComplete ? 'rgba(201,168,76,0.55)' : 'rgba(255,255,255,0.05)'}`,
             background: isComplete

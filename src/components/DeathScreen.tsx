@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTrack } from '../hooks/useTrack';
+import { useIsMobile } from '../hooks/useIsMobile';
 import type { Character, CharacterStats, NarrativeFlags } from '../types';
 
 /** Devuelve el nombre de la stat más alta del personaje */
@@ -297,12 +298,13 @@ function DynastyModal({ onClose }: { onClose: () => void }) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          padding: '48px 56px',
+          padding: '32px 24px',
           borderRadius: '12px',
           border: '1px solid rgba(201,168,76,0.2)',
           background: 'rgba(0,0,0,0.6)',
           textAlign: 'center',
           maxWidth: '440px',
+          width: '90%',
         }}
       >
         <div className="ornament-divider" style={{ marginBottom: '24px' }}>
@@ -362,6 +364,7 @@ export default function DeathScreen({
   onRestart: () => void;
 }) {
   useTrack('/music/dark-decision.mp3');
+  const isMobile = useIsMobile();
   const [revealed,   setRevealed]   = useState(false);
   const [barsActive, setBarsActive] = useState(false);
   const [showDynasty, setShowDynasty] = useState(false);
@@ -395,7 +398,7 @@ export default function DeathScreen({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '56px 0 80px',
+        padding: isMobile ? '32px 0 56px' : '56px 0 80px',
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -421,7 +424,7 @@ export default function DeathScreen({
       <div style={{
         position: 'relative', zIndex: 1,
         width: '100%', maxWidth: '780px',
-        padding: '0 40px',
+        padding: isMobile ? '0 16px' : '0 40px',
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         opacity: revealed ? 1 : 0,
         transition: 'opacity 1.5s ease 0.4s',
@@ -447,7 +450,7 @@ export default function DeathScreen({
         <div style={{ textAlign: 'center', marginBottom: '8px' }}>
           <h1 className="cinzel" style={{
             margin: 0,
-            fontSize: '38px',
+            fontSize: isMobile ? '28px' : '38px',
             fontWeight: 900,
             letterSpacing: '0.2em',
             textTransform: 'uppercase',
@@ -621,12 +624,13 @@ export default function DeathScreen({
         </div>
 
         {/* ── Buttons ───────────────────────────────────────────────────── */}
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', width: isMobile ? '100%' : 'auto', flexDirection: isMobile ? 'column' : 'row' }}>
           {/* Nueva vida */}
           <button
             onClick={onRestart}
             style={{
               padding: '16px 40px',
+              width: isMobile ? '100%' : 'auto',
               borderRadius: '7px',
               border: '1px solid rgba(201,168,76,0.5)',
               background: 'linear-gradient(135deg, rgba(201,168,76,0.15), rgba(139,100,30,0.22))',
@@ -659,6 +663,7 @@ export default function DeathScreen({
             onClick={() => setShowCredits(true)}
             style={{
               padding: '16px 28px',
+              width: isMobile ? '100%' : 'auto',
               borderRadius: '7px',
               border: '1px solid rgba(201,168,76,0.2)',
               background: 'transparent',
@@ -690,6 +695,7 @@ export default function DeathScreen({
             onClick={() => setShowDynasty(true)}
             style={{
               padding: '16px 40px',
+              width: isMobile ? '100%' : 'auto',
               borderRadius: '7px',
               border: '1px solid rgba(139,26,42,0.5)',
               background: 'linear-gradient(135deg, rgba(139,26,42,0.12), rgba(90,15,25,0.18))',
