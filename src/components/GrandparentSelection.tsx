@@ -298,148 +298,228 @@ function AncestorSlot({ index, archetype }: { index: number; archetype?: Archety
 // ─── Genealogy Tree ───────────────────────────────────────────────────────────
 
 /**
- * SVG family tree with 4 branches, one per ancestor slot.
- * Branches light up gold (pathLength trick) as slots are filled.
- * Trunk pulses when all 4 are selected.
+ * Organic SVG family tree — cubic bezier branches, tapered widths,
+ * root tendrils, junction ornaments, diamond tips.
+ * Each of the 4 terminal branches grows in when its ancestor slot is filled.
  */
 function GenealogyTree({ filled }: { filled: boolean[] }) {
-  const allFilled = filled.every(Boolean);
+  const allFilled      = filled.every(Boolean);
+  const leftAny        = filled[0] || filled[1];
+  const rightAny       = filled[2] || filled[3];
+  const leftBothFilled = filled[0] && filled[1];
+  const rightBothFilled= filled[2] && filled[3];
 
-  // Shared branch style factory
-  const branchStyle = (active: boolean, delay = '0s'): CSSProperties => ({
-    stroke: active ? GOLD : 'rgba(201,168,76,0.14)',
-    fill:   'none',
-    strokeLinecap: 'round',
-    strokeLinejoin: 'round',
+  // ── Color helpers ──
+  const dim  = 'rgba(201,168,76,0.22)';
+  const lit  = '#c9a84c';
+  const glit = (active: boolean) =>
+    active ? `drop-shadow(0 0 5px rgba(201,168,76,0.75))` : 'none';
+
+  // ── Grow-in style for the 4 terminal branches ──
+  const grow = (active: boolean, delay = '0s'): CSSProperties => ({
+    fill:            'none',
+    strokeLinecap:   'round',
     strokeDasharray: '1',
-    strokeDashoffset: active ? '0' : '1',
-    transition: `stroke-dashoffset 0.65s cubic-bezier(0.16,1,0.3,1) ${delay}, stroke 0.4s ease`,
-    filter: active ? 'drop-shadow(0 0 3px rgba(201,168,76,0.6))' : 'none',
+    strokeDashoffset: active ? 0 : 1,
+    stroke:          active ? lit : dim,
+    filter:          glit(active),
+    transition:      `stroke-dashoffset 0.7s cubic-bezier(0.16,1,0.3,1) ${delay},`
+                   + ` stroke 0.45s ease, filter 0.45s ease`,
   });
 
-  // Trunk + junction colors
-  const trunkStroke = allFilled ? GOLD : 'rgba(201,168,76,0.18)';
-  const trunkClass  = allFilled ? 'trunk-complete' : undefined;
-
-  // Junction dots (appear when both children of that pair are filled)
-  const leftPairFilled  = filled[0] && filled[1];
-  const rightPairFilled = filled[2] && filled[3];
+  // ── Structural branch style (always visible, brightens) ──
+  const struct = (active: boolean): CSSProperties => ({
+    fill:   'none',
+    stroke: active ? lit : dim,
+    filter: glit(active),
+    strokeLinecap: 'round',
+    transition: 'stroke 0.5s ease, filter 0.5s ease',
+  });
 
   return (
-    // viewBox: 0 0 400 160
     <svg
-      viewBox="0 0 400 160"
+      viewBox="0 0 500 195"
       preserveAspectRatio="xMidYMid meet"
       style={{
-        position: 'absolute',
-        inset: 0,
-        width: '100%',
-        height: '100%',
-        opacity: 0.85,
+        position:      'absolute',
+        inset:         0,
+        width:         '100%',
+        height:        '100%',
         pointerEvents: 'none',
+        overflow:      'visible',
       }}
     >
-      {/* ── Trunk ── */}
+      <defs>
+        {/* Radial gradient for the main trunk — thicker glow at base */}
+        <filter id="tree-glow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="2.5" result="b" />
+          <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+      </defs>
+
+      {/* ─────────────────────────────────────────────── */}
+      {/* ROOT TENDRILS — always dim, purely decorative  */}
+      {/* ─────────────────────────────────────────────── */}
+      <path d="M 250 192 C 237 189 220 193 206 190"
+        stroke="rgba(201,168,76,0.12)" fill="none" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M 250 192 C 263 189 280 193 294 190"
+        stroke="rgba(201,168,76,0.12)" fill="none" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M 250 190 C 244 186 236 189 228 186"
+        stroke="rgba(201,168,76,0.07)" fill="none" strokeWidth="0.8" strokeLinecap="round" />
+      <path d="M 250 190 C 256 186 264 189 272 186"
+        stroke="rgba(201,168,76,0.07)" fill="none" strokeWidth="0.8" strokeLinecap="round" />
+
+      {/* ─────────────────────────────────────────── */}
+      {/* MAIN TRUNK — tapers from base to fork       */}
+      {/* Split into two strokes for taper effect     */}
+      {/* ─────────────────────────────────────────── */}
+      {/* Thick base segment */}
       <path
-        d="M 200 155 L 200 105"
-        stroke={trunkStroke}
+        d="M 250 192 C 248 178 252 162 250 148"
+        stroke={allFilled || leftAny || rightAny ? lit : dim}
         fill="none"
-        strokeWidth="2.5"
+        strokeWidth="4.5"
         strokeLinecap="round"
-        className={trunkClass}
-        style={{ transition: 'stroke 0.5s ease', filter: allFilled ? 'drop-shadow(0 0 6px rgba(201,168,76,0.7))' : 'none' }}
+        filter="url(#tree-glow)"
+        className={allFilled ? 'trunk-complete' : undefined}
+        style={{ transition: 'stroke 0.5s ease' }}
       />
-
-      {/* ── Left main branch (paternal, slots 0+1) ── */}
+      {/* Mid segment — slightly thinner */}
       <path
-        d="M 200 105 Q 165 82 130 58"
-        pathLength="1"
-        strokeWidth="1.8"
-        style={branchStyle(leftPairFilled)}
+        d="M 250 148 C 249 138 250 130 250 120"
+        stroke={allFilled || leftAny || rightAny ? lit : dim}
+        fill="none"
+        strokeWidth="3.2"
+        strokeLinecap="round"
+        filter="url(#tree-glow)"
+        className={allFilled ? 'trunk-complete' : undefined}
+        style={{ transition: 'stroke 0.5s ease' }}
       />
 
-      {/* ── Right main branch (maternal, slots 2+3) ── */}
+      {/* ─────────────────────────────────────────── */}
+      {/* MAIN BRANCHES — cubic bezier, structural    */}
+      {/* ─────────────────────────────────────────── */}
+      {/* Left (paternal) */}
       <path
-        d="M 200 105 Q 235 82 270 58"
-        pathLength="1"
-        strokeWidth="1.8"
-        style={branchStyle(rightPairFilled)}
+        d="M 250 120 C 232 112 200 97 165 78"
+        strokeWidth="2.4"
+        style={struct(leftAny)}
       />
-
-      {/* ── Sub-branch slot 0 (far left) ── */}
+      {/* Right (maternal) */}
       <path
-        d="M 130 58 Q 100 38 78 18"
-        pathLength="1"
-        strokeWidth="1.4"
-        style={branchStyle(filled[0], '0s')}
+        d="M 250 120 C 268 112 300 97 335 78"
+        strokeWidth="2.4"
+        style={struct(rightAny)}
       />
 
-      {/* ── Sub-branch slot 1 (center-left) ── */}
+      {/* ─────────────────────────────────────────── */}
+      {/* JUNCTION OFFSHOOTS — tiny decorative twigs  */}
+      {/* ─────────────────────────────────────────── */}
+      <path d="M 165 78 C 160 72 152 69 144 63"
+        stroke="rgba(201,168,76,0.14)" fill="none"
+        strokeWidth="0.9" strokeLinecap="round" />
+      <path d="M 165 78 C 168 71 170 64 168 56"
+        stroke="rgba(201,168,76,0.1)"  fill="none"
+        strokeWidth="0.7" strokeLinecap="round" />
+      <path d="M 335 78 C 340 72 348 69 356 63"
+        stroke="rgba(201,168,76,0.14)" fill="none"
+        strokeWidth="0.9" strokeLinecap="round" />
+      <path d="M 335 78 C 332 71 330 64 332 56"
+        stroke="rgba(201,168,76,0.1)"  fill="none"
+        strokeWidth="0.7" strokeLinecap="round" />
+
+      {/* ─────────────────────────────────────────── */}
+      {/* TERMINAL BRANCHES — grow in on selection    */}
+      {/* ─────────────────────────────────────────── */}
+      {/* Slot 0 — far left */}
       <path
-        d="M 130 58 Q 152 38 168 18"
-        pathLength="1"
-        strokeWidth="1.4"
-        style={branchStyle(filled[1], '0.08s')}
+        d="M 165 78 C 145 65 116 49 90 28"
+        pathLength="1" strokeWidth="1.6"
+        style={grow(filled[0], '0s')}
       />
-
-      {/* ── Sub-branch slot 2 (center-right) ── */}
+      {/* Slot 1 — center-left */}
       <path
-        d="M 270 58 Q 248 38 232 18"
-        pathLength="1"
-        strokeWidth="1.4"
-        style={branchStyle(filled[2], '0s')}
+        d="M 165 78 C 178 64 193 48 208 28"
+        pathLength="1" strokeWidth="1.6"
+        style={grow(filled[1], '0.07s')}
       />
-
-      {/* ── Sub-branch slot 3 (far right) ── */}
+      {/* Slot 2 — center-right */}
       <path
-        d="M 270 58 Q 300 38 322 18"
-        pathLength="1"
-        strokeWidth="1.4"
-        style={branchStyle(filled[3], '0.08s')}
+        d="M 335 78 C 322 64 307 48 292 28"
+        pathLength="1" strokeWidth="1.6"
+        style={grow(filled[2], '0s')}
+      />
+      {/* Slot 3 — far right */}
+      <path
+        d="M 335 78 C 355 64 382 48 410 28"
+        pathLength="1" strokeWidth="1.6"
+        style={grow(filled[3], '0.07s')}
       />
 
-      {/* ── Leaf nodes (tip circles) ── */}
-      {[
-        { cx: 78,  cy: 18, idx: 0 },
-        { cx: 168, cy: 18, idx: 1 },
-        { cx: 232, cy: 18, idx: 2 },
-        { cx: 322, cy: 18, idx: 3 },
-      ].map(({ cx, cy, idx }) => (
-        <circle
-          key={idx}
-          cx={cx} cy={cy} r={5}
-          fill={filled[idx] ? 'rgba(201,168,76,0.2)' : 'transparent'}
-          stroke={filled[idx] ? GOLD : 'rgba(201,168,76,0.2)'}
-          strokeWidth="1"
-          style={{
-            filter: filled[idx] ? 'drop-shadow(0 0 5px rgba(201,168,76,0.7))' : 'none',
-            transition: 'all 0.4s ease',
-          }}
-        />
-      ))}
-
-      {/* ── Junction nodes ── */}
-      <circle
-        cx="130" cy="58" r="3.5"
-        fill={leftPairFilled ? 'rgba(201,168,76,0.25)' : 'transparent'}
-        stroke={leftPairFilled ? GOLD : 'rgba(201,168,76,0.15)'}
+      {/* ─────────────────────────────────────────── */}
+      {/* JUNCTION ORNAMENTS — knot circles           */}
+      {/* ─────────────────────────────────────────── */}
+      {/* Central fork */}
+      <circle cx="250" cy="120" r="4"
+        fill={leftAny || rightAny ? 'rgba(201,168,76,0.2)' : 'transparent'}
+        stroke={leftAny || rightAny ? lit : 'rgba(201,168,76,0.18)'}
         strokeWidth="0.8"
-        style={{ transition: 'all 0.4s ease', filter: leftPairFilled ? 'drop-shadow(0 0 4px rgba(201,168,76,0.6))' : 'none' }}
+        style={{ transition: 'all 0.5s ease',
+          filter: allFilled ? 'drop-shadow(0 0 7px rgba(201,168,76,0.9))' : glit(leftAny || rightAny) }}
+        className={allFilled ? 'trunk-complete' : undefined}
       />
-      <circle
-        cx="270" cy="58" r="3.5"
-        fill={rightPairFilled ? 'rgba(201,168,76,0.25)' : 'transparent'}
-        stroke={rightPairFilled ? GOLD : 'rgba(201,168,76,0.15)'}
+      {/* Left junction */}
+      <circle cx="165" cy="78" r="3"
+        fill={leftAny ? 'rgba(201,168,76,0.18)' : 'transparent'}
+        stroke={leftAny ? lit : 'rgba(201,168,76,0.15)'}
         strokeWidth="0.8"
-        style={{ transition: 'all 0.4s ease', filter: rightPairFilled ? 'drop-shadow(0 0 4px rgba(201,168,76,0.6))' : 'none' }}
+        style={{ transition: 'all 0.4s ease', filter: glit(leftBothFilled) }}
       />
-      <circle
-        cx="200" cy="105" r="4"
-        fill={allFilled ? 'rgba(201,168,76,0.3)' : 'transparent'}
-        stroke={allFilled ? GOLD : 'rgba(201,168,76,0.15)'}
+      {/* Right junction */}
+      <circle cx="335" cy="78" r="3"
+        fill={rightAny ? 'rgba(201,168,76,0.18)' : 'transparent'}
+        stroke={rightAny ? lit : 'rgba(201,168,76,0.15)'}
         strokeWidth="0.8"
-        style={{ transition: 'all 0.4s ease', filter: allFilled ? 'drop-shadow(0 0 6px rgba(201,168,76,0.8))' : 'none' }}
+        style={{ transition: 'all 0.4s ease', filter: glit(rightBothFilled) }}
       />
+
+      {/* ─────────────────────────────────────────── */}
+      {/* TIP DIAMONDS — emblem at each branch end    */}
+      {/* ─────────────────────────────────────────── */}
+      {([
+        { cx: 90,  cy: 28, idx: 0 },
+        { cx: 208, cy: 28, idx: 1 },
+        { cx: 292, cy: 28, idx: 2 },
+        { cx: 410, cy: 28, idx: 3 },
+      ] as const).map(({ cx, cy, idx }) => {
+        const on = filled[idx];
+        return (
+          <g key={idx}
+            style={{ transition: 'all 0.4s ease',
+              filter: on ? 'drop-shadow(0 0 7px rgba(201,168,76,0.85))' : 'none' }}
+          >
+            {/* Outer glow ring when active */}
+            {on && (
+              <circle cx={cx} cy={cy} r="9"
+                fill="rgba(201,168,76,0.07)"
+                stroke="rgba(201,168,76,0.25)"
+                strokeWidth="0.5"
+              />
+            )}
+            {/* Diamond */}
+            <polygon
+              points={`${cx},${cy - 7} ${cx + 5},${cy} ${cx},${cy + 7} ${cx - 5},${cy}`}
+              fill={on ? 'rgba(201,168,76,0.3)' : 'transparent'}
+              stroke={on ? lit : 'rgba(201,168,76,0.2)'}
+              strokeWidth="0.9"
+            />
+            {/* Center dot */}
+            <circle cx={cx} cy={cy} r="1.5"
+              fill={on ? lit : 'rgba(201,168,76,0.15)'}
+            />
+          </g>
+        );
+      })}
     </svg>
   );
 }
@@ -552,7 +632,7 @@ export default function GrandparentSelection({
           background: 'rgba(0,0,0,0.3)',
           backdropFilter: 'blur(8px)',
           position: 'relative',
-          minHeight: '80px',
+          minHeight: '110px',
         }}>
           {/* Genealogy tree — behind the slots */}
           <GenealogyTree filled={[0,1,2,3].map(i => selected[i] !== undefined)} />
