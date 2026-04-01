@@ -12,8 +12,10 @@ import OldAgeScreen from './components/OldAgeScreen';
 import DeathScreen from './components/DeathScreen';
 import VitalLoadIndicator from './components/VitalLoadIndicator';
 import CharacterPortrait, { getDominantGroup } from './components/CharacterPortrait';
+import InitiativeMenu from './components/InitiativeMenu';
 import type { LifeStage } from './components/CharacterPortrait';
 import type { Character } from './types';
+import { useGameStore } from './store/gameStore';
 import { audioManager } from './utils/audioManager';
 
 type Screen =
@@ -58,6 +60,8 @@ function App() {
   const [ancestorIds, setAncestorIds] = useState<string[]>([]);
   const [character, setCharacter]     = useState<Character | null>(null);
   const [muted, setMuted]             = useState(audioManager.muted);
+
+  const { economy, career, time } = useGameStore();
   const muteRef = useRef<HTMLButtonElement>(null);
 
   // Listener nativo con { passive: false } para que preventDefault()
@@ -313,6 +317,16 @@ function App() {
       {/* ── Indicador de Carga Vital ── */}
       {GAMEPLAY_SCREENS.has(screen) && character && (
         <VitalLoadIndicator stats={character.stats} visible />
+      )}
+
+      {/* ── Menú de Iniciativas ── */}
+      {GAMEPLAY_SCREENS.has(screen) && character && (
+        <InitiativeMenu
+          character={character}
+          economy={economy}
+          career={career}
+          time={time}
+        />
       )}
 
       {/* ── Retrato del personaje (top-left durante el juego) ── */}
