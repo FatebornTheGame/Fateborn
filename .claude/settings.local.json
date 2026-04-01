@@ -37,7 +37,9 @@
       "Bash(sed -n '54,70p' src/data/maturityEvents.ts)",
       "Bash(sed -n '93,102p' src/data/maturityEvents.ts)",
       "Bash(sed -n '127,135p' src/data/maturityEvents.ts)",
-      "Bash(node -e \":*)"
+      "Bash(node -e \":*)",
+      "Bash(npm ls:*)",
+      "Bash(timeout 8 npx vite build --mode development)"
     ]
   }
 }

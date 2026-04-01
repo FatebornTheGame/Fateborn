@@ -16,7 +16,7 @@ import InitiativeMenu from './components/InitiativeMenu';
 import SymptomNotification from './components/SymptomNotification';
 import BreakingBadHUD from './components/BreakingBadHUD';
 import type { LifeStage } from './components/CharacterPortrait';
-import type { Character } from './types';
+import type { Character, CharacterStats } from './types';
 import { useGameStore } from './store/gameStore';
 import { audioManager } from './utils/audioManager';
 
@@ -200,6 +200,26 @@ function App() {
     navigateTo('ancestors');
   };
 
+  const handleUpdateStats = useCallback((deltas: Partial<CharacterStats>) => {
+    if (!character) return;
+    const clamp = (v: number) => Math.min(10, Math.max(0, Math.round((v + Number.EPSILON) * 10) / 10));
+    const s = character.stats;
+    setCharacter({
+      ...character,
+      stats: {
+        logica:       clamp(s.logica       + (deltas.logica       ?? 0)),
+        creatividad:  clamp(s.creatividad  + (deltas.creatividad  ?? 0)),
+        disciplina:   clamp(s.disciplina   + (deltas.disciplina   ?? 0)),
+        carisma:      clamp(s.carisma      + (deltas.carisma      ?? 0)),
+        emocional:    clamp(s.emocional    + (deltas.emocional    ?? 0)),
+        ambicion:     clamp(s.ambicion     + (deltas.ambicion     ?? 0)),
+        fisico:       clamp(s.fisico       + (deltas.fisico       ?? 0)),
+        riesgo:       clamp(s.riesgo       + (deltas.riesgo       ?? 0)),
+        estabilidad:  clamp(s.estabilidad  + (deltas.estabilidad  ?? 0)),
+      },
+    });
+  }, [character]);
+
   // ─── Contenido de pantalla ────────────────────────────────────────────
   let content: React.ReactNode = null;
 
@@ -328,6 +348,7 @@ function App() {
           economy={economy}
           career={career}
           time={time}
+          onUpdateStats={handleUpdateStats}
         />
       )}
 
