@@ -251,6 +251,7 @@ function App() {
       {/* ── Botón de mute ── */}
       <button
         onClick={toggleMute}
+        onTouchEnd={(e) => { e.preventDefault(); toggleMute(); }}
         title={muted ? 'Activar música' : 'Silenciar música'}
         style={{
           position:       'fixed',
