@@ -22,10 +22,8 @@ const CATEGORY_LABEL: Record<DiseaseCategory, string> = {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function SymptomNotification() {
-  const { health, shiftSymptom } = useGameStore(s => ({
-    health:       s.health,
-    shiftSymptom: s.shiftSymptom,
-  }));
+  const health       = useGameStore(s => s.health);
+  const shiftSymptom = useGameStore(s => s.shiftSymptom);
 
   const [visible, setVisible]   = useState(false);
   const [fading,  setFading]    = useState(false);
