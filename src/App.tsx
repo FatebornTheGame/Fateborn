@@ -10,12 +10,31 @@ import AdulthoodScreen from './components/AdulthoodScreen';
 import MaturityScreen from './components/MaturityScreen';
 import OldAgeScreen from './components/OldAgeScreen';
 import DeathScreen from './components/DeathScreen';
+import VitalLoadIndicator from './components/VitalLoadIndicator';
+import CharacterPortrait, { getDominantGroup } from './components/CharacterPortrait';
+import type { LifeStage } from './components/CharacterPortrait';
 import type { Character } from './types';
 import { audioManager } from './utils/audioManager';
 
 type Screen =
   | 'ancestors' | 'birth' | 'childhood' | 'adolescence'
   | 'youth' | 'adulthood' | 'maturity' | 'oldage' | 'death';
+
+// ─── Mapa de pantalla → etapa vital ───────────────────────────────────────
+const SCREEN_TO_LIFE_STAGE: Partial<Record<Screen, LifeStage>> = {
+  childhood:   'childhood',
+  adolescence: 'adolescence',
+  youth:       'youth',
+  adulthood:   'adulthood',
+  maturity:    'maturity',
+  oldage:      'oldage',
+  death:       'oldage',
+};
+
+// ─── Pantallas de juego activo (muestran indicadores HUD) ──────────────────
+const GAMEPLAY_SCREENS = new Set<Screen>([
+  'childhood', 'adolescence', 'youth', 'adulthood', 'maturity', 'oldage', 'death',
+]);
 
 // ─── Títulos de etapa vital ────────────────────────────────────────────────
 const STAGE_TITLES: Partial<Record<Screen, { name: string; years: string }>> = {
@@ -274,6 +293,41 @@ function App() {
           </svg>
         )}
       </button>
+
+      {/* ── Indicador de Carga Vital ── */}
+      {GAMEPLAY_SCREENS.has(screen) && character && (
+        <VitalLoadIndicator stats={character.stats} visible />
+      )}
+
+      {/* ── Retrato del personaje (top-left durante el juego) ── */}
+      {GAMEPLAY_SCREENS.has(screen) && character && (
+        <div style={{
+          position:    'fixed',
+          top:         '14px',
+          left:        '16px',
+          zIndex:      10001,
+          display:     'flex',
+          alignItems:  'center',
+          gap:         '8px',
+          pointerEvents: 'none',
+        }}>
+          <CharacterPortrait
+            stage={SCREEN_TO_LIFE_STAGE[screen] ?? 'youth'}
+            gender={character.gender}
+            dominantGroup={getDominantGroup(character.stats)}
+            size={46}
+          />
+          <span style={{
+            fontFamily:    '"Cinzel", serif',
+            fontSize:      '9px',
+            letterSpacing: '0.16em',
+            textTransform: 'uppercase',
+            color:         'rgba(201,168,76,0.35)',
+          }}>
+            {character.name}
+          </span>
+        </div>
+      )}
 
       {/* ── Crédito de música (licencia CC BY) — discreto, esquina inferior ── */}
       <div style={{

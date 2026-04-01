@@ -145,3 +145,84 @@ body {
   background: #2a2018;
   border-radius: 3px;
 }
+
+/* ── Radar chart ── */
+@keyframes radar-reveal {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+@keyframes vertex-flash-pos {
+  0%   { filter: drop-shadow(0 0 4px #c9a84c); }
+  40%  { filter: drop-shadow(0 0 14px #e8d08a); }
+  100% { filter: drop-shadow(0 0 4px #c9a84c); }
+}
+@keyframes vertex-flash-neg {
+  0%   { filter: drop-shadow(0 0 4px #8b1a2a); }
+  40%  { filter: drop-shadow(0 0 14px #c06070); }
+  100% { filter: drop-shadow(0 0 4px #8b1a2a); }
+}
+.radar-data-active {
+  animation: radar-reveal 1.4s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+
+/* ── Character portrait aura ── */
+@keyframes aura-breathe {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 0.85; }
+}
+.portrait-aura {
+  animation: aura-breathe 3s ease-in-out infinite;
+}
+
+/* ── Genealogy tree ── */
+@keyframes branch-grow {
+  from { stroke-dashoffset: 1; }
+  to   { stroke-dashoffset: 0; }
+}
+.branch-active {
+  animation: branch-grow 0.65s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+@keyframes trunk-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 1; filter: drop-shadow(0 0 8px #c9a84c); }
+}
+.trunk-complete {
+  animation: trunk-pulse 2s ease-in-out infinite;
+}
+
+/* ── Stat-change particles ── */
+@keyframes particle-rise {
+  0%   { transform: translateY(0) translateX(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-55px) translateX(var(--px, 0px)) scale(0); opacity: 0; }
+}
+@keyframes particle-fall {
+  0%   { transform: translateY(0) translateX(0) scale(1); opacity: 1; }
+  100% { transform: translateY(55px) translateX(var(--px, 0px)) scale(0); opacity: 0; }
+}
+
+/* ── Ash particles (DeathScreen) ── */
+@keyframes ash-fall {
+  0%   { transform: translateY(-20px) translateX(0); opacity: 0; }
+  8%   { opacity: 0.5; }
+  85%  { opacity: 0.3; }
+  100% { transform: translateY(110vh) translateX(var(--ash-drift, 12px)); opacity: 0; }
+}
+
+/* ── Death name typewriter ── */
+@keyframes char-appear {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.death-char {
+  display: inline-block;
+  animation: char-appear 0.18s ease forwards;
+}
+
+/* ── Vital load indicator ── */
+@keyframes vital-pulse-red {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.08); }
+}
+.vital-pulse-active {
+  animation: vital-pulse-red 1.5s ease-in-out infinite;
+}

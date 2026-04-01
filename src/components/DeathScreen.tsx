@@ -370,6 +370,11 @@ export default function DeathScreen({
   const [showDynasty, setShowDynasty] = useState(false);
   const [showCredits, setShowCredits] = useState(false);
 
+  // Typewriter name
+  const [nameChars,      setNameChars]      = useState(0);
+  // Staggered epitaph lines
+  const [epitafioVisible, setEpitafioVisible] = useState(0);
+
   useEffect(() => {
     const t1 = setTimeout(() => setRevealed(true), 300);
     return () => clearTimeout(t1);
@@ -381,6 +386,37 @@ export default function DeathScreen({
       return () => clearTimeout(t);
     }
   }, [revealed]);
+
+  // Typewriter: start at 2.2s after mount, then one char per 90ms
+  useEffect(() => {
+    let tickRef: ReturnType<typeof setInterval> | null = null;
+    const start = setTimeout(() => {
+      let i = 0;
+      tickRef = setInterval(() => {
+        i++;
+        setNameChars(i);
+        if (i >= character.name.length) {
+          if (tickRef !== null) clearInterval(tickRef);
+        }
+      }, 90);
+    }, 2200);
+    return () => {
+      clearTimeout(start);
+      if (tickRef !== null) clearInterval(tickRef);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Staggered epitaph: reveal each line with 900ms gap after name finishes
+  useEffect(() => {
+    if (nameChars < character.name.length) return;
+    let line = 0;
+    const tick = setInterval(() => {
+      line++;
+      setEpitafioVisible(line);
+      if (line >= epitafio.length) clearInterval(tick);
+    }, 900);
+    return () => clearInterval(tick);
+  }, [nameChars >= character.name.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const scores    = useMemo(() => calcScores(character.flags, character.stats), []);
   const epitafio  = useMemo(() => generateEpitafio(character.flags, character.stats, character.gender, character.name), []);
@@ -403,14 +439,43 @@ export default function DeathScreen({
         overflow: 'hidden',
       }}
     >
-      {/* Entry overlay — fades out */}
+      {/* Entry overlay — fades out (3s) */}
       <div style={{
         position: 'fixed', inset: 0, zIndex: 50,
         background: '#060402',
         opacity: revealed ? 0 : 1,
-        transition: 'opacity 2.2s ease',
+        transition: 'opacity 3s ease',
         pointerEvents: 'none',
       }} />
+
+      {/* Ash particles background */}
+      {revealed && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+          {Array.from({ length: 22 }, (_, k) => {
+            const left   = (k * 4.5 + Math.sin(k * 1.7) * 7 + 100 * ((k % 5) / 5)) % 100;
+            const dur    = 8 + (k % 7) * 1.4;
+            const delay  = (k * 0.55) % 7;
+            const size   = 2 + (k % 3);
+            const drift  = ((k % 5) - 2) * 14;
+            return (
+              <div
+                key={k}
+                style={{
+                  position:  'absolute',
+                  left:      `${left}%`,
+                  top:       0,
+                  width:     `${size}px`,
+                  height:    `${size}px`,
+                  borderRadius: '50%',
+                  background: `rgba(${170 + (k % 20)},${160 + (k % 15)},${150 + (k % 10)},0.45)`,
+                  animation: `ash-fall ${dur}s linear ${delay}s infinite`,
+                  ['--ash-drift' as string]: `${drift}px`,
+                }}
+              />
+            );
+          })}
+        </div>
+      )}
 
       {/* Vignette */}
       <div style={{
@@ -446,7 +511,7 @@ export default function DeathScreen({
           <Diamond color={`${GOLD_DIM}60`} />
         </div>
 
-        {/* ── Name & years ──────────────────────────────────────────────── */}
+        {/* ── Name & years (typewriter) ──────────────────────────────── */}
         <div style={{ textAlign: 'center', marginBottom: '8px' }}>
           <h1 className="cinzel" style={{
             margin: 0,
@@ -456,8 +521,29 @@ export default function DeathScreen({
             textTransform: 'uppercase',
             color: GOLD_LIGHT,
             textShadow: `0 0 40px ${GOLD}30`,
+            minHeight: isMobile ? '36px' : '48px',
           }}>
-            {character.name}
+            {character.name.slice(0, nameChars).split('').map((ch, i) => (
+              <span
+                key={i}
+                className="death-char"
+                style={{ animationDelay: `${i * 0.02}s` }}
+              >
+                {ch === ' ' ? '\u00A0' : ch}
+              </span>
+            ))}
+            {/* Blinking cursor while typing */}
+            {nameChars < character.name.length && (
+              <span style={{
+                display: 'inline-block',
+                width: '2px',
+                height: '0.8em',
+                background: GOLD_LIGHT,
+                marginLeft: '3px',
+                verticalAlign: 'middle',
+                animation: 'cursor-blink 0.8s ease infinite',
+              }} />
+            )}
           </h1>
         </div>
         <p className="cinzel" style={{
@@ -486,6 +572,9 @@ export default function DeathScreen({
               color: i === 0 ? '#a08060' : '#7a6045',
               fontStyle: 'italic',
               letterSpacing: '0.01em',
+              opacity: i < epitafioVisible ? 1 : 0,
+              transform: i < epitafioVisible ? 'translateY(0)' : 'translateY(10px)',
+              transition: 'opacity 0.9s ease, transform 0.9s ease',
             }}>
               {sentence}
             </p>

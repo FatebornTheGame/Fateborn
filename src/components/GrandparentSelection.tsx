@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { CSSProperties } from 'react';
 import { useTrack } from '../hooks/useTrack';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { archetypes } from '../data/archetypes';
@@ -294,6 +295,155 @@ function AncestorSlot({ index, archetype }: { index: number; archetype?: Archety
   );
 }
 
+// ─── Genealogy Tree ───────────────────────────────────────────────────────────
+
+/**
+ * SVG family tree with 4 branches, one per ancestor slot.
+ * Branches light up gold (pathLength trick) as slots are filled.
+ * Trunk pulses when all 4 are selected.
+ */
+function GenealogyTree({ filled }: { filled: boolean[] }) {
+  const allFilled = filled.every(Boolean);
+
+  // Shared branch style factory
+  const branchStyle = (active: boolean, delay = '0s'): CSSProperties => ({
+    stroke: active ? GOLD : 'rgba(201,168,76,0.14)',
+    fill:   'none',
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    strokeDasharray: '1',
+    strokeDashoffset: active ? '0' : '1',
+    transition: `stroke-dashoffset 0.65s cubic-bezier(0.16,1,0.3,1) ${delay}, stroke 0.4s ease`,
+    filter: active ? 'drop-shadow(0 0 3px rgba(201,168,76,0.6))' : 'none',
+  });
+
+  // Trunk + junction colors
+  const trunkStroke = allFilled ? GOLD : 'rgba(201,168,76,0.18)';
+  const trunkClass  = allFilled ? 'trunk-complete' : undefined;
+
+  // Junction dots (appear when both children of that pair are filled)
+  const leftPairFilled  = filled[0] && filled[1];
+  const rightPairFilled = filled[2] && filled[3];
+
+  return (
+    // viewBox: 0 0 400 160
+    <svg
+      viewBox="0 0 400 160"
+      preserveAspectRatio="xMidYMid meet"
+      style={{
+        position: 'absolute',
+        inset: 0,
+        width: '100%',
+        height: '100%',
+        opacity: 0.85,
+        pointerEvents: 'none',
+      }}
+    >
+      {/* ── Trunk ── */}
+      <path
+        d="M 200 155 L 200 105"
+        stroke={trunkStroke}
+        fill="none"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        className={trunkClass}
+        style={{ transition: 'stroke 0.5s ease', filter: allFilled ? 'drop-shadow(0 0 6px rgba(201,168,76,0.7))' : 'none' }}
+      />
+
+      {/* ── Left main branch (paternal, slots 0+1) ── */}
+      <path
+        d="M 200 105 Q 165 82 130 58"
+        pathLength="1"
+        strokeWidth="1.8"
+        style={branchStyle(leftPairFilled)}
+      />
+
+      {/* ── Right main branch (maternal, slots 2+3) ── */}
+      <path
+        d="M 200 105 Q 235 82 270 58"
+        pathLength="1"
+        strokeWidth="1.8"
+        style={branchStyle(rightPairFilled)}
+      />
+
+      {/* ── Sub-branch slot 0 (far left) ── */}
+      <path
+        d="M 130 58 Q 100 38 78 18"
+        pathLength="1"
+        strokeWidth="1.4"
+        style={branchStyle(filled[0], '0s')}
+      />
+
+      {/* ── Sub-branch slot 1 (center-left) ── */}
+      <path
+        d="M 130 58 Q 152 38 168 18"
+        pathLength="1"
+        strokeWidth="1.4"
+        style={branchStyle(filled[1], '0.08s')}
+      />
+
+      {/* ── Sub-branch slot 2 (center-right) ── */}
+      <path
+        d="M 270 58 Q 248 38 232 18"
+        pathLength="1"
+        strokeWidth="1.4"
+        style={branchStyle(filled[2], '0s')}
+      />
+
+      {/* ── Sub-branch slot 3 (far right) ── */}
+      <path
+        d="M 270 58 Q 300 38 322 18"
+        pathLength="1"
+        strokeWidth="1.4"
+        style={branchStyle(filled[3], '0.08s')}
+      />
+
+      {/* ── Leaf nodes (tip circles) ── */}
+      {[
+        { cx: 78,  cy: 18, idx: 0 },
+        { cx: 168, cy: 18, idx: 1 },
+        { cx: 232, cy: 18, idx: 2 },
+        { cx: 322, cy: 18, idx: 3 },
+      ].map(({ cx, cy, idx }) => (
+        <circle
+          key={idx}
+          cx={cx} cy={cy} r={5}
+          fill={filled[idx] ? 'rgba(201,168,76,0.2)' : 'transparent'}
+          stroke={filled[idx] ? GOLD : 'rgba(201,168,76,0.2)'}
+          strokeWidth="1"
+          style={{
+            filter: filled[idx] ? 'drop-shadow(0 0 5px rgba(201,168,76,0.7))' : 'none',
+            transition: 'all 0.4s ease',
+          }}
+        />
+      ))}
+
+      {/* ── Junction nodes ── */}
+      <circle
+        cx="130" cy="58" r="3.5"
+        fill={leftPairFilled ? 'rgba(201,168,76,0.25)' : 'transparent'}
+        stroke={leftPairFilled ? GOLD : 'rgba(201,168,76,0.15)'}
+        strokeWidth="0.8"
+        style={{ transition: 'all 0.4s ease', filter: leftPairFilled ? 'drop-shadow(0 0 4px rgba(201,168,76,0.6))' : 'none' }}
+      />
+      <circle
+        cx="270" cy="58" r="3.5"
+        fill={rightPairFilled ? 'rgba(201,168,76,0.25)' : 'transparent'}
+        stroke={rightPairFilled ? GOLD : 'rgba(201,168,76,0.15)'}
+        strokeWidth="0.8"
+        style={{ transition: 'all 0.4s ease', filter: rightPairFilled ? 'drop-shadow(0 0 4px rgba(201,168,76,0.6))' : 'none' }}
+      />
+      <circle
+        cx="200" cy="105" r="4"
+        fill={allFilled ? 'rgba(201,168,76,0.3)' : 'transparent'}
+        stroke={allFilled ? GOLD : 'rgba(201,168,76,0.15)'}
+        strokeWidth="0.8"
+        style={{ transition: 'all 0.4s ease', filter: allFilled ? 'drop-shadow(0 0 6px rgba(201,168,76,0.8))' : 'none' }}
+      />
+    </svg>
+  );
+}
+
 // ─── Ornament ─────────────────────────────────────────────────────────────────
 
 function Diamond({ color }: { color: string }) {
@@ -390,7 +540,7 @@ export default function GrandparentSelection({
           De su sangre naces. De tus decisiones te forjas.
         </p>
 
-        {/* Panel de slots */}
+        {/* Panel de slots + árbol genealógico */}
         <div style={{
           display: 'flex', gap: '8px',
           marginBottom: '36px',
@@ -401,9 +551,17 @@ export default function GrandparentSelection({
           border: '1px solid rgba(201,168,76,0.15)',
           background: 'rgba(0,0,0,0.3)',
           backdropFilter: 'blur(8px)',
+          position: 'relative',
+          minHeight: '80px',
         }}>
+          {/* Genealogy tree — behind the slots */}
+          <GenealogyTree filled={[0,1,2,3].map(i => selected[i] !== undefined)} />
+
+          {/* Slot cards — above the tree */}
           {[0, 1, 2, 3].map((i) => (
-            <AncestorSlot key={i} index={i} archetype={getSlotArchetype(i)} />
+            <div key={i} style={{ position: 'relative', zIndex: 1 }}>
+              <AncestorSlot index={i} archetype={getSlotArchetype(i)} />
+            </div>
           ))}
         </div>
 

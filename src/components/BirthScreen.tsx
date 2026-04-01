@@ -3,6 +3,9 @@ import { useTrack } from '../hooks/useTrack';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { archetypes } from '../data/archetypes';
 import type { Character } from '../types';
+import type { CharacterStats } from '../types';
+import StatRadar from './StatRadar';
+import CharacterPortrait, { getDominantGroup } from './CharacterPortrait';
 
 // ─── Brand colors ──────────────────────────────────────────────────────────────
 const GOLD       = '#c9a84c';
@@ -119,120 +122,6 @@ function Diamond({ color }: { color: string }) {
   );
 }
 
-function StatBar({
-  label,
-  value,
-  color,
-  active,
-  delay,
-}: {
-  label: string;
-  value: number;
-  color: string;
-  active: boolean;
-  delay: number;
-}) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-      <span style={{
-        fontFamily: "'Cinzel', serif",
-        fontSize: '11px',
-        color: '#8a7558',
-        width: '82px',
-        textAlign: 'right',
-        flexShrink: 0,
-        letterSpacing: '0.06em',
-        textTransform: 'uppercase',
-      }}>
-        {label}
-      </span>
-      <div style={{
-        flex: 1,
-        background: 'rgba(255,255,255,0.05)',
-        borderRadius: '99px',
-        height: '6px',
-        overflow: 'hidden',
-        border: '1px solid rgba(255,255,255,0.04)',
-      }}>
-        <div style={{
-          width: active ? `${value * 10}%` : '0%',
-          height: '100%',
-          background: `linear-gradient(90deg, ${color}66, ${color})`,
-          borderRadius: '99px',
-          boxShadow: `0 0 8px ${color}60`,
-          transition: `width 1.3s cubic-bezier(0.16,1,0.3,1) ${delay}s`,
-        }} />
-      </div>
-      <span style={{
-        fontFamily: "'Cinzel', serif",
-        fontSize: '12px',
-        color: active ? color : '#3a2a10',
-        width: '28px',
-        flexShrink: 0,
-        transition: `color 0.4s ease ${delay + 1}s`,
-      }}>
-        {value}
-      </span>
-    </div>
-  );
-}
-
-function StatGroup({
-  group,
-  stats,
-  active,
-  groupIndex,
-}: {
-  group: typeof STAT_GROUPS[0];
-  stats: Record<string, number>;
-  active: boolean;
-  groupIndex: number;
-}) {
-  return (
-    <div
-      className="fade-up"
-      style={{
-        animationDelay: `${1.2 + groupIndex * 0.15}s`,
-        padding: '20px 22px',
-        borderRadius: '10px',
-        border: `1px solid ${group.color}25`,
-        background: 'rgba(0,0,0,0.35)',
-        backdropFilter: 'blur(8px)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px',
-      }}
-    >
-      {/* Group header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-        <div style={{ flex: 1, height: '1px', background: `linear-gradient(90deg, ${group.color}40, transparent)` }} />
-        <span style={{
-          fontFamily: "'Cinzel', serif",
-          fontSize: '10px',
-          fontWeight: 700,
-          letterSpacing: '0.25em',
-          textTransform: 'uppercase',
-          color: group.color,
-          textShadow: `0 0 12px ${group.glow}`,
-        }}>
-          {group.label}
-        </span>
-        <div style={{ flex: 1, height: '1px', background: `linear-gradient(90deg, transparent, ${group.color}40)` }} />
-      </div>
-      {/* Stats */}
-      {group.stats.map((s, i) => (
-        <StatBar
-          key={s.key}
-          label={s.label}
-          value={stats[s.key] ?? 5}
-          color={group.color}
-          active={active}
-          delay={groupIndex * 0.15 + i * 0.18}
-        />
-      ))}
-    </div>
-  );
-}
 
 // ─── Main screen ───────────────────────────────────────────────────────────────
 
@@ -468,24 +357,94 @@ export default function BirthScreen({
             </span>
           </div>
 
-          {/* 3-column stat groups */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
-            gap: '12px',
-            width: '100%',
-          }}>
-            {STAT_GROUPS.map((group, gi) => (
-              <StatGroup
-                key={group.key}
-                group={group}
-                stats={stats}
-                active={barsActive}
-                groupIndex={gi}
-              />
-            ))}
+          {/* ── Radar chart ── */}
+          <div
+            className="fade-up"
+            style={{
+              animationDelay: '1.2s',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '20px',
+              width: '100%',
+            }}
+          >
+            <StatRadar
+              stats={stats as unknown as CharacterStats}
+              active={barsActive}
+              size={isMobile ? 210 : 270}
+            />
+
+            {/* Compact stat value grid */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3,1fr)',
+              gap: '8px 28px',
+              width: '100%',
+              maxWidth: '440px',
+            }}>
+              {STAT_GROUPS.map((group) => (
+                <div key={group.key} style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  <div style={{
+                    fontSize: '7.5px',
+                    letterSpacing: '0.2em',
+                    color: `${group.color}50`,
+                    fontFamily: "'Cinzel', serif",
+                    textTransform: 'uppercase',
+                    marginBottom: '2px',
+                  }}>
+                    {group.label}
+                  </div>
+                  {group.stats.map((s) => (
+                    <div key={s.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{
+                        fontFamily: "'Cinzel', serif",
+                        fontSize: '9px',
+                        color: '#5a4a2e',
+                        letterSpacing: '0.06em',
+                        textTransform: 'uppercase',
+                      }}>
+                        {s.label}
+                      </span>
+                      <span style={{
+                        fontFamily: "'Cinzel', serif",
+                        fontSize: '10px',
+                        color: barsActive ? group.color : '#3a2a10',
+                        fontWeight: 700,
+                        transition: 'color 0.5s ease',
+                      }}>
+                        {((stats as Record<string, number>)[s.key] ?? 5).toFixed(1)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+
+        {/* ── Character portrait (appears after gender selected) ── */}
+        {gender && (
+          <div
+            className="fade-up"
+            style={{ animationDelay: '0.1s', marginBottom: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}
+          >
+            <CharacterPortrait
+              stage="youth"
+              gender={gender}
+              dominantGroup={getDominantGroup(stats as unknown as CharacterStats)}
+              size={80}
+            />
+            <span className="cinzel" style={{
+              fontSize: '8px',
+              letterSpacing: '0.25em',
+              textTransform: 'uppercase',
+              color: 'rgba(201,168,76,0.3)',
+            }}>
+              Retrato Ancestral
+            </span>
+          </div>
+        )}
 
         {/* ── Genes ocultos ──────────────────────────────────────────────── */}
         <div

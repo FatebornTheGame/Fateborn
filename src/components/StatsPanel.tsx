@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useIsMobile } from '../hooks/useIsMobile';
 import type { CharacterStats } from '../types';
+import StatRadar from './StatRadar';
+import { useParticles, ParticleLayer } from '../utils/particles';
 
 const GOLD   = '#c9a84c';
 const GARNET = '#8b1a2a';
@@ -27,11 +29,34 @@ interface Props {
 export default function StatsPanel({ stats, flashMap, name }: Props) {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
+  const [particles, emitParticles] = useParticles();
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const prevFlashRef = useRef<Record<string, 'pos' | 'neg'>>({});
+
+  // Emit particles whenever a new flash occurs
+  useEffect(() => {
+    const prev = prevFlashRef.current;
+    for (const [key, dir] of Object.entries(flashMap)) {
+      if (!prev[key]) {
+        // Emit from button position with slight offset
+        const btn = btnRef.current;
+        if (btn) {
+          const r = btn.getBoundingClientRect();
+          emitParticles(r.left + r.width / 2, r.top + r.height / 2, dir);
+        }
+      }
+    }
+    prevFlashRef.current = { ...flashMap };
+  }, [flashMap, emitParticles]);
 
   return (
     <>
+      {/* ── Particles layer ── */}
+      <ParticleLayer particles={particles} />
+
       {/* ── Toggle button — fixed bottom-left ── */}
       <button
+        ref={btnRef}
         onClick={() => setOpen(o => !o)}
         title={open ? 'Cerrar perfil' : 'Ver perfil'}
         style={{
@@ -86,10 +111,15 @@ export default function StatsPanel({ stats, flashMap, name }: Props) {
             letterSpacing: '0.28em',
             textTransform: 'uppercase',
             color:         'rgba(201,168,76,0.4)',
-            marginBottom:  '14px',
+            marginBottom:  '10px',
             textAlign:     'center',
           }}>
             {name}
+          </div>
+
+          {/* Mini radar */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
+            <StatRadar stats={stats} flashMap={flashMap} active size={isMobile ? 150 : 170} />
           </div>
 
           {/* Stats por grupo */}
