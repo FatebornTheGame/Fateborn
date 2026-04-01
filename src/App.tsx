@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
+import { useIsMobile } from './hooks/useIsMobile';
 import './App.css';
 import GrandparentSelection from './components/GrandparentSelection';
 import BirthScreen from './components/BirthScreen';
@@ -39,6 +40,7 @@ function App() {
   const [character, setCharacter]     = useState<Character | null>(null);
   const [muted, setMuted]             = useState(audioManager.muted);
   const toggleMute = () => setMuted(audioManager.toggleMute());
+  const isMobile = useIsMobile();
 
   // Transición
   const [overlayOpaque, setOverlayOpaque] = useState(false);
@@ -273,12 +275,13 @@ function App() {
         )}
       </button>
 
-      {/* ── Crédito de música (licencia CC BY) — discreto, esquina inferior izquierda ── */}
+      {/* ── Crédito de música (licencia CC BY) — discreto, esquina inferior ── */}
       <div style={{
         position:   'fixed',
         bottom:     '12px',
-        left:       '16px',
-        zIndex:     9998,
+        left:       isMobile ? 'auto' : '16px',
+        right:      isMobile ? '12px' : 'auto',
+        zIndex:     100,
         fontFamily: 'sans-serif',
         fontSize:   '9px',
         letterSpacing: '0.04em',

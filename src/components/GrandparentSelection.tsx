@@ -67,12 +67,14 @@ function ArchetypeCard({
   totalSelected,
   onAdd,
   onRemove,
+  isMobile,
 }: {
   archetype: Archetype;
   count: number;          // veces que este arquetipo está seleccionado
   totalSelected: number;  // total de slots ocupados
   onAdd: () => void;
   onRemove: () => void;
+  isMobile: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
   const isSelected = count > 0;
@@ -111,6 +113,7 @@ function ArchetypeCard({
         boxShadow,
         transition: 'all 0.3s ease',
         backdropFilter: 'blur(8px)',
+        overflow: 'hidden',
       }}
     >
       {/* Top accent line */}
@@ -131,7 +134,7 @@ function ArchetypeCard({
           className="cinzel"
           style={{
             color: isSelected ? GOLD_LIGHT : `${archetype.accentColor}ee`,
-            fontSize: '16px',
+            fontSize: isMobile ? '13px' : '16px',
             fontWeight: 700,
             letterSpacing: '0.06em',
             textTransform: 'uppercase',
@@ -309,7 +312,7 @@ export default function GrandparentSelection({
   onConfirm: (selected: string[]) => void;
 }) {
   useTrack('/music/opening.mp3');
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(640);
   // Array de hasta 4 archetypeIds — pueden repetirse
   const [selected, setSelected] = useState<string[]>([]);
 
@@ -407,7 +410,7 @@ export default function GrandparentSelection({
         {/* Grid de arquetipos */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)',
           gap: isMobile ? '10px' : '16px',
           width: '100%',
           marginBottom: '40px',
@@ -420,6 +423,7 @@ export default function GrandparentSelection({
               totalSelected={selected.length}
               onAdd={() => handleAdd(archetype.id)}
               onRemove={() => handleRemove(archetype.id)}
+              isMobile={isMobile}
             />
           ))}
         </div>
