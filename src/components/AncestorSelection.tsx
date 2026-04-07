@@ -573,7 +573,7 @@ export default function AncestorSelection({
           width: '100%',
           marginBottom: '40px',
         }}>
-          {archetypes.map(archetype => (
+          {archetypes.slice(0, 8).map(archetype => (
             <ArchetypeCard
               key={archetype.id}
               archetype={archetype}

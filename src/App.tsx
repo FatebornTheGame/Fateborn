@@ -17,6 +17,7 @@ import InitiativeMenu from './components/InitiativeMenu';
 import SymptomNotification from './components/SymptomNotification';
 import BreakingBadHUD from './components/BreakingBadHUD';
 import SaulGoodmanHUD from './components/SaulGoodmanHUD';
+import GameScreen from './components/GameScreen';
 import type { LifeStage } from './components/CharacterPortrait';
 import type { Character, CharacterStats } from './types';
 import type { Country } from './store/gameStore';
@@ -24,7 +25,7 @@ import { useGameStore } from './store/gameStore';
 import { audioManager } from './utils/audioManager';
 
 type Screen =
-  | 'start' | 'ancestors' | 'birth' | 'childhood' | 'adolescence'
+  | 'start' | 'ancestors' | 'birth' | 'game' | 'childhood' | 'adolescence'
   | 'youth' | 'adulthood' | 'maturity' | 'oldage' | 'death';
 
 // ─── Mapa de pantalla → etapa vital ───────────────────────────────────────
@@ -169,7 +170,7 @@ function App() {
 
   const handleBirthConfirmed = (char: Character) => {
     setCharacter(char);
-    navigateTo('childhood');
+    navigateTo('game');
   };
 
   const handleChildhoodComplete = (updated: Character) => {
@@ -237,6 +238,8 @@ function App() {
     content = <AncestorSelection onConfirm={handleAncestorsConfirmed} />;
   } else if (screen === 'birth') {
     content = <BirthScreen ancestorIds={ancestorIds} onConfirm={handleBirthConfirmed} />;
+  } else if (screen === 'game' && character) {
+    content = <GameScreen character={character} onContinue={() => navigateTo('childhood')} />;
   } else if (screen === 'childhood' && character) {
     content = <ChildhoodScreen character={character} onComplete={handleChildhoodComplete} />;
   } else if (screen === 'adolescence' && character) {
