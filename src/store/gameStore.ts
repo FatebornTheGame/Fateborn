@@ -6,6 +6,10 @@ import type { BBState, BBPhase } from '../arcs/breakingBad';
 import { SG_STATE_DEFAULT } from '../arcs/saulGoodman';
 import type { SGState, SGPhase } from '../arcs/saulGoodman';
 
+// ─── Game Mode ────────────────────────────────────────────────────────────────
+
+export type GameMode = 'historia' | 'fateborn' | 'ironman' | 'legado';
+
 // ─── Economy ─────────────────────────────────────────────────────────────────
 
 export interface InversionItem {
@@ -103,6 +107,7 @@ export interface GameState {
   // Character (existing)
   character:   Character | null;
   ancestorIds: string[];
+  gameMode:    GameMode;
 
   // RPG slices
   economy:  Economy;
@@ -116,6 +121,7 @@ export interface GameState {
   setAncestorIds: (ids: string[]) => void;
   updateStats:    (deltas: Partial<CharacterStats>) => void;
   addFlag:        (key: string, value: boolean | string | number) => void;
+  setGameMode:    (mode: GameMode) => void;
 
   // Actions — economy
   setLiquidez:   (amount: number) => void;
@@ -223,6 +229,7 @@ export const useGameStore = create<GameState>((set) => ({
   // ── Initial state ──
   character:   null,
   ancestorIds: [],
+  gameMode:    'historia',
   economy:     { ...DEFAULT_ECONOMY },
   career:      { ...DEFAULT_CAREER },
   time:        { ...DEFAULT_TIME },
@@ -232,6 +239,7 @@ export const useGameStore = create<GameState>((set) => ({
   // ── Character actions ──
   setCharacter: (char) => set({ character: char }),
   setAncestorIds: (ids) => set({ ancestorIds: ids }),
+  setGameMode: (mode) => set({ gameMode: mode }),
 
   updateStats: (deltas) => set((state) => {
     if (!state.character) return state;
@@ -449,6 +457,7 @@ export const useGameStore = create<GameState>((set) => ({
   resetGame: () => set({
     character:   null,
     ancestorIds: [],
+    gameMode:    'historia',
     economy:     { ...DEFAULT_ECONOMY },
     career:      { ...DEFAULT_CAREER },
     time:        { ...DEFAULT_TIME },

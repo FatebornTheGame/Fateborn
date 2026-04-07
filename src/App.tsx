@@ -1,7 +1,8 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useIsMobile } from './hooks/useIsMobile';
 import './App.css';
-import GrandparentSelection from './components/GrandparentSelection';
+import StartScreen from './components/StartScreen';
+import AncestorSelection from './components/AncestorSelection';
 import BirthScreen from './components/BirthScreen';
 import ChildhoodScreen from './components/ChildhoodScreen';
 import AdolescenceScreen from './components/AdolescenceScreen';
@@ -18,11 +19,12 @@ import BreakingBadHUD from './components/BreakingBadHUD';
 import SaulGoodmanHUD from './components/SaulGoodmanHUD';
 import type { LifeStage } from './components/CharacterPortrait';
 import type { Character, CharacterStats } from './types';
+import type { Country } from './store/gameStore';
 import { useGameStore } from './store/gameStore';
 import { audioManager } from './utils/audioManager';
 
 type Screen =
-  | 'ancestors' | 'birth' | 'childhood' | 'adolescence'
+  | 'start' | 'ancestors' | 'birth' | 'childhood' | 'adolescence'
   | 'youth' | 'adulthood' | 'maturity' | 'oldage' | 'death';
 
 // ─── Mapa de pantalla → etapa vital ───────────────────────────────────────
@@ -59,12 +61,12 @@ const SAFETY_MS     = 6000;
 
 // ─── App ──────────────────────────────────────────────────────────────────
 function App() {
-  const [screen, setScreen]           = useState<Screen>('ancestors');
+  const [screen, setScreen]           = useState<Screen>('start');
   const [ancestorIds, setAncestorIds] = useState<string[]>([]);
   const [character, setCharacter]     = useState<Character | null>(null);
   const [muted, setMuted]             = useState(audioManager.muted);
 
-  const { economy, career, time } = useGameStore();
+  const { economy, career, time, setCountry } = useGameStore();
   const muteRef = useRef<HTMLButtonElement>(null);
 
   // Listener nativo con { passive: false } para que preventDefault()
@@ -155,8 +157,13 @@ function App() {
   }, [forceTransitionEnd]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Handlers ─────────────────────────────────────────────────────────
-  const handleAncestorsConfirmed = (ids: string[]) => {
+  const handleStartConfirmed = () => {
+    navigateTo('ancestors');
+  };
+
+  const handleAncestorsConfirmed = (ids: string[], country: Country) => {
     setAncestorIds(ids);
+    setCountry(country);
     navigateTo('birth');
   };
 
@@ -198,7 +205,7 @@ function App() {
   const handleRestart = () => {
     setCharacter(null);
     setAncestorIds([]);
-    navigateTo('ancestors');
+    navigateTo('start');
   };
 
   const handleUpdateStats = useCallback((deltas: Partial<CharacterStats>) => {
@@ -224,8 +231,10 @@ function App() {
   // ─── Contenido de pantalla ────────────────────────────────────────────
   let content: React.ReactNode = null;
 
-  if (screen === 'ancestors') {
-    content = <GrandparentSelection onConfirm={handleAncestorsConfirmed} />;
+  if (screen === 'start') {
+    content = <StartScreen onStart={handleStartConfirmed} />;
+  } else if (screen === 'ancestors') {
+    content = <AncestorSelection onConfirm={handleAncestorsConfirmed} />;
   } else if (screen === 'birth') {
     content = <BirthScreen ancestorIds={ancestorIds} onConfirm={handleBirthConfirmed} />;
   } else if (screen === 'childhood' && character) {

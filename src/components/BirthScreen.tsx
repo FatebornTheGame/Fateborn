@@ -2,38 +2,22 @@ import { useState, useEffect, useMemo } from 'react';
 import { useTrack } from '../hooks/useTrack';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { archetypes } from '../data/archetypes';
+import { calculateInheritedStats } from '../data/archetypeStats';
 import type { Character } from '../types';
 import type { CharacterStats } from '../types';
 import StatRadar from './StatRadar';
 import CharacterPortrait, { getDominantGroup } from './CharacterPortrait';
+import { useGameStore } from '../store/gameStore';
 
 // ─── Brand colors ──────────────────────────────────────────────────────────────
 const GOLD       = '#c9a84c';
 const GOLD_LIGHT = '#e8d08a';
 
-// ─── Stat system ───────────────────────────────────────────────────────────────
+// ─── Birth year range ─────────────────────────────────────────────────────────
+const BIRTH_YEAR_MIN = 1940;
+const BIRTH_YEAR_MAX = 2000;
 
-// Contribution of each archetype to each of the 9 inherited stats (0–10 scale)
-const CONTRIBUTIONS: Record<string, Record<string, number>> = {
-  atleta:      { logica: 4, creatividad: 3, disciplina: 8, carisma: 5, emocional: 4, ambicion: 6, fisico: 9, riesgo: 6, estabilidad: 5 },
-  academico:   { logica: 9, creatividad: 6, disciplina: 8, carisma: 4, emocional: 5, ambicion: 6, fisico: 3, riesgo: 2, estabilidad: 7 },
-  artista:     { logica: 5, creatividad: 9, disciplina: 4, carisma: 7, emocional: 8, ambicion: 5, fisico: 4, riesgo: 6, estabilidad: 4 },
-  lider:       { logica: 7, creatividad: 6, disciplina: 7, carisma: 9, emocional: 6, ambicion: 9, fisico: 6, riesgo: 5, estabilidad: 6 },
-  obrero:      { logica: 4, creatividad: 3, disciplina: 9, carisma: 4, emocional: 5, ambicion: 5, fisico: 8, riesgo: 4, estabilidad: 8 },
-  emprendedor: { logica: 7, creatividad: 7, disciplina: 6, carisma: 8, emocional: 5, ambicion: 9, fisico: 5, riesgo: 8, estabilidad: 4 },
-  cuidador:    { logica: 5, creatividad: 6, disciplina: 6, carisma: 7, emocional: 9, ambicion: 4, fisico: 5, riesgo: 3, estabilidad: 8 },
-  explorador:  { logica: 6, creatividad: 8, disciplina: 5, carisma: 6, emocional: 6, ambicion: 7, fisico: 7, riesgo: 9, estabilidad: 3 },
-  // Nuevos arquetipos
-  filosofo:    { logica: 9, creatividad: 8, disciplina: 6, carisma: 5, emocional: 7, ambicion: 5, fisico: 3, riesgo: 4, estabilidad: 7 },
-  medico:      { logica: 8, creatividad: 5, disciplina: 9, carisma: 6, emocional: 8, ambicion: 6, fisico: 5, riesgo: 3, estabilidad: 7 },
-  militar:     { logica: 6, creatividad: 4, disciplina: 9, carisma: 7, emocional: 4, ambicion: 7, fisico: 9, riesgo: 6, estabilidad: 7 },
-  politico:    { logica: 7, creatividad: 6, disciplina: 7, carisma: 9, emocional: 5, ambicion: 9, fisico: 4, riesgo: 6, estabilidad: 5 },
-  criminal:    { logica: 6, creatividad: 7, disciplina: 5, carisma: 6, emocional: 4, ambicion: 8, fisico: 7, riesgo: 9, estabilidad: 3 },
-  marinero:    { logica: 5, creatividad: 6, disciplina: 7, carisma: 6, emocional: 6, ambicion: 5, fisico: 8, riesgo: 9, estabilidad: 4 },
-  sacerdote:   { logica: 7, creatividad: 6, disciplina: 8, carisma: 8, emocional: 9, ambicion: 4, fisico: 4, riesgo: 3, estabilidad: 9 },
-  mercader:    { logica: 7, creatividad: 7, disciplina: 6, carisma: 8, emocional: 5, ambicion: 9, fisico: 4, riesgo: 7, estabilidad: 5 },
-  abogado:     { logica: 9, creatividad: 7, disciplina: 8, carisma: 8, emocional: 5, ambicion: 8, fisico: 3, riesgo: 5, estabilidad: 6 },
-};
+// ─── Stat system (contribuciones movidas a archetypeStats.ts) ────────────────
 
 const STAT_GROUPS = [
   {
@@ -86,16 +70,6 @@ const HIDDEN_GENES_POOL = [
   'Pensamiento lateral espontáneo',
 ];
 
-function calculateStats(ids: string[]): Record<string, number> {
-  const keys = ['logica', 'creatividad', 'disciplina', 'carisma', 'emocional', 'ambicion', 'fisico', 'riesgo', 'estabilidad'];
-  const result: Record<string, number> = {};
-  for (const key of keys) {
-    const avg = ids.reduce((sum, id) => sum + (CONTRIBUTIONS[id]?.[key] ?? 5), 0) / ids.length;
-    const mutation = Math.random() * 0.2 - 0.1; // ±10%
-    result[key] = Math.min(10, Math.max(1, parseFloat((avg * (1 + mutation)).toFixed(1))));
-  }
-  return result;
-}
 
 function pickHiddenGenes(): string[] {
   const shuffled = [...HIDDEN_GENES_POOL].sort(() => Math.random() - 0.5);
@@ -152,13 +126,19 @@ export default function BirthScreen({
   onConfirm: (character: Character) => void;
 }) {
   useTrack('/music/trails.mp3');
-  const isMobile = useIsMobile();
-  const [name, setName] = useState('');
-  const [gender, setGender] = useState<'hombre' | 'mujer' | null>(null);
+  const isMobile  = useIsMobile();
+  const [name,       setName]       = useState('');
+  const [gender,     setGender]     = useState<'hombre' | 'mujer' | null>(null);
+  const [birthYear,  setBirthYear]  = useState(1970);
   const [barsActive, setBarsActive] = useState(false);
 
+  const { setCharacter, setAncestorIds: storeSetAncestorIds } = useGameStore(s => ({
+    setCharacter:    s.setCharacter,
+    setAncestorIds:  s.setAncestorIds,
+  }));
+
   // Computed once on mount
-  const stats      = useMemo(() => calculateStats(ancestorIds), []);
+  const stats       = useMemo(() => calculateInheritedStats(ancestorIds), []); // eslint-disable-line react-hooks/exhaustive-deps
   const hiddenGenes = useMemo(() => pickHiddenGenes(), []);
 
   useEffect(() => {
@@ -167,6 +147,21 @@ export default function BirthScreen({
   }, []);
 
   const canConfirm = name.trim().length >= 2 && gender !== null;
+
+  const handleConfirm = () => {
+    if (!canConfirm || !gender) return;
+    const char: Character = {
+      name:        name.trim(),
+      gender,
+      birthYear,
+      ancestorIds,
+      stats,
+      flags: {},
+    };
+    storeSetAncestorIds(ancestorIds);
+    setCharacter(char);
+    onConfirm(char);
+  };
 
   return (
     <div
@@ -357,6 +352,55 @@ export default function BirthScreen({
           )}
         </div>
 
+        {/* ── Birth year selector ────────────────────────────────────────── */}
+        <div
+          className="fade-up"
+          style={{ animationDelay: '1.65s', width: '100%', maxWidth: '440px', marginBottom: '36px' }}
+        >
+          <label className="cinzel" style={{
+            display: 'block',
+            textAlign: 'center',
+            fontSize: '10px',
+            letterSpacing: '0.3em',
+            textTransform: 'uppercase',
+            color: '#5a4a2e',
+            marginBottom: '14px',
+          }}>
+            Año de nacimiento
+          </label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span className="cinzel" style={{ color: 'rgba(201,168,76,0.35)', fontSize: '11px', flexShrink: 0 }}>
+              {BIRTH_YEAR_MIN}
+            </span>
+            <input
+              type="range"
+              min={BIRTH_YEAR_MIN}
+              max={BIRTH_YEAR_MAX}
+              value={birthYear}
+              onChange={e => setBirthYear(Number(e.target.value))}
+              style={{
+                flex: 1,
+                accentColor: GOLD,
+                height: '4px',
+                cursor: 'pointer',
+              }}
+            />
+            <span className="cinzel" style={{ color: 'rgba(201,168,76,0.35)', fontSize: '11px', flexShrink: 0 }}>
+              {BIRTH_YEAR_MAX}
+            </span>
+          </div>
+          <div style={{ textAlign: 'center', marginTop: '8px' }}>
+            <span className="cinzel" style={{
+              fontSize: '20px',
+              fontWeight: 700,
+              color: GOLD_LIGHT,
+              letterSpacing: '0.1em',
+            }}>
+              {birthYear}
+            </span>
+          </div>
+        </div>
+
         {/* ── Stats section ──────────────────────────────────────────────── */}
         <div style={{ width: '100%', marginBottom: '40px' }}>
           {/* Section header */}
@@ -389,7 +433,7 @@ export default function BirthScreen({
             }}
           >
             <StatRadar
-              stats={stats as unknown as CharacterStats}
+              stats={stats}
               active={barsActive}
               size={isMobile ? 210 : 270}
             />
@@ -432,7 +476,7 @@ export default function BirthScreen({
                         fontWeight: 700,
                         transition: 'color 0.5s ease',
                       }}>
-                        {((stats as Record<string, number>)[s.key] ?? 5).toFixed(1)}
+                        {(stats[s.key as keyof CharacterStats] ?? 5).toFixed(1)}
                       </span>
                     </div>
                   ))}
@@ -451,7 +495,7 @@ export default function BirthScreen({
             <CharacterPortrait
               stage="youth"
               gender={gender}
-              dominantGroup={getDominantGroup(stats as unknown as CharacterStats)}
+              dominantGroup={getDominantGroup(stats)}
               size={80}
             />
             <span className="cinzel" style={{
@@ -524,7 +568,7 @@ export default function BirthScreen({
         {/* ── CTA button ─────────────────────────────────────────────────── */}
         <button
           className="fade-up"
-          onClick={() => canConfirm && gender && onConfirm({ name: name.trim(), gender, birthYear: 1943 + Math.floor(Math.random() * 21), stats: stats as unknown as import('../types').CharacterStats, ancestorIds, flags: {} })}
+          onClick={handleConfirm}
           disabled={!canConfirm}
           style={{
             animationDelay: '1.9s',
