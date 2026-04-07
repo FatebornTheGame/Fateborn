@@ -5,6 +5,7 @@ import { useIsMobile } from '../hooks/useIsMobile';
 import StatsPanel from './StatsPanel';
 import { ADOLESCENCE_EVENTS, type EventOption } from '../data/adolescenceEvents';
 import type { Character, CharacterStats } from '../types';
+import { useGameStore } from '../store/gameStore';
 
 // ─── Brand colors ──────────────────────────────────────────────────────────────
 const GOLD       = '#c9a84c';
@@ -277,6 +278,15 @@ export default function AdolescenceScreen({
   const [completedChoices, setCompletedChoices] = useState<EventOption[]>([]);
   const [allDone, setAllDone] = useState(false);
 
+  const setNarrativeAge = useGameStore(s => s.setNarrativeAge);
+
+  // Sincronizar la edad narrativa con el evento actual para el InitiativeMenu
+  useEffect(() => {
+    if (ADOLESCENCE_EVENTS.length > 0) {
+      setNarrativeAge(ADOLESCENCE_EVENTS[0].age);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleChoice = (option: EventOption) => {
     const updatedStats = applyDeltas(currentCharacter.stats, option.statDeltas);
     const updatedFlags = { ...currentCharacter.flags };
@@ -295,6 +305,8 @@ export default function AdolescenceScreen({
     if (currentEvent + 1 >= ADOLESCENCE_EVENTS.length) {
       setAllDone(true);
     } else {
+      // Actualizar edad narrativa para el siguiente evento
+      setNarrativeAge(ADOLESCENCE_EVENTS[currentEvent + 1].age);
       setTimeout(() => setCurrentEvent(currentEvent + 1), 400);
     }
   };

@@ -15,6 +15,7 @@ import CharacterPortrait, { getDominantGroup } from './components/CharacterPortr
 import InitiativeMenu from './components/InitiativeMenu';
 import SymptomNotification from './components/SymptomNotification';
 import BreakingBadHUD from './components/BreakingBadHUD';
+import SaulGoodmanHUD from './components/SaulGoodmanHUD';
 import type { LifeStage } from './components/CharacterPortrait';
 import type { Character, CharacterStats } from './types';
 import { useGameStore } from './store/gameStore';
@@ -349,6 +350,9 @@ function App() {
           career={career}
           time={time}
           onUpdateStats={handleUpdateStats}
+          currentAge={screen === 'adolescence' && time.narrativeAge > 0
+            ? time.narrativeAge
+            : undefined}
         />
       )}
 
@@ -357,6 +361,9 @@ function App() {
 
       {/* ── Breaking Bad HUD: "La línea que cruzaste" ── */}
       <BreakingBadHUD />
+
+      {/* ── Saul Goodman HUD: "El precio de la victoria" ── */}
+      <SaulGoodmanHUD />
 
       {/* ── Retrato del personaje (top-left durante el juego) ── */}
       {GAMEPLAY_SCREENS.has(screen) && character && (

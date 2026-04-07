@@ -51,6 +51,22 @@ function suggestProfession(stats: CharacterStats): { profesion: string; nivel: '
   return { profesion: entry.profesion, nivel: 'junior', ingreso: entry.ingreso };
 }
 
+// ─── Age-based category locking ───────────────────────────────────────────────
+
+/**
+ * PROBLEMA 3: bloquea los ítems de una categoría si la edad es menor que minAge.
+ * Muestra tooltip "Disponible cuando tengas X años."
+ */
+function withAgeLock(items: Initiative[], currentAge: number | undefined, minAge: number): Initiative[] {
+  if (currentAge === undefined || currentAge >= minAge) return items;
+  return items.map(item => ({
+    ...item,
+    locked:     true,
+    lockReason: `Disponible cuando tengas ${minAge} años.`,
+    onActivate: null,
+  }));
+}
+
 // ─── Category builder ─────────────────────────────────────────────────────────
 
 function buildCategories(
@@ -68,16 +84,17 @@ function buildCategories(
     diario:            () => void;
     chequeo:           () => void;
   },
+  currentAge?: number,
 ): Category[] {
   const stats = character.stats;
   const sinTrabajo = !career.profesion;
 
-  return [
+  const allCategories: Category[] = [
     {
       id:    'personal',
       label: 'VIDA PERSONAL',
       icon:  '◈',
-      items: [
+      items: withAgeLock([
         {
           id:          'meditacion',
           label:       'Práctica de meditación',
@@ -116,13 +133,58 @@ function buildCategories(
           locked:      false,
           onActivate:  actions.llamarAmigo,
         },
-      ],
+      ], currentAge, 14),
+    },
+    // PROBLEMA 3: EDUCACIÓN disponible desde los 14
+    {
+      id:    'educacion',
+      label: 'EDUCACIÓN',
+      icon:  '◐',
+      items: withAgeLock([
+        {
+          id:          'universidad',
+          label:       'Buscar plaza en universidad',
+          description: '+Lógica, +Disciplina, opciones de carrera',
+          effect:      '+0.4 Lógica, +0.3 Disciplina',
+          costLabel:   'Calificaciones mín.',
+          locked:      stats.logica < 5 && stats.disciplina < 5,
+          lockReason:  'Requiere Lógica o Disciplina ≥ 5',
+          onActivate:  null,
+        },
+        {
+          id:          'idiomas',
+          label:       'Aprender idiomas',
+          description: '+Carisma, +Creatividad',
+          effect:      '+0.3 Carisma, +0.2 Creatividad',
+          costLabel:   '2h/semana',
+          locked:      false,
+          onActivate:  null,
+        },
+        {
+          id:          'formacion_profesional',
+          label:       'Formación profesional / FP',
+          description: '+Disciplina, +opción de trabajo técnico',
+          effect:      '+0.4 Disciplina',
+          costLabel:   '1 año',
+          locked:      false,
+          onActivate:  null,
+        },
+        {
+          id:          'autodidacta',
+          label:       'Aprendizaje autodidacta',
+          description: '+Creatividad, +Lógica',
+          effect:      '+0.3 Creatividad, +0.2 Lógica',
+          costLabel:   '3h/semana',
+          locked:      false,
+          onActivate:  actions.diario,
+        },
+      ], currentAge, 14),
     },
     {
       id:    'carrera',
       label: 'CARRERA',
       icon:  '⬡',
-      items: [
+      items: withAgeLock([
         {
           id:          'buscar_trabajo',
           label:       sinTrabajo ? 'Buscar trabajo' : 'Cambiar de trabajo',
@@ -163,13 +225,13 @@ function buildCategories(
           lockReason:  `Reputación actual: ${career.reputacion}/25`,
           onActivate:  null,
         },
-      ],
+      ], currentAge, 16),
     },
     {
       id:    'finanzas',
       label: 'FINANZAS',
       icon:  '◇',
-      items: [
+      items: withAgeLock([
         {
           id:          'fondo_emergencia',
           label:       'Fondo de emergencia',
@@ -210,13 +272,13 @@ function buildCategories(
           lockReason:  stats.ambicion < 7 ? 'Requiere Ambición ≥ 7' : 'Capital insuficiente (10.000€)',
           onActivate:  null,
         },
-      ],
+      ], currentAge, 19),
     },
     {
       id:    'salud',
       label: 'SALUD',
       icon:  '♥',
-      items: [
+      items: withAgeLock([
         {
           id:          'ejercicio_regular',
           label:       'Ejercicio regular',
@@ -256,13 +318,13 @@ function buildCategories(
           lockReason:  `Físico actual: ${stats.fisico.toFixed(1)}/5`,
           onActivate:  null,
         },
-      ],
+      ], currentAge, 16),
     },
     {
       id:    'social',
       label: 'SOCIAL',
       icon:  '◉',
-      items: [
+      items: withAgeLock([
         {
           id:          'circulo_intimo',
           label:       'Cultivar círculo íntimo',
@@ -303,9 +365,11 @@ function buildCategories(
           lockReason:  `Experiencia: ${career.experiencia} años (necesitas 5)`,
           onActivate:  null,
         },
-      ],
+      ], currentAge, 14),
     },
   ];
+
+  return allCategories;
 }
 
 // ─── Item component ───────────────────────────────────────────────────────────
@@ -475,9 +539,10 @@ interface Props {
   career:        Career;
   time:          Time;
   onUpdateStats: (deltas: Partial<CharacterStats>) => void;
+  currentAge?:   number; // edad narrativa actual — controla qué categorías están disponibles
 }
 
-export default function InitiativeMenu({ character, economy, career, time, onUpdateStats }: Props) {
+export default function InitiativeMenu({ character, economy, career, time, onUpdateStats, currentAge }: Props) {
   const [panelOpen, setPanelOpen] = useState(false);
   const [openCats,  setOpenCats]  = useState<Set<string>>(new Set(['personal']));
   const [feedback,  setFeedback]  = useState<string | null>(null);
@@ -548,7 +613,7 @@ export default function InitiativeMenu({ character, economy, career, time, onUpd
   void fbTimerRef; // suppress lint
 
   const actions = { buscarTrabajo, irAlMedico, llamarAmigo, meditacion, ejercicio, networking, diario, chequeo };
-  const categories = buildCategories(character, economy, career, time, actions);
+  const categories = buildCategories(character, economy, career, time, actions, currentAge);
 
   const toggleCat = (id: string) => {
     setOpenCats(prev => {

@@ -274,7 +274,7 @@ export const BB_PHASES: BBPhaseData[] = [
 const QUALIFYING_PROFESSIONS = [
   'científico', 'cientifico', 'médico', 'medico', 'farmacéutico', 'farmaceutico',
   'químico', 'quimico', 'biólogo', 'biologo', 'investigador', 'doctor',
-  'farmacología', 'farmacologia',
+  'farmacología', 'farmacologia', 'profesor', 'laboratorio', 'investigacion',
 ];
 
 const NIVEL_RANK: Record<string, number> = {
@@ -295,13 +295,14 @@ export function evaluateBBUnlock(
   career:    Career,
   economy:   Economy,
   terminalDiseaseActive: boolean,
-  familiasDependientes:  boolean,
+  _familiasDependientes: boolean = false, // deprecated — ya no es requisito
 ): BBUnlockConditions {
   const profLower = career.profesion.toLowerCase();
   const professionQualifies = QUALIFYING_PROFESSIONS.some(p => profLower.includes(p));
   const nivelSuficiente     = (NIVEL_RANK[career.nivel] ?? 0) >= 3;
   const hasTerminalDisease  = terminalDiseaseActive;
-  const hasFinancialPressure = economy.deudaTotal > 0 || familiasDependientes;
+  // Condición: diagnóstico terminal O deuda > 50.000€ (eliminado req. familia dependiente)
+  const hasFinancialPressure = economy.deudaTotal > 50000;
   const ambicionSuficiente  = character.stats.ambicion > 6;
 
   return {
@@ -310,8 +311,9 @@ export function evaluateBBUnlock(
     hasTerminalDisease,
     hasFinancialPressure,
     ambicionSuficiente,
-    allMet: professionQualifies && nivelSuficiente && hasTerminalDisease &&
-            hasFinancialPressure && ambicionSuficiente,
+    // Cambio clave: terminal OR presión financiera (antes: ambos requeridos)
+    allMet: professionQualifies && nivelSuficiente &&
+            (hasTerminalDisease || hasFinancialPressure) && ambicionSuficiente,
   };
 }
 

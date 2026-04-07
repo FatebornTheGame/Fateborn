@@ -3,6 +3,8 @@ import type { Character, CharacterStats } from '../types';
 import type { ActiveDisease, DiseaseCategory } from '../systems/diseaseSystem';
 import { BB_STATE_DEFAULT } from '../arcs/breakingBad';
 import type { BBState, BBPhase } from '../arcs/breakingBad';
+import { SG_STATE_DEFAULT } from '../arcs/saulGoodman';
+import type { SGState, SGPhase } from '../arcs/saulGoodman';
 
 // ─── Economy ─────────────────────────────────────────────────────────────────
 
@@ -58,6 +60,7 @@ export interface Time {
   añoActual:          number;
   cargaVital:         number; // 0-100
   asignacionSemanal:  AsignacionSemanal;
+  narrativeAge:       number; // edad narrativa del personaje (actualizada por cada pantalla de vida)
 }
 
 // ─── Health ───────────────────────────────────────────────────────────────────
@@ -72,6 +75,7 @@ export interface SymptomNotif {
 export interface Health {
   diseases:     ActiveDisease[];
   bbState:      BBState;
+  sgState:      SGState;
   symptomQueue: SymptomNotif[];
 }
 
@@ -128,6 +132,7 @@ export interface GameState {
   avanzarSemana:    () => void;
   setAsignacion:    (asignacion: Partial<AsignacionSemanal>) => void;
   updateCargaVital: (carga: number) => void;
+  setNarrativeAge:  (age: number) => void;
 
   // Actions — country
   setCountry: (country: Country) => void;
@@ -142,6 +147,12 @@ export interface GameState {
   activateBB:           () => void;
   setBBPhase:           (phase: BBPhase) => void;
   incrementLineaCruzada:(delta: number) => void;
+
+  // Actions — saul goodman arc
+  unlockSG:               () => void;
+  activateSG:             () => void;
+  setSGPhase:             (phase: SGPhase) => void;
+  incrementPrecioVictoria:(delta: number) => void;
 
   // Actions — symptom notifications
   pushSymptom:  (notif: SymptomNotif) => void;
@@ -175,6 +186,7 @@ const DEFAULT_TIME: Time = {
   semanaActual:   1,
   añoActual:      0,
   cargaVital:     0,
+  narrativeAge:   0,
   asignacionSemanal: {
     trabajo:   40,
     familia:   10,
@@ -201,6 +213,7 @@ const DEFAULT_COUNTRY: Country = {
 const DEFAULT_HEALTH: Health = {
   diseases:     [],
   bbState:      { ...BB_STATE_DEFAULT },
+  sgState:      { ...SG_STATE_DEFAULT },
   symptomQueue: [],
 };
 
@@ -214,7 +227,7 @@ export const useGameStore = create<GameState>((set) => ({
   career:      { ...DEFAULT_CAREER },
   time:        { ...DEFAULT_TIME },
   country:     { ...DEFAULT_COUNTRY },
-  health:      { ...DEFAULT_HEALTH, bbState: { ...BB_STATE_DEFAULT }, diseases: [], symptomQueue: [] },
+  health:      { ...DEFAULT_HEALTH, bbState: { ...BB_STATE_DEFAULT }, sgState: { ...SG_STATE_DEFAULT }, diseases: [], symptomQueue: [] },
 
   // ── Character actions ──
   setCharacter: (char) => set({ character: char }),
@@ -322,6 +335,10 @@ export const useGameStore = create<GameState>((set) => ({
     },
   })),
 
+  setNarrativeAge: (age) => set((state) => ({
+    time: { ...state.time, narrativeAge: age },
+  })),
+
   // ── Country actions ──
   setCountry: (country) => set({ country }),
 
@@ -381,6 +398,38 @@ export const useGameStore = create<GameState>((set) => ({
     },
   })),
 
+  // ── Saul Goodman arc ──
+  unlockSG: () => set((state) => ({
+    health: {
+      ...state.health,
+      sgState: { ...state.health.sgState, unlocked: true },
+    },
+  })),
+
+  activateSG: () => set((state) => ({
+    health: {
+      ...state.health,
+      sgState: { ...state.health.sgState, active: true },
+    },
+  })),
+
+  setSGPhase: (phase) => set((state) => ({
+    health: {
+      ...state.health,
+      sgState: { ...state.health.sgState, phase },
+    },
+  })),
+
+  incrementPrecioVictoria: (delta) => set((state) => ({
+    health: {
+      ...state.health,
+      sgState: {
+        ...state.health.sgState,
+        precioVictoria: Math.min(100, Math.max(0, state.health.sgState.precioVictoria + delta)),
+      },
+    },
+  })),
+
   // ── Symptom notifications ──
   pushSymptom: (notif) => set((state) => ({
     health: {
@@ -404,6 +453,6 @@ export const useGameStore = create<GameState>((set) => ({
     career:      { ...DEFAULT_CAREER },
     time:        { ...DEFAULT_TIME },
     country:     { ...DEFAULT_COUNTRY },
-    health:      { ...DEFAULT_HEALTH, bbState: { ...BB_STATE_DEFAULT }, diseases: [], symptomQueue: [] },
+    health:      { ...DEFAULT_HEALTH, bbState: { ...BB_STATE_DEFAULT }, sgState: { ...SG_STATE_DEFAULT }, diseases: [], symptomQueue: [] },
   }),
 }));
