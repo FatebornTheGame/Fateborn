@@ -78,11 +78,14 @@ Se desbloquea si: profesión científico/médico nivel ≥ 3 + diagnóstico term
 Seis fases: Contacto → Primer Laboratorio → La Producción → La Escalada → El Punto de No Retorno → El Final (múltiple).
 Contador "La línea que cruzaste" (0-100) visible en HUD.
 
-### Arco "Saul Goodman" (pendiente de implementar)
-Se desbloquea si: profesión Abogado nivel ≥ 3 + contacto con el mundo criminal + Ambición > 7 + al menos 1 cliente con antecedentes penales.
-Fases previstas: El Caso Comprometido → Los Métodos Cuestionables → La Red Criminal → El Bufete en la Sombra → Blanqueo y Cárteles → El Final (huida / cárcel / leyenda oscura).
-Mechanic clave: el contador "El precio de la victoria" (0-100) mide cuánto ha comprometido el personaje su ética profesional.
-Conexión: puede cruzarse con el arco Breaking Bad si hay un personaje científico/médico en la misma familia.
+### Arco "Saul Goodman" (implementado)
+Se desbloquea si: profesión Abogado nivel ≥ 3 + flag `contacto_criminal` + Ambición > 7 + flag `cliente_antecedentes`.
+Fases: El Caso Comprometido → Los Métodos Cuestionables → La Red Criminal → El Bufete en la Sombra → Blanqueo y Cárteles → El Final (huida / cárcel / leyenda oscura).
+Mechanic clave: el contador "El precio de la victoria" (0-100) en `sgState.precioVictoria`. HUD: `SaulGoodmanHUD`.
+Acciones en store: `unlockSG`, `activateSG`, `setSGPhase`, `incrementPrecioVictoria`.
+Unlock evaluado con `evaluateSGUnlock()` de `src/arcs/saulGoodman.ts`.
+Conexión: si BB también está activo, SaulGoodmanHUD se apila debajo de BreakingBadHUD.
+Flags necesarios para el unlock deben setearse desde eventos de `AdulthoodScreen` o `MaturityScreen` cuando el personaje ejerce como abogado y entra en contacto con clientes criminales.
 
 ## Próximas pantallas a construir
 - Modo Dinastía (herencia generacional)

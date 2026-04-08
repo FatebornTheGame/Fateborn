@@ -114,6 +114,7 @@ function App() {
     const fadeMs   = isDeath ? DEATH_FADE_MS : FADE_MS;
     const hasTitle = next in STAGE_TITLES;
 
+    console.log('[NAV] navigateTo:', next);
     setTransitioning(true);
 
     // Safety: si algo falla y la pantalla se queda en negro, forzar fin
@@ -129,6 +130,7 @@ function App() {
 
         timerRef.current = setTimeout(() => {
           // Pantalla completamente negra
+          console.log('[NAV] screen set to:', next);
           window.scrollTo(0, 0);
           setScreen(next);
 
