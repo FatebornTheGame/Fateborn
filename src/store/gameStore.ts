@@ -4,13 +4,17 @@ import type { AppScreen, Character, CharacterStats } from '../types/game.types';
 // Los 4 slots de ancestros: [abueloPaterno, abuelaPaterna, abueloMaterno, abuelaMaterna]
 export type AncestorSlots = [string | null, string | null, string | null, string | null];
 
+export type Difficulty = 'historia' | 'fateborn' | 'ironman' | 'legado';
+
 interface GameState {
   screen: AppScreen;
+  difficulty: Difficulty;
   ancestors: AncestorSlots;
   character: Character | null;
 
   // Acciones
   setScreen: (screen: AppScreen) => void;
+  setDifficulty: (difficulty: Difficulty) => void;
   setAncestor: (slot: 0 | 1 | 2 | 3, archetypeId: string | null) => void;
   setCharacter: (character: Character) => void;
   resetGame: () => void;
@@ -20,10 +24,12 @@ const DEFAULT_ANCESTORS: AncestorSlots = [null, null, null, null];
 
 export const useGameStore = create<GameState>((set) => ({
   screen: 'start',
+  difficulty: 'fateborn',
   ancestors: DEFAULT_ANCESTORS,
   character: null,
 
   setScreen: (screen) => set({ screen }),
+  setDifficulty: (difficulty) => set({ difficulty }),
 
   setAncestor: (slot, archetypeId) =>
     set((state) => {
@@ -37,6 +43,7 @@ export const useGameStore = create<GameState>((set) => ({
   resetGame: () =>
     set({
       screen: 'start',
+      difficulty: 'fateborn',
       ancestors: DEFAULT_ANCESTORS,
       character: null,
     }),
