@@ -19,6 +19,7 @@ interface GameState {
   setAncestor: (slot: 0 | 1 | 2 | 3, archetypeId: string | null) => void;
   setCountry: (country: string) => void;
   confirmAncestors: () => void;
+  startNewGame: (name: string, gender: 'hombre' | 'mujer', stats: CharacterStats) => void;
   setCharacter: (character: Character) => void;
   resetGame: () => void;
 }
@@ -44,8 +45,21 @@ export const useGameStore = create<GameState>((set) => ({
 
   setCountry: (country) => set({ selectedCountry: country }),
 
-  // Finaliza la selección de ancestros — BirthScreen leerá ancestors y selectedCountry
   confirmAncestors: () => set((state) => ({ selectedCountry: state.selectedCountry })),
+
+  startNewGame: (name, gender, stats) =>
+    set((state) => ({
+      character: {
+        name,
+        gender,
+        birthYear: 1990,
+        country: state.selectedCountry ?? 'España',
+        ancestorIds: state.ancestors as [string, string, string, string],
+        stats,
+        flags: {},
+      },
+      screen: 'game',
+    })),
 
   setCharacter: (character) => set({ character }),
 
