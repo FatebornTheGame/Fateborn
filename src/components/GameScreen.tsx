@@ -1,25 +1,58 @@
+import { useEffect, useState, useRef } from 'react';
 import { useGameStore } from '../store/gameStore';
+import { generateWorldInit } from '../systems/worldSystem';
+import StatusBar from './StatusBar';
+import InitiativePanel from './InitiativePanel';
+import NarrativeFeed from './NarrativeFeed';
+import LifeTimeline from './LifeTimeline';
 
-const GOLD       = '#c9a84c';
-const GOLD_LIGHT = '#e8d08a';
-
-const STAT_GROUPS = [
-  { label: 'Cognitivo', keys: ['logica', 'creatividad', 'disciplina'] as const },
-  { label: 'Social',    keys: ['carisma', 'emocional', 'ambicion']    as const },
-  { label: 'Vital',     keys: ['fisico', 'riesgo', 'estabilidad']     as const },
-];
-
-const STAT_LABELS: Record<string, string> = {
-  logica: 'Lógica', creatividad: 'Creatividad', disciplina: 'Disciplina',
-  carisma: 'Carisma', emocional: 'Emocional', ambicion: 'Ambición',
-  fisico: 'Físico', riesgo: 'Riesgo', estabilidad: 'Estabilidad',
-};
+const GOLD = '#c9a84c';
 
 export default function GameScreen() {
-  const character = useGameStore(s => s.character);
-  const setScreen = useGameStore(s => s.setScreen);
+  const character       = useGameStore(s => s.character);
+  const country         = useGameStore(s => s.country);
+  const addFeedEntry    = useGameStore(s => s.addFeedEntry);
+  const updateEconomy   = useGameStore(s => s.updateEconomy);
+  const setRival        = useGameStore(s => s.setRival);
+  const addFlag         = useGameStore(s => s.addFlag);
+  const setNarrativeAge = useGameStore(s => s.setNarrativeAge);
+  const narrativeFeed   = useGameStore(s => s.narrativeFeed);
+  const time            = useGameStore(s => s.time);
+
+  const initialized = useRef(false);
+
+  // Auto-events on first load
+  useEffect(() => {
+    if (!character) return;
+    if (initialized.current) return;
+    if (character.flags?.gamescreen_initialized) return;
+    initialized.current = true;
+
+    // Set starting age to 18 if not set
+    if (time.narrativeAge === 0) {
+      setNarrativeAge(18);
+    }
+
+    const { feedEntries, economyPatch, rival } = generateWorldInit(character, country);
+
+    updateEconomy(economyPatch);
+    setRival(rival);
+    addFlag('gamescreen_initialized', true);
+    addFlag('rival_conocido', true);
+
+    // Add feed entries with slight delay for effect
+    feedEntries.forEach((entry, i) => {
+      setTimeout(() => addFeedEntry(entry), i * 120);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [character?.name]);
+
+  // Tab state for mobile
+  const [activeTab, setActiveTab] = useState<'initiative' | 'feed'>('initiative');
 
   if (!character) return null;
+
+  const pendingCount = narrativeFeed.filter(e => !e.answered && e.responseOptions?.length).length;
 
   return (
     <div
@@ -29,119 +62,138 @@ export default function GameScreen() {
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '32px 24px',
+        overflow: 'hidden',
       }}
     >
       {/* Vignette */}
       <div style={{
         position: 'fixed', inset: 0,
-        background: 'radial-gradient(ellipse at 50% 50%, transparent 25%, rgba(5,3,2,0.88) 100%)',
+        background: 'radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(5,3,2,0.75) 100%)',
         pointerEvents: 'none', zIndex: 0,
       }} />
 
       <div style={{
         position: 'relative', zIndex: 1,
-        width: '100%', maxWidth: '520px',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '32px',
-        animation: 'fade-up 0.9s cubic-bezier(0.16,1,0.3,1) forwards',
+        display: 'flex', flexDirection: 'column',
+        height: '100vh', overflow: 'hidden',
       }}>
-        {/* Name */}
-        <div style={{ textAlign: 'center' }}>
-          <p className="cinzel" style={{
-            fontSize: '11px', letterSpacing: '0.38em',
-            color: `rgba(201,168,76,0.4)`, textTransform: 'uppercase',
-            margin: '0 0 10px',
-          }}>
-            Tu personaje
-          </p>
-          <h1 className="cinzel" style={{
-            fontSize: 'clamp(22px, 5vw, 32px)',
-            letterSpacing: '0.1em',
-            color: GOLD_LIGHT,
-            margin: 0,
-            textShadow: `0 0 32px rgba(201,168,76,0.3)`,
-          }}>
-            {character.name}
-          </h1>
+        {/* Status Bar */}
+        <StatusBar />
+
+        {/* Main content */}
+        <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
+          <div className="desktop-layout" style={{ display: 'flex', width: '100%', overflow: 'hidden' }}>
+            {/* Left: Initiative Panel 55% */}
+            <div style={{
+              width: '55%',
+              borderRight: '1px solid rgba(201,168,76,0.1)',
+              display: 'flex', flexDirection: 'column', overflow: 'hidden',
+            }}>
+              <InitiativePanel />
+            </div>
+
+            {/* Right: Narrative Feed 45% */}
+            <div style={{
+              width: '45%',
+              display: 'flex', flexDirection: 'column', overflow: 'hidden',
+            }}>
+              <div style={{
+                padding: '12px 14px 8px',
+                borderBottom: '1px solid rgba(201,168,76,0.1)',
+                flexShrink: 0,
+              }}>
+                <p className="cinzel" style={{
+                  fontSize: '9px', letterSpacing: '0.32em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(201,168,76,0.35)',
+                  margin: 0,
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                }}>
+                  Feed Narrativo
+                  {pendingCount > 0 && (
+                    <span style={{
+                      fontSize: '8px', padding: '1px 5px', borderRadius: '10px',
+                      background: 'rgba(201,168,76,0.18)', color: GOLD,
+                    }}>
+                      {pendingCount} pendiente
+                    </span>
+                  )}
+                </p>
+              </div>
+              <NarrativeFeed />
+            </div>
+          </div>
         </div>
 
-        {/* Stats */}
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {STAT_GROUPS.map(group => (
-            <div key={group.label}>
-              <p className="cinzel" style={{
-                fontSize: '9px', letterSpacing: '0.32em',
+        {/* Mobile tab CSS injected via style tag */}
+        <style>{`
+          @media (max-width: 767px) {
+            .desktop-layout > div:nth-child(1) {
+              display: ${activeTab === 'initiative' ? 'flex' : 'none'} !important;
+              width: 100% !important;
+              border-right: none !important;
+            }
+            .desktop-layout > div:nth-child(2) {
+              display: ${activeTab === 'feed' ? 'flex' : 'none'} !important;
+              width: 100% !important;
+            }
+            .mobile-tabs { display: flex !important; }
+          }
+          @media (min-width: 768px) {
+            .mobile-tabs { display: none !important; }
+          }
+          @keyframes critica-pulse {
+            0%, 100% { box-shadow: 0 0 0 rgba(201,168,76,0); border-color: rgba(201,168,76,0.6); }
+            50%       { box-shadow: 0 0 18px rgba(201,168,76,0.25); border-color: rgba(201,168,76,0.9); }
+          }
+          @keyframes urgent-pulse {
+            0%, 100% { box-shadow: none; }
+            50%       { box-shadow: 0 0 12px rgba(201,168,76,0.18); }
+          }
+        `}</style>
+
+        {/* Mobile tab bar */}
+        <div
+          className="mobile-tabs"
+          style={{
+            display: 'none',
+            borderTop: '1px solid rgba(201,168,76,0.15)',
+            background: 'rgba(13,11,8,0.96)',
+            backdropFilter: 'blur(12px)',
+            flexShrink: 0,
+          }}
+        >
+          {([
+            { id: 'initiative' as const, label: 'Iniciativas', icon: '◈' },
+            { id: 'feed'       as const, label: 'Feed',        icon: '◉' },
+          ] as const).map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                flex: 1, padding: '12px 8px',
+                background: 'transparent', border: 'none',
+                borderTop: `2px solid ${activeTab === tab.id ? GOLD : 'transparent'}`,
+                cursor: 'pointer',
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', gap: '3px',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <span style={{ fontSize: '16px', lineHeight: 1 }}>{tab.icon}</span>
+              <span className="cinzel" style={{
+                fontSize: '8px', letterSpacing: '0.12em',
+                color: activeTab === tab.id ? GOLD : 'rgba(201,168,76,0.35)',
                 textTransform: 'uppercase',
-                color: 'rgba(201,168,76,0.35)',
-                margin: '0 0 8px',
               }}>
-                {group.label}
-              </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                {group.keys.map(key => {
-                  const val = character.stats[key];
-                  return (
-                    <div key={key} style={{
-                      background: 'rgba(0,0,0,0.3)',
-                      border: '1px solid rgba(201,168,76,0.12)',
-                      borderRadius: '6px',
-                      padding: '10px 12px',
-                      textAlign: 'center',
-                    }}>
-                      <div className="cinzel" style={{
-                        fontSize: '18px', fontWeight: 700,
-                        color: GOLD,
-                      }}>
-                        {val.toFixed(1)}
-                      </div>
-                      <div style={{
-                        fontSize: '10px', letterSpacing: '0.12em',
-                        color: 'rgba(201,168,76,0.45)',
-                        textTransform: 'uppercase',
-                        marginTop: '3px',
-                      }}>
-                        {STAT_LABELS[key]}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+                {tab.label}
+              </span>
+            </button>
           ))}
         </div>
 
-        {/* CTA */}
-        <button
-          onClick={() => setScreen('childhood')}
-          style={{
-            width: '100%',
-            padding: '18px',
-            borderRadius: '7px',
-            border: `1px solid rgba(201,168,76,0.55)`,
-            background: 'linear-gradient(135deg, rgba(201,168,76,0.18), rgba(139,100,30,0.25))',
-            color: GOLD_LIGHT,
-            fontFamily: "'Cinzel', serif",
-            fontSize: '14px',
-            fontWeight: 700,
-            letterSpacing: '0.26em',
-            textTransform: 'uppercase',
-            cursor: 'pointer',
-            boxShadow: '0 0 28px rgba(201,168,76,0.2)',
-            transition: 'all 0.3s ease',
-          }}
-          onPointerEnter={e => {
-            (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 40px rgba(201,168,76,0.35)';
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(201,168,76,0.8)';
-          }}
-          onPointerLeave={e => {
-            (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 28px rgba(201,168,76,0.2)';
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(201,168,76,0.55)';
-          }}
-        >
-          Comenzar Infancia
-        </button>
+        {/* Life Timeline */}
+        <LifeTimeline />
       </div>
     </div>
   );

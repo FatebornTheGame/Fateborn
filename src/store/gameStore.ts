@@ -6,6 +6,34 @@ import type { BBState, BBPhase } from '../arcs/breakingBad';
 import { SG_STATE_DEFAULT } from '../arcs/saulGoodman';
 import type { SGState, SGPhase } from '../arcs/saulGoodman';
 
+// ─── Feed & Timeline types ────────────────────────────────────────────────────
+
+export interface FeedEntry {
+  id: string;
+  semana: number;
+  año: number;
+  text: string;
+  importance: 'normal' | 'alta' | 'critica';
+  answered: boolean;
+  responseOptions?: { id: string; label: string }[];
+  selectedOptionId?: string;
+}
+
+export interface Rival {
+  name: string;
+  archetype: string;
+  description: string;
+  threat: number; // 0-100
+}
+
+export interface TimelineEvent {
+  id: string;
+  semana: number;
+  año: number;
+  label: string;
+  type: 'logro' | 'perdida' | 'hito';
+}
+
 // ─── App Screen ───────────────────────────────────────────────────────────────
 
 export type AppScreen =
@@ -175,6 +203,19 @@ export interface GameState {
   pushSymptom:  (notif: SymptomNotif) => void;
   shiftSymptom: () => void;
 
+  // Narrative feed & timeline
+  narrativeFeed: FeedEntry[];
+  legacy: number; // 0-100
+  rival: Rival | null;
+  timeline: TimelineEvent[];
+
+  addFeedEntry:      (entry: Omit<FeedEntry, 'id' | 'answered'>) => void;
+  markFeedAnswered:  (id: string, selectedOptionId?: string) => void;
+  updateLegacy:      (delta: number) => void;
+  setRival:          (rival: Rival) => void;
+  addTimelineEvent:  (event: Omit<TimelineEvent, 'id'>) => void;
+  clearFeed:         () => void;
+
   // Reset
   resetGame: () => void;
 }
@@ -247,6 +288,11 @@ export const useGameStore = create<GameState>((set) => ({
   time:        { ...DEFAULT_TIME },
   country:     { ...DEFAULT_COUNTRY },
   health:      { ...DEFAULT_HEALTH, bbState: { ...BB_STATE_DEFAULT }, sgState: { ...SG_STATE_DEFAULT }, diseases: [], symptomQueue: [] },
+
+  narrativeFeed: [],
+  legacy:        10,
+  rival:         null,
+  timeline:      [],
 
   // ── Navigation ──
   setScreen: (screen) => set({ screen }),
@@ -468,6 +514,36 @@ export const useGameStore = create<GameState>((set) => ({
     },
   })),
 
+  // ── Narrative feed & timeline ──
+  addFeedEntry: (entry) => set((state) => ({
+    narrativeFeed: [{
+      ...entry,
+      id: `feed_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      answered: false,
+    }, ...state.narrativeFeed],
+  })),
+
+  markFeedAnswered: (id, selectedOptionId) => set((state) => ({
+    narrativeFeed: state.narrativeFeed.map(e =>
+      e.id === id ? { ...e, answered: true, selectedOptionId } : e
+    ),
+  })),
+
+  updateLegacy: (delta) => set((state) => ({
+    legacy: Math.min(100, Math.max(0, state.legacy + delta)),
+  })),
+
+  setRival: (rival) => set({ rival }),
+
+  addTimelineEvent: (event) => set((state) => ({
+    timeline: [...state.timeline, {
+      ...event,
+      id: `tl_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    }],
+  })),
+
+  clearFeed: () => set({ narrativeFeed: [] }),
+
   // ── Reset ──
   resetGame: () => set({
     screen:      'start',
@@ -478,6 +554,10 @@ export const useGameStore = create<GameState>((set) => ({
     career:      { ...DEFAULT_CAREER },
     time:        { ...DEFAULT_TIME },
     country:     { ...DEFAULT_COUNTRY },
-    health:      { ...DEFAULT_HEALTH, bbState: { ...BB_STATE_DEFAULT }, sgState: { ...SG_STATE_DEFAULT }, diseases: [], symptomQueue: [] },
+    health:        { ...DEFAULT_HEALTH, bbState: { ...BB_STATE_DEFAULT }, sgState: { ...SG_STATE_DEFAULT }, diseases: [], symptomQueue: [] },
+    narrativeFeed: [],
+    legacy:        10,
+    rival:         null,
+    timeline:      [],
   }),
 }));
