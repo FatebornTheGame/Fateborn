@@ -17,7 +17,7 @@ export interface CharacterStats {
 // ─── Ancestro / Arquetipo ─────────────────────────────────────────────────────
 export interface ArchetypeStat {
   stat: keyof CharacterStats;
-  value: number; // 0-10
+  value: number;
 }
 
 export interface Archetype {
@@ -59,3 +59,61 @@ export interface Character {
 
 // ─── Pantallas ────────────────────────────────────────────────────────────────
 export type AppScreen = 'start' | 'ancestors' | 'birth' | 'game' | 'death';
+
+// ─── Etapas vitales ───────────────────────────────────────────────────────────
+export type LifeStage = 'infancia' | 'adolescencia' | 'juventud' | 'adultez' | 'madurez' | 'vejez';
+
+// ─── Feed narrativo ───────────────────────────────────────────────────────────
+export interface FeedOption {
+  id: string;
+  label: string;
+  color?: 'gold' | 'garnet' | 'muted';
+}
+
+export interface FeedEntry {
+  id: string;
+  week: number;
+  year: number;
+  text: string;
+  importance: 'normal' | 'alta' | 'critica';
+  answered: boolean;
+  options?: FeedOption[];
+  selectedOptionId?: string;
+}
+
+// ─── Timeline ─────────────────────────────────────────────────────────────────
+export interface TimelineEvent {
+  id: string;
+  yearOffset: number;
+  label: string;
+  type: 'logro' | 'perdida' | 'hito';
+}
+
+// ─── Economía ─────────────────────────────────────────────────────────────────
+export interface Economy {
+  liquidez: number;
+  ingresosMensuales: number;
+  gastosMensuales: number;
+  patrimonioBruto: number;
+  deudaTotal: number;
+}
+
+// ─── Carrera ─────────────────────────────────────────────────────────────────
+export interface Career {
+  profesion: string;
+  nivel: number;       // 1–10
+  experiencia: number; // años
+  salarioMensual: number;
+}
+
+// ─── Flags de juego ───────────────────────────────────────────────────────────
+export interface GameFlags {
+  emancipado: boolean;
+  tienePareja: boolean;
+  parejaEstable: boolean;
+  tieneHijos: number;
+  tieneMascota: boolean;
+  adiccion: string | null;
+  reputacion: number; // 0–100
+  tieneAmigos: boolean;
+}
