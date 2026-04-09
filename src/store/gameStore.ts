@@ -6,6 +6,13 @@ import type { BBState, BBPhase } from '../arcs/breakingBad';
 import { SG_STATE_DEFAULT } from '../arcs/saulGoodman';
 import type { SGState, SGPhase } from '../arcs/saulGoodman';
 
+// ─── App Screen ───────────────────────────────────────────────────────────────
+
+export type AppScreen =
+  | 'start' | 'ancestors' | 'birth' | 'game'
+  | 'childhood' | 'adolescence' | 'youth' | 'adulthood'
+  | 'maturity' | 'oldage' | 'death';
+
 // ─── Game Mode ────────────────────────────────────────────────────────────────
 
 export type GameMode = 'historia' | 'fateborn' | 'ironman' | 'legado';
@@ -104,6 +111,10 @@ export interface Country {
 // ─── Full Game State ──────────────────────────────────────────────────────────
 
 export interface GameState {
+  // Navigation
+  screen: AppScreen;
+  setScreen: (screen: AppScreen) => void;
+
   // Character (existing)
   character:   Character | null;
   ancestorIds: string[];
@@ -227,6 +238,7 @@ const DEFAULT_HEALTH: Health = {
 
 export const useGameStore = create<GameState>((set) => ({
   // ── Initial state ──
+  screen:      'start',
   character:   null,
   ancestorIds: [],
   gameMode:    'historia',
@@ -235,6 +247,9 @@ export const useGameStore = create<GameState>((set) => ({
   time:        { ...DEFAULT_TIME },
   country:     { ...DEFAULT_COUNTRY },
   health:      { ...DEFAULT_HEALTH, bbState: { ...BB_STATE_DEFAULT }, sgState: { ...SG_STATE_DEFAULT }, diseases: [], symptomQueue: [] },
+
+  // ── Navigation ──
+  setScreen: (screen) => set({ screen }),
 
   // ── Character actions ──
   setCharacter: (char) => set({ character: char }),
@@ -455,6 +470,7 @@ export const useGameStore = create<GameState>((set) => ({
 
   // ── Reset ──
   resetGame: () => set({
+    screen:      'start',
     character:   null,
     ancestorIds: [],
     gameMode:    'historia',

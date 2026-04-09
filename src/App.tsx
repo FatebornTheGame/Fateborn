@@ -1,9 +1,10 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useIsMobile } from './hooks/useIsMobile';
 import './App.css';
 import StartScreen from './components/StartScreen';
 import AncestorSelection from './components/AncestorSelection';
 import BirthScreen from './components/BirthScreen';
+import GameScreen from './components/GameScreen';
 import ChildhoodScreen from './components/ChildhoodScreen';
 import AdolescenceScreen from './components/AdolescenceScreen';
 import YouthScreen from './components/YouthScreen';
@@ -17,19 +18,18 @@ import InitiativeMenu from './components/InitiativeMenu';
 import SymptomNotification from './components/SymptomNotification';
 import BreakingBadHUD from './components/BreakingBadHUD';
 import SaulGoodmanHUD from './components/SaulGoodmanHUD';
-import GameScreen from './components/GameScreen';
 import type { LifeStage } from './components/CharacterPortrait';
-import type { Character, CharacterStats } from './types';
-import type { Country } from './store/gameStore';
+import type { CharacterStats } from './types';
 import { useGameStore } from './store/gameStore';
+import type { AppScreen } from './store/gameStore';
 import { audioManager } from './utils/audioManager';
 
-type Screen =
-  | 'start' | 'ancestors' | 'birth' | 'game' | 'childhood' | 'adolescence'
-  | 'youth' | 'adulthood' | 'maturity' | 'oldage' | 'death';
+// ─── Pantallas de juego activo (muestran HUD) ─────────────────────────────────
+const GAMEPLAY_SCREENS = new Set<AppScreen>([
+  'childhood', 'adolescence', 'youth', 'adulthood', 'maturity', 'oldage', 'death',
+]);
 
-// ─── Mapa de pantalla → etapa vital ───────────────────────────────────────
-const SCREEN_TO_LIFE_STAGE: Partial<Record<Screen, LifeStage>> = {
+const SCREEN_TO_LIFE_STAGE: Partial<Record<AppScreen, LifeStage>> = {
   childhood:   'childhood',
   adolescence: 'adolescence',
   youth:       'youth',
@@ -39,39 +39,22 @@ const SCREEN_TO_LIFE_STAGE: Partial<Record<Screen, LifeStage>> = {
   death:       'oldage',
 };
 
-// ─── Pantallas de juego activo (muestran indicadores HUD) ──────────────────
-const GAMEPLAY_SCREENS = new Set<Screen>([
-  'childhood', 'adolescence', 'youth', 'adulthood', 'maturity', 'oldage', 'death',
-]);
-
-// ─── Títulos de etapa vital ────────────────────────────────────────────────
-const STAGE_TITLES: Partial<Record<Screen, { name: string; years: string }>> = {
-  childhood:   { name: 'INFANCIA',     years: '0 — 12 AÑOS'  },
-  adolescence: { name: 'ADOLESCENCIA', years: '13 — 18 AÑOS' },
-  youth:       { name: 'JUVENTUD',     years: '19 — 30 AÑOS' },
-  adulthood:   { name: 'ADULTEZ',      years: '31 — 50 AÑOS' },
-  maturity:    { name: 'MADUREZ',      years: '51 — 70 AÑOS' },
-  oldage:      { name: 'VEJEZ',        years: '71+ AÑOS'     },
-};
-
-const FADE_MS       = 800;
-const DEATH_FADE_MS = 2000;
-const STAGE_HOLD_MS = 1500;
-// Tiempo máximo que puede durar una transición completa antes del safety reset
-const SAFETY_MS     = 6000;
-
-// ─── App ──────────────────────────────────────────────────────────────────
+// ─── App ──────────────────────────────────────────────────────────────────────
 function App() {
-  const [screen, setScreen]           = useState<Screen>('start');
-  const [ancestorIds, setAncestorIds] = useState<string[]>([]);
-  const [character, setCharacter]     = useState<Character | null>(null);
-  const [muted, setMuted]             = useState(audioManager.muted);
+  const screen      = useGameStore(s => s.screen);
+  const setScreen   = useGameStore(s => s.setScreen);
+  const character   = useGameStore(s => s.character);
+  const setCharacter = useGameStore(s => s.setCharacter);
+  const economy     = useGameStore(s => s.economy);
+  const career      = useGameStore(s => s.career);
+  const time        = useGameStore(s => s.time);
+  const resetGame   = useGameStore(s => s.resetGame);
 
-  const { economy, career, time, setCountry } = useGameStore();
+  const [muted, setMuted] = useState(audioManager.muted);
   const muteRef = useRef<HTMLButtonElement>(null);
+  const isMobile = useIsMobile();
 
-  // Listener nativo con { passive: false } para que preventDefault()
-  // funcione en iOS/Android y evite que touchend dispare también click.
+  // Listener nativo con { passive: false } para iOS/Android
   useEffect(() => {
     const btn = muteRef.current;
     if (!btn) return;
@@ -84,225 +67,118 @@ function App() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleMute = () => setMuted(audioManager.toggleMute());
-  const isMobile = useIsMobile();
 
-  // Transición
-  const [overlayOpaque, setOverlayOpaque] = useState(false);
-  const [fadeDuration,  setFadeDuration]  = useState(FADE_MS);
-  const [stageTitle, setStageTitle]       = useState<{ name: string; years: string } | null>(null);
-  const [transitioning, setTransitioning] = useState(false);
-
-  const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const safetyRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const clearTimers = () => {
-    if (timerRef.current  !== null) { clearTimeout(timerRef.current);  timerRef.current  = null; }
-    if (safetyRef.current !== null) { clearTimeout(safetyRef.current); safetyRef.current = null; }
-  };
-
-  /** Fuerza el fin de cualquier transición atascada */
-  const forceTransitionEnd = useCallback(() => {
-    if (timerRef.current !== null) { clearTimeout(timerRef.current); timerRef.current = null; }
-    setStageTitle(null);
-    setOverlayOpaque(false);
-    setTransitioning(false);
-  }, []);
-
-  const navigateTo = useCallback((next: Screen) => {
-    clearTimers();
-    const isDeath  = next === 'death';
-    const fadeMs   = isDeath ? DEATH_FADE_MS : FADE_MS;
-    const hasTitle = next in STAGE_TITLES;
-
-    console.log('[NAV] navigateTo:', next);
-    setTransitioning(true);
-
-    // Safety: si algo falla y la pantalla se queda en negro, forzar fin
-    safetyRef.current = setTimeout(forceTransitionEnd, SAFETY_MS);
-
-    // Primero aplicar fadeDuration y solo en el siguiente frame cambiar opacity.
-    // Esto evita que el navegador ignore la CSS transition cuando ambas propiedades
-    // cambian en el mismo render (bug específico en transición a muerte con 2000ms).
-    setFadeDuration(fadeMs);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setOverlayOpaque(true); // → fade a negro
-
-        timerRef.current = setTimeout(() => {
-          // Pantalla completamente negra
-          console.log('[NAV] screen set to:', next);
-          window.scrollTo(0, 0);
-          setScreen(next);
-
-          if (hasTitle && !isDeath) {
-            setStageTitle(STAGE_TITLES[next]!);
-
-            timerRef.current = setTimeout(() => {
-              setStageTitle(null);
-              setOverlayOpaque(false); // → fade desde negro
-
-              timerRef.current = setTimeout(() => {
-                clearTimers();
-                setTransitioning(false);
-              }, FADE_MS);
-            }, STAGE_HOLD_MS);
-          } else {
-            setOverlayOpaque(false); // → fade desde negro
-
-            timerRef.current = setTimeout(() => {
-              clearTimers();
-              setTransitioning(false);
-            }, fadeMs);
-          }
-        }, fadeMs);
-      });
-    });
-  }, [forceTransitionEnd]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // ─── Handlers ─────────────────────────────────────────────────────────
-  const handleStartConfirmed = () => {
-    navigateTo('ancestors');
-  };
-
-  const handleAncestorsConfirmed = (ids: string[], country: Country) => {
-    setAncestorIds(ids);
-    setCountry(country);
-    navigateTo('birth');
-  };
-
-  const handleBirthConfirmed = (char: Character) => {
-    setCharacter(char);
-    navigateTo('game');
-  };
-
-  const handleChildhoodComplete = (updated: Character) => {
-    setCharacter(updated);
-    navigateTo('adolescence');
-  };
-
-  const handleAdolescenceComplete = (updated: Character) => {
-    setCharacter(updated);
-    navigateTo('youth');
-  };
-
-  const handleYouthComplete = (updated: Character) => {
-    setCharacter(updated);
-    navigateTo('adulthood');
-  };
-
-  const handleAdulthoodComplete = (updated: Character) => {
-    setCharacter(updated);
-    navigateTo('maturity');
-  };
-
-  const handleMaturityComplete = (updated: Character) => {
-    setCharacter(updated);
-    navigateTo('oldage');
-  };
-
-  const handleOldAgeComplete = (updated: Character) => {
-    setCharacter(updated);
-    navigateTo('death');
-  };
-
-  const handleRestart = () => {
-    setCharacter(null);
-    setAncestorIds([]);
-    navigateTo('start');
-  };
-
-  const handleUpdateStats = useCallback((deltas: Partial<CharacterStats>) => {
+  const handleUpdateStats = (deltas: Partial<CharacterStats>) => {
     if (!character) return;
     const clamp = (v: number) => Math.min(10, Math.max(0, Math.round((v + Number.EPSILON) * 10) / 10));
     const s = character.stats;
     setCharacter({
       ...character,
       stats: {
-        logica:       clamp(s.logica       + (deltas.logica       ?? 0)),
-        creatividad:  clamp(s.creatividad  + (deltas.creatividad  ?? 0)),
-        disciplina:   clamp(s.disciplina   + (deltas.disciplina   ?? 0)),
-        carisma:      clamp(s.carisma      + (deltas.carisma      ?? 0)),
-        emocional:    clamp(s.emocional    + (deltas.emocional    ?? 0)),
-        ambicion:     clamp(s.ambicion     + (deltas.ambicion     ?? 0)),
-        fisico:       clamp(s.fisico       + (deltas.fisico       ?? 0)),
-        riesgo:       clamp(s.riesgo       + (deltas.riesgo       ?? 0)),
-        estabilidad:  clamp(s.estabilidad  + (deltas.estabilidad  ?? 0)),
+        logica:      clamp(s.logica      + (deltas.logica      ?? 0)),
+        creatividad: clamp(s.creatividad + (deltas.creatividad ?? 0)),
+        disciplina:  clamp(s.disciplina  + (deltas.disciplina  ?? 0)),
+        carisma:     clamp(s.carisma     + (deltas.carisma     ?? 0)),
+        emocional:   clamp(s.emocional   + (deltas.emocional   ?? 0)),
+        ambicion:    clamp(s.ambicion    + (deltas.ambicion    ?? 0)),
+        fisico:      clamp(s.fisico      + (deltas.fisico      ?? 0)),
+        riesgo:      clamp(s.riesgo      + (deltas.riesgo      ?? 0)),
+        estabilidad: clamp(s.estabilidad + (deltas.estabilidad ?? 0)),
       },
     });
-  }, [character]);
+  };
 
-  // ─── Contenido de pantalla ────────────────────────────────────────────
+  // ─── Renderizado de pantalla ──────────────────────────────────────────────
   let content: React.ReactNode = null;
 
-  if (screen === 'start') {
-    content = <StartScreen onStart={handleStartConfirmed} />;
-  } else if (screen === 'ancestors') {
-    content = <AncestorSelection onConfirm={handleAncestorsConfirmed} />;
-  } else if (screen === 'birth') {
-    content = <BirthScreen ancestorIds={ancestorIds} onConfirm={handleBirthConfirmed} />;
-  } else if (screen === 'game' && character) {
-    content = <GameScreen character={character} onContinue={() => navigateTo('childhood')} />;
-  } else if (screen === 'childhood' && character) {
-    content = <ChildhoodScreen character={character} onComplete={handleChildhoodComplete} />;
-  } else if (screen === 'adolescence' && character) {
-    content = <AdolescenceScreen character={character} onComplete={handleAdolescenceComplete} />;
-  } else if (screen === 'youth' && character) {
-    content = <YouthScreen character={character} onComplete={handleYouthComplete} />;
-  } else if (screen === 'adulthood' && character) {
-    content = <AdulthoodScreen character={character} onComplete={handleAdulthoodComplete} />;
-  } else if (screen === 'maturity' && character) {
-    content = <MaturityScreen character={character} onComplete={handleMaturityComplete} />;
-  } else if (screen === 'oldage' && character) {
-    content = <OldAgeScreen character={character} onComplete={handleOldAgeComplete} />;
-  } else if (screen === 'death' && character) {
-    content = <DeathScreen character={character} onRestart={handleRestart} />;
+  switch (screen) {
+    case 'start':
+      content = <StartScreen />;
+      break;
+
+    case 'ancestors':
+      content = <AncestorSelection />;
+      break;
+
+    case 'birth':
+      content = <BirthScreen />;
+      break;
+
+    case 'game':
+      content = character
+        ? <GameScreen />
+        : null;
+      break;
+
+    case 'childhood':
+      content = character
+        ? <ChildhoodScreen
+            character={character}
+            onComplete={(updated) => { setCharacter(updated); setScreen('adolescence'); }}
+          />
+        : null;
+      break;
+
+    case 'adolescence':
+      content = character
+        ? <AdolescenceScreen
+            character={character}
+            onComplete={(updated) => { setCharacter(updated); setScreen('youth'); }}
+          />
+        : null;
+      break;
+
+    case 'youth':
+      content = character
+        ? <YouthScreen
+            character={character}
+            onComplete={(updated) => { setCharacter(updated); setScreen('adulthood'); }}
+          />
+        : null;
+      break;
+
+    case 'adulthood':
+      content = character
+        ? <AdulthoodScreen
+            character={character}
+            onComplete={(updated) => { setCharacter(updated); setScreen('maturity'); }}
+          />
+        : null;
+      break;
+
+    case 'maturity':
+      content = character
+        ? <MaturityScreen
+            character={character}
+            onComplete={(updated) => { setCharacter(updated); setScreen('oldage'); }}
+          />
+        : null;
+      break;
+
+    case 'oldage':
+      content = character
+        ? <OldAgeScreen
+            character={character}
+            onComplete={(updated) => { setCharacter(updated); setScreen('death'); }}
+          />
+        : null;
+      break;
+
+    case 'death':
+      content = character
+        ? <DeathScreen
+            character={character}
+            onRestart={() => { resetGame(); }}
+          />
+        : null;
+      break;
   }
+
+  const isGameplay = GAMEPLAY_SCREENS.has(screen);
 
   return (
     <>
       {content}
-
-      {/* ── Overlay de transición cinematográfica ── */}
-      <div
-        style={{
-          position:        'fixed',
-          inset:           0,
-          backgroundColor: '#000',
-          opacity:         overlayOpaque ? 1 : 0,
-          transition:      `opacity ${fadeDuration}ms ease`,
-          pointerEvents:   transitioning ? 'all' : 'none',
-          zIndex:          10000,
-          display:         'flex',
-          flexDirection:   'column',
-          alignItems:      'center',
-          justifyContent:  'center',
-          gap:             '1rem',
-        }}
-      >
-        {stageTitle && (
-          <>
-            <div style={{
-              fontFamily:    '"Cinzel", serif',
-              fontSize:      'clamp(2rem, 5vw, 3.5rem)',
-              letterSpacing: '0.35em',
-              color:         '#C9A84C',
-              textAlign:     'center',
-              lineHeight:    1,
-            }}>
-              {stageTitle.name}
-            </div>
-            <div style={{
-              fontFamily:    '"Cinzel", serif',
-              fontSize:      'clamp(0.9rem, 2vw, 1.4rem)',
-              letterSpacing: '0.25em',
-              color:         'rgba(201,168,76,0.55)',
-              textAlign:     'center',
-            }}>
-              {stageTitle.years}
-            </div>
-          </>
-        )}
-      </div>
 
       {/* ── Botón de mute ── */}
       <button
@@ -352,12 +228,12 @@ function App() {
       </button>
 
       {/* ── Indicador de Carga Vital ── */}
-      {GAMEPLAY_SCREENS.has(screen) && character && (
+      {isGameplay && character && (
         <VitalLoadIndicator stats={character.stats} visible />
       )}
 
       {/* ── Menú de Iniciativas ── */}
-      {GAMEPLAY_SCREENS.has(screen) && character && (
+      {isGameplay && character && (
         <InitiativeMenu
           character={character}
           economy={economy}
@@ -370,25 +246,25 @@ function App() {
         />
       )}
 
-      {/* ── Notificaciones de síntomas (no interrumpen el juego) ── */}
+      {/* ── Notificaciones de síntomas ── */}
       <SymptomNotification />
 
-      {/* ── Breaking Bad HUD: "La línea que cruzaste" ── */}
+      {/* ── Breaking Bad HUD ── */}
       <BreakingBadHUD />
 
-      {/* ── Saul Goodman HUD: "El precio de la victoria" ── */}
+      {/* ── Saul Goodman HUD ── */}
       <SaulGoodmanHUD />
 
       {/* ── Retrato del personaje (top-left durante el juego) ── */}
-      {GAMEPLAY_SCREENS.has(screen) && character && (
+      {isGameplay && character && (
         <div style={{
-          position:    'fixed',
-          top:         '14px',
-          left:        '16px',
-          zIndex:      10001,
-          display:     'flex',
-          alignItems:  'center',
-          gap:         '8px',
+          position:      'fixed',
+          top:           '14px',
+          left:          '16px',
+          zIndex:        10001,
+          display:       'flex',
+          alignItems:    'center',
+          gap:           '8px',
           pointerEvents: 'none',
         }}>
           <CharacterPortrait
@@ -409,20 +285,20 @@ function App() {
         </div>
       )}
 
-      {/* ── Crédito de música (licencia CC BY) — discreto, esquina inferior ── */}
+      {/* ── Crédito de música ── */}
       <div style={{
-        position:   'fixed',
-        bottom:     '12px',
-        left:       isMobile ? 'auto' : '16px',
-        right:      isMobile ? '12px' : 'auto',
-        zIndex:     100,
-        fontFamily: 'sans-serif',
-        fontSize:   '9px',
+        position:      'fixed',
+        bottom:        '12px',
+        left:          isMobile ? 'auto' : '16px',
+        right:         isMobile ? '12px' : 'auto',
+        zIndex:        100,
+        fontFamily:    'sans-serif',
+        fontSize:      '9px',
         letterSpacing: '0.04em',
-        color:      'rgba(201,168,76,0.22)',
+        color:         'rgba(201,168,76,0.22)',
         pointerEvents: 'none',
-        lineHeight: 1.4,
-        userSelect: 'none',
+        lineHeight:    1.4,
+        userSelect:    'none',
       }}>
         Música: Serat — Piano Textures
       </div>

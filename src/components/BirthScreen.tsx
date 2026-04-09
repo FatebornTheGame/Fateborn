@@ -118,13 +118,7 @@ function Diamond({ color }: { color: string }) {
 
 // ─── Main screen ───────────────────────────────────────────────────────────────
 
-export default function BirthScreen({
-  ancestorIds,
-  onConfirm,
-}: {
-  ancestorIds: string[];
-  onConfirm: (character: Character) => void;
-}) {
+export default function BirthScreen() {
   useTrack('/music/trails.mp3');
   const isMobile  = useIsMobile();
   const [name,       setName]       = useState('');
@@ -132,10 +126,9 @@ export default function BirthScreen({
   const [birthYear,  setBirthYear]  = useState(1970);
   const [barsActive, setBarsActive] = useState(false);
 
-  const { setCharacter, setAncestorIds: storeSetAncestorIds } = useGameStore(s => ({
-    setCharacter:    s.setCharacter,
-    setAncestorIds:  s.setAncestorIds,
-  }));
+  const ancestorIds    = useGameStore(s => s.ancestorIds);
+  const setCharacter   = useGameStore(s => s.setCharacter);
+  const setScreen      = useGameStore(s => s.setScreen);
 
   // Computed once on mount
   const stats       = useMemo(() => calculateInheritedStats(ancestorIds), []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -158,9 +151,8 @@ export default function BirthScreen({
       stats,
       flags: {},
     };
-    storeSetAncestorIds(ancestorIds);
     setCharacter(char);
-    onConfirm(char);
+    setScreen('game');
   };
 
   return (

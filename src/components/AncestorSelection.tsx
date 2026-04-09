@@ -6,6 +6,7 @@ import { ARCHETYPE_CONTRIBUTIONS } from '../data/archetypeStats';
 import { COUNTRIES, TIER_LABELS, TIER_COLORS } from '../data/countries';
 import type { Archetype } from '../types';
 import type { Country } from '../store/gameStore';
+import { useGameStore } from '../store/gameStore';
 import StatRadar from './StatRadar';
 import type { CharacterStats } from '../types';
 
@@ -411,13 +412,13 @@ function CountrySelector({
 
 // ─── Main screen ──────────────────────────────────────────────────────────────
 
-export default function AncestorSelection({
-  onConfirm,
-}: {
-  onConfirm: (ancestorIds: string[], country: Country) => void;
-}) {
+export default function AncestorSelection() {
   useTrack('/music/opening.mp3');
   const isMobile = useIsMobile(640);
+
+  const setAncestorIds = useGameStore(s => s.setAncestorIds);
+  const storeSetCountry = useGameStore(s => s.setCountry);
+  const setScreen      = useGameStore(s => s.setScreen);
 
   const [selected, setSelected]       = useState<string[]>([]);
   const [country,  setCountry]        = useState<Country>(COUNTRIES.find(c => c.nombre === 'España')!);
@@ -589,7 +590,12 @@ export default function AncestorSelection({
 
         {/* ── CTA button ── */}
         <button
-          onClick={() => isComplete && onConfirm(selected, country)}
+          onClick={() => {
+            if (!isComplete) return;
+            setAncestorIds(selected);
+            storeSetCountry(country);
+            setScreen('birth');
+          }}
           disabled={!isComplete}
           style={{
             padding: isMobile ? '16px 24px' : '18px 72px',

@@ -25,10 +25,11 @@ const MODES: ModeConfig[] = [
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function StartScreen({ onStart }: { onStart: () => void }) {
+export default function StartScreen() {
   useTrack('/music/opening.mp3');
 
   const setGameMode = useGameStore(s => s.setGameMode);
+  const setScreen   = useGameStore(s => s.setScreen);
 
   const [logoVisible,    setLogoVisible]    = useState(false);
   const [typed1,         setTyped1]         = useState('');
@@ -91,7 +92,7 @@ export default function StartScreen({ onStart }: { onStart: () => void }) {
 
   const handleStart = () => {
     setGameMode(selectedMode);
-    onStart();
+    setScreen('ancestors');
   };
 
   const showCursor1 = typed1.length > 0 && !line1Done;

@@ -1,4 +1,4 @@
-import type { Character } from '../types';
+import { useGameStore } from '../store/gameStore';
 
 const GOLD       = '#c9a84c';
 const GOLD_LIGHT = '#e8d08a';
@@ -15,12 +15,12 @@ const STAT_LABELS: Record<string, string> = {
   fisico: 'Físico', riesgo: 'Riesgo', estabilidad: 'Estabilidad',
 };
 
-interface Props {
-  character: Character;
-  onContinue: () => void;
-}
+export default function GameScreen() {
+  const character = useGameStore(s => s.character);
+  const setScreen = useGameStore(s => s.setScreen);
 
-export default function GameScreen({ character, onContinue }: Props) {
+  if (!character) return null;
+
   return (
     <div
       className="leather-bg"
@@ -114,7 +114,7 @@ export default function GameScreen({ character, onContinue }: Props) {
 
         {/* CTA */}
         <button
-          onClick={onContinue}
+          onClick={() => setScreen('childhood')}
           style={{
             width: '100%',
             padding: '18px',
