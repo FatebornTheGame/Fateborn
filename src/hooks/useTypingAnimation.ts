@@ -7,19 +7,29 @@ interface TypingState {
 
 /**
  * Animates text appearing letter by letter.
- * Returns the currently-displayed portion and whether the full text is shown.
+ * `onComplete` fires once from inside the interval when the last character appears —
+ * never from a render, so there are no stale-state race conditions.
  */
-export function useTypingAnimation(text: string, speedMs = 60): TypingState {
+export function useTypingAnimation(
+  text:        string,
+  speedMs    = 60,
+  onComplete?: () => void,
+): TypingState {
   const [displayed, setDisplayed] = useState('')
   const [isDone, setIsDone]       = useState(false)
-  const indexRef  = useRef(0)
-  const timerRef  = useRef<ReturnType<typeof setInterval> | null>(null)
+  const indexRef      = useRef(0)
+  const timerRef      = useRef<ReturnType<typeof setInterval> | null>(null)
+  // Always holds the latest onComplete without re-triggering the effect
+  const onCompleteRef = useRef(onComplete)
+
+  useEffect(() => { onCompleteRef.current = onComplete })
 
   useEffect(() => {
-    // Reset when text changes
     setDisplayed('')
     setIsDone(false)
     indexRef.current = 0
+
+    if (!text) return
 
     timerRef.current = setInterval(() => {
       const next = indexRef.current + 1
@@ -30,6 +40,8 @@ export function useTypingAnimation(text: string, speedMs = 60): TypingState {
         clearInterval(timerRef.current!)
         timerRef.current = null
         setIsDone(true)
+        // Fire callback outside React's render cycle — no stale-state risk
+        onCompleteRef.current?.()
       }
     }, speedMs)
 

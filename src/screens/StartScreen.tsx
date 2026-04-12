@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTypingAnimation } from '../hooks/useTypingAnimation'
 import { useGameStore } from '../store/gameStore'
 import type { Difficulty } from '../store/gameStore'
 import { playMusic } from '../utils/audio'
 import { MUSIC_OPENING, COLOR_GOLD, COLOR_GARNET } from '../constants/game.constants'
 
-const TAGLINE_LINES = [
-  'DE SU SANGRE NACES.',
-  'DE TUS DECISIONES TE FORJAS.',
-]
+const LINE_1 = 'DE SU SANGRE NACES.'
+const LINE_2 = 'DE TUS DECISIONES TE FORJAS.'
+const CHAR_SPEED_MS   = 55
+const PAUSE_BETWEEN   = 1500   // ms between line 1 done and line 2 start
+const BUTTON_DELAY    = 600    // ms after line 2 done before button appears
+const FALLBACK_SHOW_MS = 9000  // show button unconditionally after this
 
 const DIFFICULTIES: { id: Difficulty; title: string; description: string }[] = [
   {
@@ -38,32 +40,53 @@ export function StartScreen() {
   const difficulty    = useGameStore(s => s.difficulty)
   const setDifficulty = useGameStore(s => s.setDifficulty)
 
-  const [lineIndex, setLineIndex]     = useState(0)
-  const [showButton, setShowButton]   = useState(false)
-  const [phase, setPhase]             = useState<'line1' | 'pause' | 'line2' | 'done'>('line1')
+  const [lineIndex,         setLineIndex]         = useState<0 | 1>(0)
+  const [showDifficulty,    setShowDifficulty]     = useState(false)
+  const [showButton,        setShowButton]         = useState(false)
 
-  const currentText = lineIndex < TAGLINE_LINES.length ? TAGLINE_LINES[lineIndex] : ''
-  const { displayed, isDone } = useTypingAnimation(currentText, 55)
+  // Stable callbacks for each line's completion — created once via useCallback
+  const onLine1Complete = useCallback(() => {
+    setShowDifficulty(true)
+    setTimeout(() => setLineIndex(1), PAUSE_BETWEEN)
+  }, [])
 
-  // Tagline sequence: line1 → 1.5s pause → line2 → show button
+  const onLine2Complete = useCallback(() => {
+    setTimeout(() => setShowButton(true), BUTTON_DELAY)
+  }, [])
+
+  const activeCompletion = lineIndex === 0 ? onLine1Complete : onLine2Complete
+  const activeText       = lineIndex === 0 ? LINE_1 : LINE_2
+
+  const { displayed: line1Displayed } = useTypingAnimation(
+    lineIndex === 0 ? LINE_1 : '',
+    CHAR_SPEED_MS,
+    lineIndex === 0 ? onLine1Complete : undefined,
+  )
+  const { displayed: line2Displayed } = useTypingAnimation(
+    lineIndex === 1 ? LINE_2 : '',
+    CHAR_SPEED_MS,
+    lineIndex === 1 ? onLine2Complete : undefined,
+  )
+
+  // Suppress the "unused variable" lint — activeText/activeCompletion used
+  void activeText
+  void activeCompletion
+
+  // Fallback: reveal button unconditionally after FALLBACK_SHOW_MS
+  const fallbackRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => {
-    if (phase === 'line1' && isDone) {
-      setPhase('pause')
-      const t = setTimeout(() => {
-        setLineIndex(1)
-        setPhase('line2')
-      }, 1500)
-      return () => clearTimeout(t)
+    fallbackRef.current = setTimeout(() => {
+      setShowDifficulty(true)
+      setShowButton(true)
+    }, FALLBACK_SHOW_MS)
+    return () => {
+      if (fallbackRef.current) clearTimeout(fallbackRef.current)
     }
-    if (phase === 'line2' && isDone) {
-      setPhase('done')
-      const t = setTimeout(() => setShowButton(true), 600)
-      return () => clearTimeout(t)
-    }
-  }, [isDone, phase])
+  }, [])
 
-  // Music on mount
+  // Music and scroll-to-top on mount
   useEffect(() => {
+    window.scrollTo(0, 0)
     playMusic(MUSIC_OPENING)
   }, [])
 
@@ -72,13 +95,13 @@ export function StartScreen() {
       className="flex flex-col items-center justify-center min-h-screen gap-8 px-4"
       style={{ background: '#0d0b08' }}
     >
-      {/* Banner */}
+      {/* Title logo (text only) */}
       <img
-        src="/fateborn_banner_nobg.png"
+        src="/fateborn_title.png"
         alt="FATEBORN"
         className="animate-fade-in-slow"
         style={{
-          maxWidth:     600,
+          maxWidth:     700,
           width:        '90%',
           mixBlendMode: 'screen',
           userSelect:   'none',
@@ -87,31 +110,34 @@ export function StartScreen() {
 
       {/* Tagline */}
       <div
-        className="flex flex-col items-center gap-3 min-h-[72px]"
-        style={{ maxWidth: 480 }}
+        className="flex flex-col items-center gap-3"
+        style={{ maxWidth: 520, minHeight: 64 }}
       >
-        {/* Line 1: always shown once animation starts */}
+        {/* Line 1 — persists once started */}
         <p
           className="font-cinzel text-center tracking-[0.25em]"
-          style={{ color: COLOR_GOLD, opacity: 0.7, fontSize: 'clamp(0.75rem, 2vw, 1rem)' }}
+          style={{ color: COLOR_GOLD, opacity: 0.7, fontSize: 'clamp(0.75rem, 2vw, 0.95rem)' }}
         >
-          {lineIndex === 0 ? displayed : TAGLINE_LINES[0]}
+          {lineIndex === 0 ? line1Displayed : LINE_1}
         </p>
 
-        {/* Line 2: shown only after pause */}
+        {/* Line 2 — appears after pause */}
         {lineIndex === 1 && (
           <p
-            className="font-cinzel text-center tracking-[0.2em]"
-            style={{ color: COLOR_GOLD, opacity: 0.85, fontSize: 'clamp(0.75rem, 2vw, 1rem)' }}
+            className="font-cinzel text-center tracking-[0.2em] animate-fade-in"
+            style={{ color: COLOR_GOLD, opacity: 0.88, fontSize: 'clamp(0.75rem, 2vw, 0.95rem)' }}
           >
-            {displayed}
+            {line2Displayed}
           </p>
         )}
       </div>
 
-      {/* Difficulty selector */}
-      {phase !== 'line1' && (
-        <div className="grid grid-cols-2 gap-2 w-full animate-fade-in" style={{ maxWidth: 480 }}>
+      {/* Difficulty selector — shown after line 1 completes */}
+      {showDifficulty && (
+        <div
+          className="grid grid-cols-2 gap-2 w-full animate-fade-in"
+          style={{ maxWidth: 480 }}
+        >
           {DIFFICULTIES.map(d => {
             const isActive = difficulty === d.id
             return (
@@ -120,15 +146,19 @@ export function StartScreen() {
                 onClick={() => setDifficulty(d.id)}
                 className="text-left p-3 transition-all"
                 style={{
-                  border:     `1px solid ${isActive ? COLOR_GOLD + 'cc' : COLOR_GOLD + '22'}`,
-                  background: isActive ? `${COLOR_GOLD}0d` : 'transparent',
+                  border:     `1px solid ${isActive ? COLOR_GOLD : COLOR_GOLD + '33'}`,
+                  background: isActive ? `${COLOR_GOLD}14` : 'transparent',
                   color:      COLOR_GOLD,
+                  outline:    'none',
                 }}
               >
                 <span className="font-cinzel text-xs uppercase tracking-widest block mb-1">
                   {d.title}
                 </span>
-                <span className="text-[10px] opacity-50 block leading-snug">
+                <span
+                  className="text-[10px] block leading-snug"
+                  style={{ opacity: isActive ? 0.7 : 0.4 }}
+                >
                   {d.description}
                 </span>
               </button>
@@ -137,7 +167,7 @@ export function StartScreen() {
         </div>
       )}
 
-      {/* CTA button */}
+      {/* CTA button — shown after line 2 completes (or fallback) */}
       {showButton && (
         <button
           onClick={() => setScreen('ancestors')}
