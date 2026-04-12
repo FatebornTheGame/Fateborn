@@ -18,19 +18,22 @@ interface ActivityDef {
 }
 
 const ACTIVITIES: ActivityDef[] = [
-  { key: 'estudios', label: 'ESTUDIOS',  icon: '📚', desc: 'Aprendizaje y formación académica',    color: '#4a9eff', minAge: 0  },
-  { key: 'familia',  label: 'FAMILIA',   icon: '🏠', desc: 'Tiempo con tus seres queridos',         color: '#4aff8a', minAge: 0  },
-  { key: 'social',   label: 'AMIGOS',    icon: '◉',  desc: 'Vida social, amistades y relaciones',  color: GOLD,      minAge: 0  },
-  { key: 'salud',    label: 'DEPORTE',   icon: '✚',  desc: 'Ejercicio y bienestar físico',          color: '#ff7f50', minAge: 0  },
-  { key: 'ocio',     label: 'OCIO',      icon: '♪',  desc: 'Descanso y entretenimiento personal',  color: '#9b6bff', minAge: 0  },
-  { key: 'trabajo',  label: 'TRABAJO',   icon: '💼', desc: 'Actividad laboral remunerada',          color: '#ffb84a', minAge: 16 },
+  { key: 'estudios', label: 'ESTUDIOS',  icon: '📚', color: '#4a9eff', minAge: 0,
+    desc: 'Invierte en tu futuro académico' },
+  { key: 'familia',  label: 'FAMILIA',   icon: '🏠', color: '#4aff8a', minAge: 0,
+    desc: 'Los lazos familiares necesitan cuidado' },
+  { key: 'social',   label: 'AMIGOS',    icon: '◉',  color: GOLD,      minAge: 0,
+    desc: 'Las amistades se construyen con tiempo y presencia' },
+  { key: 'salud',    label: 'DEPORTE',   icon: '✚',  color: '#ff7f50', minAge: 0,
+    desc: 'El cuerpo y la mente se fortalecen juntos' },
+  { key: 'ocio',     label: 'OCIO',      icon: '♪',  color: '#9b6bff', minAge: 0,
+    desc: 'Descansar también es necesario' },
+  { key: 'trabajo',  label: 'TRABAJO',   icon: '💼', color: '#ffb84a', minAge: 16,
+    desc: 'Actividad laboral remunerada' },
 ]
 
-function getDefaultAlloc(age: number): Alloc {
-  if (age < 13) return { trabajo: 0, estudios: 5, familia: 4, social: 2, salud: 1, ocio: 1 }
-  if (age < 16) return { trabajo: 0, estudios: 5, familia: 2, social: 3, salud: 2, ocio: 1 }
-  if (age < 18) return { trabajo: 2, estudios: 4, familia: 2, social: 2, salud: 2, ocio: 1 }
-  return         { trabajo: 4, estudios: 2, familia: 2, social: 2, salud: 2, ocio: 1 }
+function getDefaultAlloc(_age: number): Alloc {
+  return { trabajo: 0, estudios: 0, familia: 0, social: 0, salud: 0, ocio: 0 }
 }
 
 interface Props {
@@ -73,13 +76,13 @@ export default function QuarterAllocation({ ageYears, onSubmit, onCancel, compac
           fontFamily: 'Cinzel, serif', fontSize: '0.62rem',
           color: '#555', letterSpacing: '0.18em', flex: 1,
         }}>
-          ¿CÓMO PASAS ESTE TRIMESTRE?
+          TIENES 13 SEMANAS. ¿CÓMO VAS A VIVIRLAS?
         </span>
         <span style={{
           fontFamily: 'Cinzel, serif', fontSize: '0.8rem', fontWeight: 700,
           color: ready ? GOLD : remaining > 0 ? '#ffb84a' : GARNET,
         }}>
-          {remaining > 0 ? `${remaining} sem. libres` : ready ? '✓ Listo' : `${-remaining} sem. de más`}
+          {remaining > 0 ? `${remaining} libres` : ready ? '✓' : `${-remaining} de más`}
         </span>
       </div>
 
@@ -207,7 +210,7 @@ export default function QuarterAllocation({ ageYears, onSubmit, onCancel, compac
             transition: 'all 0.15s',
           }}
         >
-          {ready ? 'VIVIR ESTE TRIMESTRE ▶' : `ASIGNA ${remaining} SEMANA${remaining !== 1 ? 'S' : ''} MÁS`}
+          {ready ? 'VIVIR ESTE TRIMESTRE ▶' : `TE QUEDAN ${remaining} SEMANA${remaining !== 1 ? 'S' : ''} POR ASIGNAR`}
         </button>
       </div>
     </div>

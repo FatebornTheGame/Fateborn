@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useGameStore, getLifeStage } from '../store/gameStore'
 import type { Quarter } from '../systems/timeSystem'
 import StatusBar         from '../components/StatusBar'
@@ -6,8 +6,10 @@ import InitiativePanel   from '../components/InitiativePanel'
 import NarrativeFeed     from '../components/NarrativeFeed'
 import LifeTimeline      from '../components/LifeTimeline'
 import QuarterAllocation from '../components/QuarterAllocation'
+import { useState } from 'react'
 
-const GOLD = '#C9A84C'
+const GOLD   = '#C9A84C'
+const GARNET = '#8B1A2A'
 
 // ─── Música por etapa vital ────────────────────────────────────────────────────
 const STAGE_MUSIC: Record<string, string> = {
@@ -19,10 +21,39 @@ const STAGE_MUSIC: Record<string, string> = {
   vejez:         '/music/cast-vejez.mp3',
 }
 
-// ─── Asignación automática para infancia ─────────────────────────────────────
-function autoAlloc(age: number): Quarter['allocation'] {
-  if (age < 13) return { trabajo: 0, estudios: 5, familia: 4, social: 2, salud: 1, ocio: 1 }
-  return          { trabajo: 0, estudios: 5, familia: 2, social: 3, salud: 2, ocio: 1 }
+// ─── Asignación automática (infancia) ─────────────────────────────────────────
+function autoAlloc(): Quarter['allocation'] {
+  return { trabajo: 0, estudios: 5, familia: 4, social: 2, salud: 1, ocio: 1 }
+}
+
+// ─── Hitos por etapa ──────────────────────────────────────────────────────────
+interface Milestone { age: number; label: string; evId: string }
+
+const INFANCIA_MILESTONES: Milestone[] = [
+  { age: 6,  label: '1er amigo', evId: 'first_friend'      },
+  { age: 8,  label: 'hobby',     evId: 'hobby_discovery'   },
+  { age: 10, label: 'conflicto', evId: 'school_conflict'   },
+  { age: 12, label: 'talento',   evId: 'talent_discovered' },
+]
+const ADOLESCENCIA_MILESTONES: Milestone[] = [
+  { age: 13, label: 'primer amor',   evId: 'first_love'           },
+  { age: 14, label: 'academia',      evId: 'academic_path'        },
+  { age: 16, label: '1er trabajo',   evId: 'first_job_idea'       },
+  { age: 18, label: 'mayoría edad',  evId: 'adulthood_threshold'  },
+]
+
+// Edades de todos los eventos fijos
+const FIXED_EVENT_AGES = [6, 8, 10, 11, 12, 13, 14, 16, 17, 18]
+
+function getNextEventAge(currentAge: number): number | null {
+  return FIXED_EVENT_AGES.find(a => a > currentAge) ?? null
+}
+
+/** Quarters to process before the next event arrives (leaves 4 quarters buffer) */
+function getSkipQuarters(currentAge: number): number {
+  const next = getNextEventAge(currentAge)
+  if (!next) return 0
+  return Math.max(0, (next - currentAge) * 4 - 4)
 }
 
 export default function GameScreen() {
@@ -32,28 +63,29 @@ export default function GameScreen() {
   const initGame       = useGameStore(s => s.initGame)
   const gameInit       = useGameStore(s => s.gameInitialized)
   const processQuarter = useGameStore(s => s.processQuarter)
+  const charFlags      = character?.flags ?? {}
 
   const stage = getLifeStage(ageYears)
 
-  // Modal de asignación (solo para fase adulta 18+)
   const [showAllocModal, setShowAllocModal] = useState(false)
-  const [mobileTab, setMobileTab]           = useState<'left' | 'feed'>('feed')
+  const [mobileTab,      setMobileTab]      = useState<'left' | 'feed'>('feed')
+
   const audioRef        = useRef<HTMLAudioElement>(null)
   const currentStageRef = useRef<string>('')
 
-  // ── Inicializar partida al entrar ───────────────────────────────────────────
+  // ── Inicializar partida ──────────────────────────────────────────────────────
   useEffect(() => {
     if (!gameInit && character) initGame()
   }, [character, gameInit, initGame])
 
-  // ── Música reactiva a la etapa vital ────────────────────────────────────────
+  // ── Música reactiva ──────────────────────────────────────────────────────────
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
     const s = getLifeStage(ageYears)
-    const track = STAGE_MUSIC[s]
     if (currentStageRef.current === s) return
     currentStageRef.current = s
+    const track = STAGE_MUSIC[s]
     let vol = audio.volume
     const fadeOut = setInterval(() => {
       vol = Math.max(0, vol - 0.08)
@@ -74,19 +106,16 @@ export default function GameScreen() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ageYears])
 
-  // ── Mute toggle ─────────────────────────────────────────────────────────────
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
     audio.volume = isMuted ? 0 : 0.7
   }, [isMuted])
 
-  // ── Primer arrange ───────────────────────────────────────────────────────────
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
-    const s = STAGE_MUSIC[getLifeStage(ageYears)]
-    audio.src = s
+    audio.src = STAGE_MUSIC[getLifeStage(ageYears)]
     audio.volume = 0
     audio.play().catch(() => {})
     currentStageRef.current = getLifeStage(ageYears)
@@ -102,23 +131,36 @@ export default function GameScreen() {
 
   if (!character) return null
 
-  // ── Handlers de asignación ───────────────────────────────────────────────────
-  function handleInfanciaAdvance() {
-    processQuarter(autoAlloc(ageYears))
+  // ── Fase de vida ─────────────────────────────────────────────────────────────
+  const isInfancia     = stage === 'infancia'
+  const isAdolescencia = stage === 'adolescencia'
+  const isAdult        = !isInfancia && !isAdolescencia
+
+  // ── Stage progress bar data ───────────────────────────────────────────────────
+  const showStageBar  = isInfancia || isAdolescencia
+  const stageMin      = isInfancia ? 0 : 13
+  const stageMax      = isInfancia ? 12 : 18
+  const stageName     = isInfancia ? 'INFANCIA' : 'ADOLESCENCIA'
+  const stageProgress = Math.min(1, (ageYears - stageMin) / Math.max(1, stageMax - stageMin))
+  const milestones    = isInfancia ? INFANCIA_MILESTONES : ADOLESCENCIA_MILESTONES
+  const BODY_TOP      = showStageBar ? 88 : 60
+
+  // ── Skip logic (infancia only) ────────────────────────────────────────────────
+  const skipQuarters  = isInfancia ? getSkipQuarters(ageYears) : 0
+  const canSkip       = skipQuarters > 2
+  const nextEvAge     = getNextEventAge(ageYears)
+
+  function handleSkip() {
+    const n = skipQuarters
+    for (let i = 0; i < n; i++) {
+      processQuarter(autoAlloc())
+    }
   }
 
   function handleAllocSubmit(alloc: Quarter['allocation']) {
     setShowAllocModal(false)
     processQuarter(alloc)
   }
-
-  // ── Determinar layout por etapa ──────────────────────────────────────────────
-  const isInfancia      = stage === 'infancia'
-  const isAdolescencia  = stage === 'adolescencia'
-  const isAdult         = !isInfancia && !isAdolescencia  // 18+
-
-  // Etiqueta de pestaña izquierda en móvil
-  const leftTabLabel = isAdolescencia ? '📅 TRIMESTRE' : '📋 INICIATIVA'
 
   return (
     <div style={{
@@ -130,80 +172,157 @@ export default function GameScreen() {
       <audio ref={audioRef} loop />
 
       <style>{`
-        /* ── Layout desktop ── */
         .game-body {
           display: grid;
           position: fixed;
-          top: 60px;
-          bottom: 64px;
-          left: 0; right: 0;
+          bottom: 64px; left: 0; right: 0;
           overflow: hidden;
         }
-        .game-body.two-col {
-          grid-template-columns: 55% 45%;
-        }
-        .game-body.one-col {
-          grid-template-columns: 1fr;
-        }
+        .game-body.two-col { grid-template-columns: 55% 45%; }
+        .game-body.one-col  { grid-template-columns: 1fr; }
         .game-left  { overflow: hidden; border-right: 1px solid #1a1510; }
         .game-right { overflow: hidden; }
-
-        /* ── Tab bar móvil (oculto en desktop) ── */
         .mobile-tabs { display: none; }
 
         @media (max-width: 640px) {
-          .game-body {
-            grid-template-columns: 1fr !important;
-            bottom: 104px;
-          }
+          .game-body { grid-template-columns: 1fr !important; bottom: 104px; }
           .game-left  { display: none; }
           .game-right { display: none; }
           .game-left.tab-active  { display: block; }
           .game-right.tab-active { display: block; }
-
           .mobile-tabs {
             display: flex;
-            position: fixed;
-            bottom: 64px;
-            left: 0; right: 0;
-            height: 40px;
-            background: #0d0b08;
-            border-top: 1px solid #1a1510;
-            z-index: 99;
+            position: fixed; bottom: 64px; left: 0; right: 0;
+            height: 40px; background: #0d0b08;
+            border-top: 1px solid #1a1510; z-index: 99;
           }
           .mobile-tab-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #555;
-            font-size: 0.65rem;
-            font-family: Cinzel, serif;
-            letter-spacing: 0.12em;
-            cursor: pointer;
-            transition: color 0.15s;
+            flex: 1; background: transparent; border: none;
+            color: #555; font-size: 0.65rem;
+            font-family: Cinzel, serif; letter-spacing: 0.12em;
+            cursor: pointer; transition: color 0.15s;
           }
-          .mobile-tab-btn.active {
-            color: ${GOLD};
-            border-bottom: 2px solid ${GOLD};
-          }
+          .mobile-tab-btn.active { color: ${GOLD}; border-bottom: 2px solid ${GOLD}; }
         }
       `}</style>
 
-      {/* ── StatusBar fija arriba ──────────────────────────────────────────── */}
+      {/* ── StatusBar ───────────────────────────────────────────────────────── */}
       <StatusBar />
+
+      {/* ── Barra de progreso de etapa (infancia / adolescencia) ────────────── */}
+      {showStageBar && (
+        <div style={{
+          position: 'fixed', top: 60, left: 0, right: 0, height: 28,
+          background: '#0a0806', borderBottom: '1px solid #1a1510',
+          zIndex: 90, display: 'flex', alignItems: 'center',
+          padding: '0 1rem', gap: '0.75rem',
+        }}>
+          <span style={{
+            fontFamily: 'Cinzel, serif', fontSize: '0.48rem',
+            color: '#555', letterSpacing: '0.16em', flexShrink: 0,
+          }}>
+            {stageName}
+          </span>
+
+          {/* Barra con hitos */}
+          <div style={{ flex: 1, position: 'relative', height: 3, background: '#1a1510', borderRadius: 2 }}>
+            {/* Relleno */}
+            <div style={{
+              position: 'absolute', left: 0, top: 0, bottom: 0,
+              width: `${stageProgress * 100}%`,
+              background: `linear-gradient(90deg, ${GOLD}66, ${GOLD})`,
+              borderRadius: 2, transition: 'width 0.6s ease',
+            }} />
+            {/* Marcadores */}
+            {milestones.map(m => {
+              const pct    = (m.age - stageMin) / (stageMax - stageMin) * 100
+              const fired  = charFlags[`ev_${m.evId}`] === true
+              return (
+                <div key={m.evId} title={m.label} style={{
+                  position: 'absolute', top: '50%', left: `${pct}%`,
+                  transform: 'translate(-50%, -50%)',
+                }}>
+                  <div style={{
+                    width: 7, height: 7, borderRadius: '50%',
+                    background: fired ? GOLD : '#0a0806',
+                    border: `1.5px solid ${fired ? GOLD : '#3a3530'}`,
+                    transition: 'background 0.4s, border-color 0.4s',
+                    boxShadow: fired ? `0 0 6px ${GOLD}88` : 'none',
+                  }} />
+                </div>
+              )
+            })}
+          </div>
+
+          <span style={{
+            fontFamily: 'Cinzel, serif', fontSize: '0.52rem',
+            color: '#666', flexShrink: 0,
+          }}>
+            {ageYears} / {stageMax}
+          </span>
+        </div>
+      )}
 
       {/* ══════════════════ INFANCIA (0-12) ══════════════════════════════════ */}
       {isInfancia && (
-        <div className="game-body one-col">
+        <div className="game-body one-col" style={{ top: BODY_TOP }}>
           <div className="game-right tab-active" style={{ position: 'relative' }}>
             <NarrativeFeed />
-            {/* Botón flotante AVANZAR TRIMESTRE */}
+
+            {/* Botón principal o bloque de salto */}
             <div style={{
               position: 'absolute', bottom: '1rem', right: '1rem',
-              zIndex: 20,
+              zIndex: 20, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem',
             }}>
+              {canSkip && nextEvAge !== null && (
+                <div style={{
+                  background: '#0f0d0a',
+                  border: `1px solid ${GARNET}55`,
+                  borderRadius: 5,
+                  padding: '0.65rem 0.85rem',
+                  maxWidth: 260,
+                  boxShadow: '0 2px 16px #000c',
+                  marginBottom: '0.15rem',
+                }}>
+                  <p style={{
+                    fontFamily: 'Cinzel, serif', fontSize: '0.58rem',
+                    color: '#a09080', lineHeight: 1.6, margin: 0,
+                    letterSpacing: '0.04em',
+                  }}>
+                    {character.name} crece. Los años pasan entre juegos,
+                    el colegio y la familia.
+                  </p>
+                  <p style={{
+                    fontFamily: 'Cinzel, serif', fontSize: '0.52rem',
+                    color: '#555', margin: '0.3rem 0 0', letterSpacing: '0.1em',
+                  }}>
+                    {ageYears} años → {nextEvAge - 1} años
+                  </p>
+                  <button
+                    onClick={handleSkip}
+                    style={{
+                      marginTop: '0.5rem',
+                      background: `${GOLD}12`,
+                      border: `1px solid ${GOLD}55`,
+                      color: GOLD,
+                      fontFamily: 'Cinzel, serif',
+                      fontSize: '0.55rem',
+                      letterSpacing: '0.1em',
+                      padding: '0.35rem 0.7rem',
+                      borderRadius: 3,
+                      cursor: 'pointer',
+                      width: '100%',
+                      transition: 'background 0.15s',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = `${GOLD}22` }}
+                    onMouseLeave={e => { e.currentTarget.style.background = `${GOLD}12` }}
+                  >
+                    SALTAR AL PRÓXIMO MOMENTO ▶
+                  </button>
+                </div>
+              )}
               <button
-                onClick={handleInfanciaAdvance}
+                onClick={() => processQuarter(autoAlloc())}
                 style={{
                   background: '#0f0d0a',
                   border: `1px solid ${GOLD}66`,
@@ -215,7 +334,7 @@ export default function GameScreen() {
                   borderRadius: 4,
                   cursor: 'pointer',
                   transition: 'border-color 0.15s, background 0.15s',
-                  boxShadow: `0 2px 12px #000a`,
+                  boxShadow: '0 2px 12px #000a',
                 }}
                 onMouseEnter={e => {
                   e.currentTarget.style.borderColor = GOLD
@@ -236,7 +355,7 @@ export default function GameScreen() {
       {/* ══════════════════ ADOLESCENCIA (13-17) ═════════════════════════════ */}
       {isAdolescencia && (
         <>
-          <div className={`game-body two-col`}>
+          <div className="game-body two-col" style={{ top: BODY_TOP }}>
             <div className={`game-left${mobileTab === 'left' ? ' tab-active' : ''}`}>
               <QuarterAllocation
                 ageYears={ageYears}
@@ -268,7 +387,7 @@ export default function GameScreen() {
       {/* ══════════════════ ADULTO (18+) ═════════════════════════════════════ */}
       {isAdult && (
         <>
-          <div className="game-body two-col">
+          <div className="game-body two-col" style={{ top: BODY_TOP }}>
             <div className={`game-left${mobileTab === 'left' ? ' tab-active' : ''}`}>
               <InitiativePanel onRequestQuarter={() => setShowAllocModal(true)} />
             </div>
@@ -281,7 +400,7 @@ export default function GameScreen() {
               className={`mobile-tab-btn${mobileTab === 'left' ? ' active' : ''}`}
               onClick={() => setMobileTab('left')}
             >
-              {leftTabLabel}
+              📋 INICIATIVA
             </button>
             <button
               className={`mobile-tab-btn${mobileTab === 'feed' ? ' active' : ''}`}
@@ -293,7 +412,7 @@ export default function GameScreen() {
         </>
       )}
 
-      {/* ── Modal de asignación trimestral (adultos 18+) ────────────────────── */}
+      {/* ── Modal de asignación (adultos 18+) ───────────────────────────────── */}
       {showAllocModal && (
         <QuarterAllocation
           ageYears={ageYears}
