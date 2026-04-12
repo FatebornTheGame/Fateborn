@@ -183,6 +183,9 @@ export interface TimeAllocation {
   ocio:     number
 }
 
+// ─── Sexual orientation ───────────────────────────────────────────────────────
+export type SexualOrientation = 'heterosexual' | 'homosexual' | 'bisexual'
+
 // ─── Game State ───────────────────────────────────────────────────────────────
 export interface GameState {
   character:           Character
@@ -198,8 +201,10 @@ export interface GameState {
   feed:                NarrativeEntry[]
   economy:             Economy
   career:              Career | null
-  vitalLoad:           number       // 0-100
+  vitalLoad:           number              // 0-100
   legacyScore:         number
+  sexualOrientation:   SexualOrientation
+  orientationRevealed: boolean
 }
 
 // ─── Flag helpers ─────────────────────────────────────────────────────────────

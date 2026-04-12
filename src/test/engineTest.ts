@@ -37,6 +37,8 @@ function createTestState(): GameState {
     career:              null,
     vitalLoad:           10,
     legacyScore:         0,
+    sexualOrientation:   'heterosexual',
+    orientationRevealed: false,
   }
 }
 

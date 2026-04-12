@@ -1,2 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gold:   #C9A84C;
+  --color-garnet: #8B1A2A;
+  --color-felt:   #0d0b08;
+  --color-felt-2: #141210;
+  --color-felt-3: #1c1915;
+  --color-muted:  #6b6045;
+
+  --font-cinzel: 'Cinzel', serif;
+}
+
+/* ── Reset ──────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #0d0b08; color: #C9A84C; font-family: sans-serif; }
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  background-color: #0d0b08;
+  color: #C9A84C;
+  font-family: sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 4px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: #C9A84C44; border-radius: 2px; }
+
+/* ── Keyframes ──────────────────────────────────────────────────────────── */
+@keyframes stat-flash-pos {
+  0%, 100% { color: #C9A84C; }
+  30%       { color: #fff7d6; text-shadow: 0 0 8px #C9A84C; }
+}
+
+@keyframes stat-flash-neg {
+  0%, 100% { color: #C9A84C; }
+  30%       { color: #ff9090; text-shadow: 0 0 8px #8B1A2A; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-slow {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.stat-flash-pos { animation: stat-flash-pos 1s ease; }
+.stat-flash-neg { animation: stat-flash-neg 1s ease; }
+.animate-fade-in      { animation: fade-in 0.4s ease forwards; }
+.animate-fade-in-slow { animation: fade-in-slow 1.2s ease forwards; }
+
+/* ── Cinzel utility ─────────────────────────────────────────────────────── */
+.font-cinzel { font-family: 'Cinzel', serif; }

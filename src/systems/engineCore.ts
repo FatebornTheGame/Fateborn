@@ -322,6 +322,67 @@ export function processGameTurn(
   }
 }
 
+// ─── UI-friendly split: prepare quarter (pre-event) ──────────────────────────
+// Runs allocation effects, consequences, NPC arcs.
+// Returns the intermediate state and the event (if any) waiting for player input.
+export interface QuarterPrep {
+  intermediateState:     GameState
+  pendingEvent:          GameEventTemplate | null
+  consequencesDelivered: string[]
+}
+
+export function prepareQuarter(state: GameState, allocation: TimeAllocation): QuarterPrep {
+  let s = { ...state }
+
+  const newTotalQuarters = s.totalQuarters + 1
+  const newAgeYears      = Math.floor(newTotalQuarters / 4)
+  s = { ...s, totalQuarters: newTotalQuarters, ageYears: newAgeYears }
+
+  s = applyAllocationEffects(s, allocation)
+
+  const { state: afterConsequences, delivered } = processPendingConsequences(s)
+  s = afterConsequences
+
+  s = advanceNPCLives(s)
+
+  const eligible    = getEligibleEvents(s)
+  const pendingEvent = eligible.length > 0
+    ? eligible.reduce((best, ev) => ev.weight > best.weight ? ev : best, eligible[0])
+    : null
+
+  return { intermediateState: s, pendingEvent, consequencesDelivered: delivered }
+}
+
+// ─── UI-friendly split: commit player's event choice ─────────────────────────
+export function commitEventChoice(
+  state:    GameState,
+  event:    GameEventTemplate,
+  optionId: string,
+): GameState {
+  const option = event.options.find(o => o.id === optionId)
+  if (!option) return state
+
+  let s = state
+
+  // Check memory triggers
+  const recalled = checkMemoryTriggers(s, event.id)
+  if (recalled.length > 0) {
+    s = markMemoriesRecalled(s, recalled.map(m => m.id))
+    for (const mem of recalled) {
+      const entry: NarrativeEntry = {
+        id:         `memory_recall_${mem.id}`,
+        age:        s.ageYears,
+        text:       `[Recuerdo] ${mem.text}`,
+        importance: 'normal',
+        type:       'memory',
+      }
+      s = { ...s, feed: [...s.feed, entry] }
+    }
+  }
+
+  return applyOption(s, event, option)
+}
+
 // ─── Advance multiple quarters (skip) ────────────────────────────────────────
 export function processMultipleQuarters(
   state:      GameState,
