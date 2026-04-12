@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useGameStore } from '../store/gameStore'
 import { useGameEngine }    from '../hooks/useGameEngine'
 import { useNarrativeFeed } from '../hooks/useNarrativeFeed'
@@ -7,12 +8,17 @@ import { LifestylePanel }   from '../components/LifestylePanel'
 import { NarrativeFeed }    from '../components/NarrativeFeed'
 import { LifeTimeline }     from '../components/LifeTimeline'
 import { TabBar }           from '../components/TabBar'
+import { StatsPanel }       from '../components/StatsPanel'
+import { COLOR_GOLD }       from '../constants/game.constants'
 
 export function GameScreen() {
-  const gameState    = useGameStore(s => s.gameState)
-  const preEventState = useGameStore(s => s.preEventState)
-  const activeTab    = useGameStore(s => s.activeTab)
-  const setActiveTab = useGameStore(s => s.setActiveTab)
+  const gameState       = useGameStore(s => s.gameState)
+  const preEventState   = useGameStore(s => s.preEventState)
+  const activeTab       = useGameStore(s => s.activeTab)
+  const setActiveTab    = useGameStore(s => s.setActiveTab)
+  const lastStatChanges = useGameStore(s => s.lastStatChanges)
+
+  const [showStats, setShowStats] = useState(false)
 
   const { canAdvance, advanceQuarter, resolveEvent } = useGameEngine()
   const { grouped, pendingEvent }                    = useNarrativeFeed()
@@ -110,6 +116,30 @@ export function GameScreen() {
         maxAge={90}
         events={timelineEvents}
       />
+
+      {/* Σ stats button — bottom-left corner, above timeline */}
+      {showStats && (
+        <StatsPanel
+          stats={gameState.stats}
+          lastStatChanges={lastStatChanges}
+          onClose={() => setShowStats(false)}
+        />
+      )}
+      <div className="fixed bottom-14 left-2 z-50">
+        <button
+          onClick={() => setShowStats(v => !v)}
+          className="font-cinzel text-sm flex items-center justify-center transition-all"
+          style={{
+            width:      36,
+            height:     36,
+            border:     `1px solid ${showStats ? COLOR_GOLD + 'aa' : COLOR_GOLD + '33'}`,
+            color:      showStats ? COLOR_GOLD : COLOR_GOLD + '88',
+            background: showStats ? `${COLOR_GOLD}11` : 'transparent',
+          }}
+        >
+          Σ
+        </button>
+      </div>
     </div>
   )
 }

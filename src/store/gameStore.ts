@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import type { GameState, Stats, SexualOrientation } from '../types/game.types'
 import { defaultStats, clampStat } from '../types/game.types'
+
+export type StatFlash = 'pos' | 'neg'
 import type { Archetype, AncestorSlot } from '../types/archetype.types'
 import type { GameEventTemplate } from '../types/game.types'
 import type { LifestyleType } from '../systems/lifestyleSystem'
@@ -94,8 +96,9 @@ interface GameStore {
   lifestyle:    LifestyleType | null
   pendingEvent: GameEventTemplate | null
   // State captured before event was found — player resolves event from here
-  preEventState: GameState | null
-  activeTab:    'initiative' | 'feed'
+  preEventState:    GameState | null
+  activeTab:        'initiative' | 'feed'
+  lastStatChanges:  Partial<Record<keyof Stats, StatFlash>>
 
   startNewGame:   (name: string, gender: 'hombre' | 'mujer') => void
   setLifestyle:   (lifestyle: LifestyleType) => void
@@ -139,11 +142,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   // Game
-  gameState:     null,
-  lifestyle:     null,
-  pendingEvent:  null,
-  preEventState: null,
-  activeTab:     'feed',
+  gameState:        null,
+  lifestyle:        null,
+  pendingEvent:     null,
+  preEventState:    null,
+  activeTab:        'feed',
+  lastStatChanges:  {},
 
   startNewGame: (name, gender) => {
     const { inheritedStats, selectedCountry } = get()
@@ -202,7 +206,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (!preEventState || !pendingEvent) return
 
     const newState = commitEventChoice(preEventState, pendingEvent, optionId)
-    set({ gameState: newState, pendingEvent: null, preEventState: null })
+
+    // Compute which stats changed and in which direction
+    const oldStats = preEventState.stats
+    const newStats = newState.stats
+    const changes: Partial<Record<keyof Stats, StatFlash>> = {}
+    for (const key of Object.keys(oldStats) as (keyof Stats)[]) {
+      const delta = newStats[key] - oldStats[key]
+      if (Math.abs(delta) >= 0.05) {
+        changes[key] = delta > 0 ? 'pos' : 'neg'
+      }
+    }
+
+    set({ gameState: newState, pendingEvent: null, preEventState: null, lastStatChanges: changes })
+
+    // Clear flash after animation completes (1s animation + small buffer)
+    setTimeout(() => set({ lastStatChanges: {} }), 1400)
   },
 
   setActiveTab: (tab) => set({ activeTab: tab }),
