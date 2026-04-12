@@ -1,170 +1,224 @@
-// ─── Dificultad ──────────────────────────────────────────────────────────────
-export type Difficulty = 'historia' | 'fateborn' | 'ironman' | 'legado';
-
-// ─── Stats del personaje — 9 valores en escala 0-10 ─────────────────────────
-export interface CharacterStats {
-  // COGNITIVO
-  logica: number;
-  creatividad: number;
-  disciplina: number;
-  // SOCIAL
-  carisma: number;
-  emocional: number;
-  ambicion: number;
-  // VITAL
-  fisico: number;
-  riesgo: number;
-  estabilidad: number;
+// ─── Stats ────────────────────────────────────────────────────────────────────
+export interface Stats {
+  logica:      number   // 0-10
+  creatividad: number
+  disciplina:  number
+  carisma:     number
+  emocional:   number
+  ambicion:    number
+  fisico:      number
+  riesgo:      number
+  estabilidad: number
 }
 
-// ─── Ancestro / Arquetipo ─────────────────────────────────────────────────────
-export interface ArchetypeStat {
-  stat: keyof CharacterStats;
-  value: number;
+export function defaultStats(): Stats {
+  return {
+    logica: 5, creatividad: 5, disciplina: 5,
+    carisma: 5, emocional: 5,  ambicion: 5,
+    fisico: 5,  riesgo: 5,     estabilidad: 5,
+  }
 }
 
-export interface Archetype {
-  id: string;
-  name: string;
-  symbol: string;
-  description: string;
-  accentColor: string;
-  stats: ArchetypeStat[];
+export function applyStatDeltas(stats: Stats, deltas: Partial<Stats>): Stats {
+  const result = { ...stats }
+  for (const [key, delta] of Object.entries(deltas)) {
+    const k = key as keyof Stats
+    result[k] = parseFloat(Math.min(10, Math.max(0, result[k] + (delta ?? 0))).toFixed(2))
+  }
+  return result
 }
 
-// ─── País ─────────────────────────────────────────────────────────────────────
-export interface CountryModifiers {
-  costovida: number;
-  oportunidad: number;
-  estabilidad: number;
-  sanidad: number;
-  educacion: number;
+export function clampStat(v: number): number {
+  return parseFloat(Math.min(10, Math.max(0, v)).toFixed(2))
 }
 
-export interface Country {
-  nombre: string;
-  tier: 1 | 2 | 3 | 4;
-  modificadores: CountryModifiers;
-}
-
-// ─── Personaje ────────────────────────────────────────────────────────────────
-export type NarrativeFlags = Record<string, boolean | string | number>;
-
+// ─── Character ────────────────────────────────────────────────────────────────
 export interface Character {
-  name: string;
-  gender: 'hombre' | 'mujer';
-  birthYear: number;
-  country: string;
-  ancestorIds: [string, string, string, string];
-  stats: CharacterStats;
-  flags: NarrativeFlags;
+  name:      string
+  gender:    'hombre' | 'mujer'
+  birthYear: number
+  country:   string
 }
 
-// ─── Pantallas ────────────────────────────────────────────────────────────────
-export type AppScreen = 'start' | 'ancestors' | 'birth' | 'game' | 'death';
-
-// ─── Etapas vitales ───────────────────────────────────────────────────────────
-export type LifeStage = 'infancia' | 'adolescencia' | 'juventud' | 'adultez' | 'madurez' | 'vejez';
-
-// ─── Feed narrativo ───────────────────────────────────────────────────────────
-export interface FeedOption {
-  id: string;
-  label: string;
-  color?: 'gold' | 'garnet' | 'muted';
+// ─── NPC parallel arc ─────────────────────────────────────────────────────────
+export interface ParallelArcStep {
+  triggerAge:         number
+  event:              string         // lo que le pasa al NPC
+  narrativeToPlayer?: string         // template con {{name}}, ausente = el jugador no se entera
 }
 
-export interface FeedEntry {
-  id: string;
-  week: number;
-  year: number;
-  text: string;
-  importance: 'normal' | 'alta' | 'critica';
-  answered: boolean;
-  options?: FeedOption[];
-  selectedOptionId?: string;
+// ─── Friend (NPC vivo) ────────────────────────────────────────────────────────
+export interface Friend {
+  id:             string
+  name:           string
+  gender:         'hombre' | 'mujer'
+  role:           'friend' | 'rival' | 'mentor' | 'romantic'
+  ageAtMeeting:   number
+  stats:          Partial<Stats>
+  arcProfile:     string
+  currentArcStep: number
+  alive:          boolean
+  relationship:   number             // 0-100
+  parallelArc:    ParallelArcStep[]
+  lastContactAge: number
+  sharedMemories: string[]
 }
 
-// ─── Timeline ─────────────────────────────────────────────────────────────────
-export interface TimelineEvent {
-  id: string;
-  yearOffset: number;
-  label: string;
-  type: 'logro' | 'perdida' | 'hito';
-}
-
-// ─── Economía ─────────────────────────────────────────────────────────────────
-export interface Economy {
-  liquidez: number;
-  ingresosMensuales: number;
-  gastosMensuales: number;
-  patrimonioBruto: number;
-  deudaTotal: number;
-}
-
-// ─── Carrera ─────────────────────────────────────────────────────────────────
-export interface Career {
-  profesion: string;
-  nivel: number;       // 1–10
-  experiencia: number; // años
-  salarioMensual: number;
-}
-
-// ─── Sistemas — deltas y consecuencias ───────────────────────────────────────
-export interface StatDelta {
-  stat: keyof CharacterStats;
-  delta: number;
+// ─── Consequences ─────────────────────────────────────────────────────────────
+export interface DelayedConsequence {
+  triggerAge?:       number
+  triggerFlag?:      string
+  triggerYearsAfter?: number
+  narrative:         (state: GameState) => string
+  statDeltas?:       Partial<Stats>
+  flags?:            string[]
+  unlockEvent?:      string
 }
 
 export interface PendingConsequence {
-  id: string;
-  quartersRemaining: number;
-  type: string;
-  severity: 'leve' | 'moderado' | 'grave';
-  message: string;
+  id:           string
+  sourceAge:    number
+  sourceEvent:  string
+  triggerAge?:  number
+  triggerFlag?: string
+  narrative:    (state: GameState) => string
+  statDeltas?:  Partial<Stats>
+  flags?:       string[]
+  unlockEvent?: string
 }
 
-// ─── Sistema de amistades ─────────────────────────────────────────────────────
-export interface Friend {
-  id: string;
-  nombre: string;
-  edad: number;
-  origen: 'infancia' | 'instituto' | 'trabajo' | 'ocio';
-  afinidad: number;     // 0-10
-  confianza: number;    // 0-10
-  ultimoContacto: number; // semana del juego
-  activo: boolean;
+// ─── NPC Template ─────────────────────────────────────────────────────────────
+export interface NPCTemplate {
+  role:        'friend' | 'rival' | 'mentor' | 'romantic'
+  namePool:    string[]
+  statProfile: Partial<Stats>
+  arcProfile:  string
+  parallelArc: ParallelArcStep[]
 }
 
-// ─── Estado puro del juego (usado por los sistemas sin UI) ────────────────────
+// ─── Event Option ─────────────────────────────────────────────────────────────
+export type StatDeltaResolver = Partial<Stats> | ((state: GameState) => Partial<Stats>)
+
+export function resolveDeltas(d: StatDeltaResolver, state: GameState): Partial<Stats> {
+  return typeof d === 'function' ? d(state) : d
+}
+
+export interface EventOption {
+  id:       string
+  text:     (state: GameState) => string
+  immediate: {
+    narrative:    (state: GameState) => string
+    statDeltas:   StatDeltaResolver
+    flags:        string[]
+    removeFlags?: string[]
+    generateNPC?: NPCTemplate
+  }
+  delayed:      DelayedConsequence[]
+  memory?:      { id: string; text: (state: GameState) => string }
+  epitaphSeed?: string
+}
+
+// ─── Game Event Template ──────────────────────────────────────────────────────
+export interface GameEventTemplate {
+  id:                string
+  triggerAge:        number
+  triggerFlags?:     string[]
+  triggerAntiFlags?: string[]
+  weight:            number
+  context:           (state: GameState) => string
+  options:           [EventOption, EventOption, EventOption]
+}
+
+// ─── Epitaph ──────────────────────────────────────────────────────────────────
+export interface EpitaphMoment {
+  age:    number
+  text:   string
+  weight: number
+}
+
+export interface EpitaphState {
+  seeds:       string[]
+  currentText: string
+  moments:     EpitaphMoment[]
+}
+
+// ─── Memory ───────────────────────────────────────────────────────────────────
+export interface Memory {
+  id:             string
+  age:            number
+  text:           string
+  triggerContext: string[]
+  recalled:       boolean
+}
+
+// ─── Narrative entry ──────────────────────────────────────────────────────────
+export interface NarrativeEntry {
+  id:         string
+  age:        number
+  text:       string
+  importance: 'normal' | 'alta' | 'critica'
+  type:       'event' | 'consequence' | 'npc' | 'memory' | 'reflection'
+}
+
+// ─── Economy / Career ─────────────────────────────────────────────────────────
+export interface Economy {
+  liquidez:        number
+  ingresosMensual: number
+  gastosMensual:   number
+}
+
+export interface Career {
+  profesion:      string
+  nivel:          number
+  salarioMensual: number
+}
+
+// ─── Time allocation ──────────────────────────────────────────────────────────
+export interface TimeAllocation {
+  trabajo:  number   // semanas (total = 13)
+  estudios: number
+  social:   number
+  salud:    number
+  familia:  number
+  ocio:     number
+}
+
+// ─── Game State ───────────────────────────────────────────────────────────────
 export interface GameState {
-  character: Character | null;
-  ageYears: number;
-  currentYear: number;
-  totalWeeks: number;
-  vitalLoad: number;
-  legacyScore: number;
-  feed: FeedEntry[];
-  timeline: TimelineEvent[];
-  economy: Economy;
-  career: Career | null;
-  gameFlags: GameFlags;
-  difficulty: Difficulty;
-  friends: Friend[];
-  pendingConsequences: PendingConsequence[];
+  character:           Character
+  ageYears:            number
+  totalQuarters:       number
+  stats:               Stats
+  flags:               string[]
+  friends:             Friend[]
+  pendingConsequences: PendingConsequence[]
+  memories:            Memory[]
+  epitaph:             EpitaphState
+  firedEvents:         string[]
+  feed:                NarrativeEntry[]
+  economy:             Economy
+  career:              Career | null
+  vitalLoad:           number       // 0-100
+  legacyScore:         number
 }
 
-// NarrativeEntry: entrada para el feed (sin id, lo genera el store)
-export type NarrativeEntry = Omit<FeedEntry, 'id'>;
+// ─── Flag helpers ─────────────────────────────────────────────────────────────
+export function hasFlag(state: GameState, flag: string): boolean {
+  return state.flags.includes(flag)
+}
 
-// ─── Flags de juego ───────────────────────────────────────────────────────────
-export interface GameFlags {
-  emancipado: boolean;
-  tienePareja: boolean;
-  parejaEstable: boolean;
-  tieneHijos: number;
-  tieneMascota: boolean;
-  adiccion: string | null;
-  reputacion: number; // 0–100
-  tieneAmigos: boolean;
-  enfermedadTerminal: boolean;
+export function addFlags(state: GameState, flags: string[]): GameState {
+  const newFlags = [...state.flags]
+  for (const f of flags) {
+    if (!newFlags.includes(f)) newFlags.push(f)
+  }
+  return { ...state, flags: newFlags }
+}
+
+export function removeFlags(state: GameState, flags: string[]): GameState {
+  return { ...state, flags: state.flags.filter(f => !flags.includes(f)) }
+}
+
+export function getFirstFriend(state: GameState): Friend | undefined {
+  return state.friends.find(f => f.role === 'friend')
 }
