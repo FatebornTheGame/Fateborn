@@ -810,6 +810,43 @@ export default function InitiativePanel() {
           </div>
         )
       })}
+
+      {/* ── Avanzar año: flotante en esquina inferior derecha del panel ────── */}
+      <div style={{
+        position: 'sticky', bottom: 0, zIndex: 10,
+        display: 'flex', justifyContent: 'flex-end',
+        padding: '0.5rem 0.85rem',
+        background: `linear-gradient(transparent, ${BG2} 40%)`,
+        pointerEvents: 'none',
+      }}>
+        <button
+          onClick={() => advanceWeeks(52)}
+          title="Avanzar 1 año"
+          style={{
+            pointerEvents: 'auto',
+            background: '#0f0d0a',
+            border: `1px solid ${GOLD}66`,
+            color: GOLD,
+            fontFamily: 'Cinzel, serif',
+            fontSize: '0.6rem',
+            letterSpacing: '0.12em',
+            padding: '0.4rem 0.85rem',
+            borderRadius: 4,
+            cursor: 'pointer',
+            transition: 'border-color 0.15s, background 0.15s',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.borderColor = GOLD
+            e.currentTarget.style.background = `${GOLD}18`
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.borderColor = `${GOLD}66`
+            e.currentTarget.style.background = '#0f0d0a'
+          }}
+        >
+          AVANZAR AÑO ▶
+        </button>
+      </div>
     </div>
   )
 }

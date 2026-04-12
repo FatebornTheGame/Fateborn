@@ -5,8 +5,7 @@ import InitiativePanel from '../components/InitiativePanel'
 import NarrativeFeed   from '../components/NarrativeFeed'
 import LifeTimeline    from '../components/LifeTimeline'
 
-const GOLD   = '#C9A84C'
-const GARNET = '#8B1A2A'
+const GOLD = '#C9A84C'
 
 // ─── Música por etapa vital ────────────────────────────────────────────────────
 const STAGE_MUSIC: Record<string, string> = {
@@ -190,20 +189,6 @@ export default function GameScreen() {
       {/* ── LifeTimeline fija abajo ───────────────────────────────────────── */}
       <LifeTimeline />
 
-      {/* ── Botón debug: avanzar 1 año ────────────────────────────────────── */}
-      <button
-        onClick={() => useGameStore.getState().advanceWeeks(52)}
-        title="Avanzar 1 año (debug)"
-        style={{
-          position: 'fixed', right: '1rem', top: '70px',
-          background: `${GARNET}66`, border: `1px solid ${GARNET}44`,
-          color: '#555', fontSize: '0.55rem',
-          fontFamily: 'Cinzel, serif', padding: '0.25rem 0.5rem',
-          cursor: 'pointer', zIndex: 200, borderRadius: 3,
-        }}
-      >
-        +1 año
-      </button>
     </div>
   )
 }

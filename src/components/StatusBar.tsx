@@ -102,12 +102,19 @@ export default function StatusBar() {
       </div>
 
       {/* ── Derecha: Economía / Carrera / Legado ──────────────────────────── */}
-      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+      <div style={{
+        textAlign: 'right', flexShrink: 0,
+        maxWidth: 'clamp(80px, 26vw, 140px)',
+        overflow: 'hidden',
+      }}>
         <div style={{ fontFamily: 'Cinzel, serif', fontSize: '0.9rem', color: GOLD, fontWeight: 700 }}>
           {fmtCurrency(economy.liquidez)}
         </div>
         {career && (
-          <div style={{ fontSize: '0.58rem', color: '#d4c5a0', marginTop: 1 }}>
+          <div style={{
+            fontSize: '0.58rem', color: '#d4c5a0', marginTop: 1,
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>
             {career.profesion} · Nv.{career.nivel}
           </div>
         )}
