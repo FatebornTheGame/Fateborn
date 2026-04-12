@@ -2,13 +2,14 @@ import { create } from 'zustand';
 import type {
   AppScreen, Character, CharacterStats,
   FeedEntry, FeedOption, TimelineEvent,
-  Economy, Career, GameFlags, LifeStage,
+  Economy, Career, GameFlags, LifeStage, Difficulty,
 } from '../types/game.types';
 import { COUNTRIES } from '../data/countries';
+import { annualDeathProbability } from '../systems/timeSystem';
 
 // ─── Tipos auxiliares ─────────────────────────────────────────────────────────
 export type AncestorSlots = [string | null, string | null, string | null, string | null];
-export type Difficulty = 'historia' | 'fateborn' | 'ironman' | 'legado';
+export type { Difficulty };
 
 // ─── Helper: etapa vital por edad ─────────────────────────────────────────────
 export function getLifeStage(age: number): LifeStage {
@@ -35,6 +36,7 @@ const DEFAULT_ECO: Economy = { liquidez: 0, ingresosMensuales: 0, gastosMensuale
 const DEFAULT_FLAGS: GameFlags = {
   emancipado: false, tienePareja: false, parejaEstable: false,
   tieneHijos: 0, tieneMascota: false, adiccion: null, reputacion: 10, tieneAmigos: false,
+  enfermedadTerminal: false,
 };
 
 const STAT_LABEL: Record<string, string> = {
@@ -186,17 +188,46 @@ export const useGameStore = create<GameState>((set) => ({
   // ── advanceWeeks ──────────────────────────────────────────────────────────
   advanceWeeks: (n) => set((s) => {
     if (!s.character) return {};
-    const char = s.character;
-    const newTotal   = s.totalWeeks + n;
-    const newAge     = Math.floor(newTotal / 52);
-    const prevAge    = s.ageYears;
-    const newYear    = char.birthYear + newAge;
+    const char     = s.character;
+    const newTotal = s.totalWeeks + n;
+    const newAge   = Math.floor(newTotal / 52);
+    const prevAge  = s.ageYears;
+    const newYear  = char.birthYear + newAge;
 
-    // Economy weekly update
-    const weeklyNet  = (s.economy.ingresosMensuales - s.economy.gastosMensuales) / 4.33;
+    // ── Comprobación de muerte año a año ──────────────────────────────────
+    let diedAtAge: number | null = null;
+    for (let checkAge = prevAge + 1; checkAge <= newAge; checkAge++) {
+      if (checkAge >= 95) { diedAtAge = checkAge; break; }
+      const prob = annualDeathProbability(checkAge, s.vitalLoad, s.gameFlags, s.difficulty);
+      if (Math.random() < prob) { diedAtAge = checkAge; break; }
+    }
+
+    if (diedAtAge !== null) {
+      const deathYear  = char.birthYear + diedAtAge;
+      const weeksToD   = (diedAtAge - prevAge) * 52;
+      const weeklyNet  = (s.economy.ingresosMensuales - s.economy.gastosMensuales) / 4.33;
+      const newLiq     = Math.max(0, s.economy.liquidez + weeklyNet * weeksToD);
+      const deathEntry: FeedEntry = {
+        id: `death-${Date.now()}`, week: 0, year: deathYear,
+        text: `${char.name} ha llegado al final de su camino.`,
+        importance: 'critica', answered: true,
+      };
+      // Navegar a DeathScreen tras 2 segundos
+      setTimeout(() => useGameStore.getState().setScreen('death'), 2000);
+      return {
+        totalWeeks: s.totalWeeks + weeksToD,
+        ageYears: diedAtAge,
+        currentYear: deathYear,
+        economy: { ...s.economy, liquidez: Math.round(newLiq) },
+        feed: [deathEntry, ...s.feed],
+        legacyScore: Math.min(100, s.legacyScore + (diedAtAge - prevAge) * 0.5),
+      };
+    }
+
+    // ── Avance normal ─────────────────────────────────────────────────────
+    const weeklyNet   = (s.economy.ingresosMensuales - s.economy.gastosMensuales) / 4.33;
     const newLiquidez = Math.max(0, s.economy.liquidez + weeklyNet * n);
 
-    // Milestone entries
     const STAGE_NAMES: Record<string, string> = {
       infancia:'la Infancia', adolescencia:'la Adolescencia', juventud:'la Juventud',
       adultez:'la Adultez', madurez:'la Madurez', vejez:'la Vejez',
@@ -207,27 +238,21 @@ export const useGameStore = create<GameState>((set) => ({
     });
 
     const newEntries: FeedEntry[] = [];
-    if (prevAge < 16 && newAge >= 16) {
+    if (prevAge < 16 && newAge >= 16)
       newEntries.push(mk('Con 16 años, el mercado laboral comienza a abrirse para ti.', 'alta'));
-    }
-    if (prevAge < 18 && newAge >= 18) {
+    if (prevAge < 18 && newAge >= 18)
       newEntries.push(mk('Eres mayor de edad.\n\nEl mundo se abre ante ti. Por primera vez, puedes tomar decisiones completamente tuyas.', 'critica'));
-    }
-    if (prevAge < 65 && newAge >= 65) {
+    if (prevAge < 65 && newAge >= 65)
       newEntries.push(mk('Has alcanzado la edad de jubilación. Décadas de trabajo han dejado su huella.', 'alta'));
-    }
-    if (prevAge < 70 && newAge >= 70) {
+    if (prevAge < 70 && newAge >= 70)
       newEntries.push(mk('Comienzas la etapa de la vejez. El cuerpo se resiente, pero la sabiduría acumulada es tu mayor tesoro.', 'alta'));
-    }
-    if (prevAge < 80 && newAge >= 80) {
+    if (prevAge < 80 && newAge >= 80)
       newEntries.push(mk('Has llegado al final de una vida larga. Tu legado te sobrevivirá.', 'critica'));
-    }
 
     const prevStage = getLifeStage(prevAge);
     const newStage  = getLifeStage(newAge);
-    if (prevStage !== newStage) {
+    if (prevStage !== newStage)
       newEntries.push(mk(`Entras en ${STAGE_NAMES[newStage]}.`, 'alta'));
-    }
 
     return {
       totalWeeks: newTotal,

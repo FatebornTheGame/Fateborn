@@ -1,8 +1,9 @@
+import { useRef, useEffect } from 'react'
 import { useGameStore, getLifeStage } from '../store/gameStore'
 
-const GOLD   = '#C9A84C'
-const MUTED  = '#555'
-const BG     = '#0d0b08'
+const GOLD  = '#C9A84C'
+const MUTED = '#555'
+const BG    = '#0a0806'
 
 function fmtCurrency(n: number): string {
   if (n >= 1_000_000) return `€${(n / 1_000_000).toFixed(1)}M`
@@ -10,33 +11,29 @@ function fmtCurrency(n: number): string {
   return `€${Math.round(n)}`
 }
 
-// ─── Mini arco SVG de carga vital ────────────────────────────────────────────
+// ─── Arco SVG de carga vital (60px) ──────────────────────────────────────────
 function VitalArc({ load }: { load: number }) {
-  const R  = 26
-  const cx = 32, cy = 32
-  const color = load <= 40 ? '#4aff8a' : load <= 70 ? '#ffb84a' : '#ff5a5a'
-  const path  = `M ${cx - R} ${cy} A ${R} ${R} 0 0 1 ${cx + R} ${cy}`
-  const pct   = Math.max(0, Math.min(100, load))
+  const R   = 22
+  const cx  = 30, cy = 28
+  const col = load <= 40 ? '#4aff8a' : load <= 70 ? '#ffb84a' : '#ff5a5a'
+  const path = `M ${cx - R} ${cy} A ${R} ${R} 0 0 1 ${cx + R} ${cy}`
+  const pct  = Math.max(0, Math.min(100, load))
 
   return (
-    <svg width={64} height={36} viewBox="0 0 64 36" style={{ overflow: 'visible' }}>
-      {/* Track */}
-      <path d={path} fill="none" stroke="#2a2420" strokeWidth={6} strokeLinecap="round" />
-      {/* Fill */}
+    <svg width={60} height={36} viewBox="0 0 60 36" style={{ overflow: 'visible' }}>
+      <path d={path} fill="none" stroke="#1a1510" strokeWidth={6} strokeLinecap="round" />
       <path
-        d={path} fill="none" stroke={color}
+        d={path} fill="none" stroke={col}
         strokeWidth={6} strokeLinecap="round"
-        pathLength="100"
-        strokeDasharray="100"
+        pathLength="100" strokeDasharray="100"
         strokeDashoffset={100 - pct}
         style={{ transition: 'stroke-dashoffset 0.6s ease, stroke 0.4s' }}
       />
-      {/* Número */}
-      <text x={cx} y={cy - 6} textAnchor="middle" dominantBaseline="middle"
-        fontSize={10} fontWeight="700" fill={color} fontFamily="system-ui">
+      <text x={cx} y={cy - 5} textAnchor="middle" dominantBaseline="middle"
+        fontSize={12} fontWeight="700" fill={col} fontFamily="system-ui">
         {Math.round(load)}
       </text>
-      <text x={cx} y={cy + 5} textAnchor="middle" dominantBaseline="middle"
+      <text x={cx} y={cy + 7} textAnchor="middle" dominantBaseline="middle"
         fontSize={6} fill={MUTED} fontFamily="Cinzel, serif" letterSpacing="0.1em">
         VITAL
       </text>
@@ -55,6 +52,16 @@ export default function StatusBar() {
   const isMuted     = useGameStore(s => s.isMuted)
   const toggleMute  = useGameStore(s => s.toggleMute)
 
+  const prevLiquidez = useRef(economy.liquidez)
+  const liquidezDir  = useRef<'up' | 'down' | 'flat'>('flat')
+
+  useEffect(() => {
+    if      (economy.liquidez > prevLiquidez.current) liquidezDir.current = 'up'
+    else if (economy.liquidez < prevLiquidez.current) liquidezDir.current = 'down'
+    else                                               liquidezDir.current = 'flat'
+    prevLiquidez.current = economy.liquidez
+  }, [economy.liquidez])
+
   if (!character) return null
 
   const stage = getLifeStage(ageYears)
@@ -62,11 +69,14 @@ export default function StatusBar() {
     infancia: 'Infancia', adolescencia: 'Adolescencia', juventud: 'Juventud',
     adultez: 'Adultez', madurez: 'Madurez', vejez: 'Vejez',
   }
+  const liquidezColor = liquidezDir.current === 'up'   ? '#4aff8a'
+                      : liquidezDir.current === 'down' ? '#ff5a5a'
+                      : GOLD
 
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      background: `${BG}f0`,
+      background: `${BG}f2`,
       backdropFilter: 'blur(8px)',
       borderBottom: `1px solid ${GOLD}33`,
       display: 'flex', alignItems: 'center',
@@ -75,15 +85,17 @@ export default function StatusBar() {
       gap: '0.75rem',
     }}>
 
-      {/* ── Izquierda: Nombre / Edad / País / Año ─────────────────────────── */}
+      {/* ── Izquierda: Nombre · Edad · País · Año ─────────────────────────── */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.35rem', flexWrap: 'wrap' }}>
           <span style={{
-            fontFamily: 'Cinzel, serif', fontSize: 'clamp(0.85rem, 2.5vw, 1.1rem)',
+            fontFamily: 'Cinzel, serif',
+            fontSize: 'clamp(0.9rem, 2.5vw, 1.125rem)',
             color: GOLD, fontWeight: 700, whiteSpace: 'nowrap',
           }}>
             {character.name}
           </span>
+          <span style={{ fontSize: '0.65rem', color: `${GOLD}55`, whiteSpace: 'nowrap' }}>·</span>
           <span style={{ fontSize: '0.72rem', color: '#d4c5a0', whiteSpace: 'nowrap' }}>
             {ageYears} años
           </span>
@@ -97,17 +109,21 @@ export default function StatusBar() {
       </div>
 
       {/* ── Centro: Carga Vital ───────────────────────────────────────────── */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+      <div style={{ flexShrink: 0 }}>
         <VitalArc load={vitalLoad} />
       </div>
 
-      {/* ── Derecha: Economía / Carrera / Legado ──────────────────────────── */}
+      {/* ── Derecha: Patrimonio · Legado ──────────────────────────────────── */}
       <div style={{
         textAlign: 'right', flexShrink: 0,
         maxWidth: 'clamp(80px, 26vw, 140px)',
         overflow: 'hidden',
       }}>
-        <div style={{ fontFamily: 'Cinzel, serif', fontSize: '0.9rem', color: GOLD, fontWeight: 700 }}>
+        <div style={{
+          fontFamily: 'Cinzel, serif', fontSize: '0.9rem',
+          color: liquidezColor, fontWeight: 700,
+          transition: 'color 0.6s',
+        }}>
           {fmtCurrency(economy.liquidez)}
         </div>
         {career && (
@@ -118,8 +134,21 @@ export default function StatusBar() {
             {career.profesion} · Nv.{career.nivel}
           </div>
         )}
-        <div style={{ fontSize: '0.58rem', color: MUTED, marginTop: 1 }}>
-          Legado {Math.round(legacyScore)}/100
+        {/* Barra de progreso de legado */}
+        <div style={{ marginTop: 3 }}>
+          <div style={{
+            width: '100%', height: 3, background: '#1a1510',
+            borderRadius: 2, overflow: 'hidden',
+          }}>
+            <div style={{
+              width: `${legacyScore}%`, height: '100%',
+              background: GOLD, borderRadius: 2,
+              transition: 'width 0.6s ease',
+            }} />
+          </div>
+          <div style={{ fontSize: '0.52rem', color: MUTED, marginTop: 1 }}>
+            Legado {Math.round(legacyScore)}/100
+          </div>
         </div>
       </div>
 

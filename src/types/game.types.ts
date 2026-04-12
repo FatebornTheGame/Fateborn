@@ -1,3 +1,6 @@
+// ─── Dificultad ──────────────────────────────────────────────────────────────
+export type Difficulty = 'historia' | 'fateborn' | 'ironman' | 'legado';
+
 // ─── Stats del personaje — 9 valores en escala 0-10 ─────────────────────────
 export interface CharacterStats {
   // COGNITIVO
@@ -116,4 +119,5 @@ export interface GameFlags {
   adiccion: string | null;
   reputacion: number; // 0–100
   tieneAmigos: boolean;
+  enfermedadTerminal: boolean;
 }

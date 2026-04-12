@@ -552,34 +552,39 @@ export default function InitiativePanel() {
     <div style={{ height: '100%', overflowY: 'auto', background: BG2 }}>
       <style>{`
         @keyframes urgentPulse {
-          0%, 100% { box-shadow: 0 0 0 0 ${GOLD}44; }
-          50%       { box-shadow: 0 0 0 5px ${GOLD}00; }
+          0%, 100% { box-shadow: -4px 0 10px ${GARNET}44; }
+          50%       { box-shadow: -4px 0 18px ${GARNET}66; }
         }
         .init-btn {
           width: 100%;
-          background: transparent;
-          border: 1px solid #2a2420;
-          border-radius: 4px;
-          padding: 0.7rem 0.85rem;
+          background: #1e1a12;
+          border: none;
+          border-left: 3px solid ${GOLD}88;
+          border-radius: 0 4px 4px 0;
+          padding: 0.75rem 0.85rem 0.75rem 0.7rem;
           text-align: left;
           cursor: pointer;
-          transition: border-color 0.15s, background 0.15s;
-          margin-bottom: 0.4rem;
+          transition: background 0.15s, border-left-color 0.15s;
+          margin-bottom: 0.3rem;
         }
         .init-btn:not(.init-disabled):hover {
-          border-color: ${GOLD}66;
-          background: ${GOLD}0a;
+          background: #2a2418;
+          border-left-color: ${GOLD};
         }
         .init-disabled {
-          opacity: 0.45;
+          background: #0f0d0a !important;
+          border-left-color: #2a2420 !important;
           cursor: not-allowed;
         }
+        .init-disabled:hover {
+          background: #0f0d0a !important;
+        }
         .init-urgent {
+          border-left-color: ${GARNET} !important;
           animation: urgentPulse 2s ease-in-out infinite;
-          border-color: ${GOLD}88 !important;
         }
         .exec-btn {
-          border: 1px solid ${GOLD};
+          border: 1px solid ${GOLD}88;
           background: transparent;
           color: ${GOLD};
           font-family: Cinzel, serif;
@@ -589,19 +594,20 @@ export default function InitiativePanel() {
           min-height: 28px;
           cursor: pointer;
           border-radius: 3px;
-          transition: background 0.15s;
-          margin-top: 0.4rem;
+          transition: background 0.15s, border-color 0.15s;
+          margin-top: 0.5rem;
         }
-        .exec-btn:hover { background: ${GOLD}22; }
+        .exec-btn:hover { background: ${GOLD}22; border-color: ${GOLD}; }
         .cat-header {
           display: flex; align-items: center; gap: 0.5rem;
           padding: 0.65rem 0.85rem;
           cursor: pointer;
-          border-bottom: 1px solid #1a1510;
+          background: #1a1510;
+          border-bottom: 1px solid #0d0b08;
           user-select: none;
           transition: background 0.15s;
         }
-        .cat-header:hover { background: #ffffff06; }
+        .cat-header:hover { background: #241e16; }
       `}</style>
 
       {/* Panel header */}
@@ -620,8 +626,68 @@ export default function InitiativePanel() {
         </span>
       </div>
 
-      {/* Categorías */}
-      {CATEGORIES.map(cat => {
+      {/* ── Mensaje infancia (0-15 años) ─────────────────────────────────── */}
+      {ageYears < 16 && (
+        <div style={{
+          padding: '2rem 1.5rem',
+          textAlign: 'center',
+          borderBottom: '1px solid #1a1510',
+        }}>
+          <div style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>🧒</div>
+          <p style={{
+            fontFamily: 'Cinzel, serif', fontSize: '0.78rem',
+            color: '#d4c5a0', lineHeight: 1.7, margin: '0 0 1rem',
+          }}>
+            Eres demasiado joven para tomar<br />
+            decisiones importantes.
+          </p>
+          <p style={{
+            fontFamily: 'Cinzel, serif', fontSize: '0.7rem',
+            color: '#888', lineHeight: 1.6, margin: '0 0 1.5rem',
+          }}>
+            Tu vida empieza a los 16 años.
+          </p>
+          {/* Countdown visual */}
+          <div style={{
+            display: 'inline-flex', flexDirection: 'column', alignItems: 'center',
+            background: '#1a1510', borderRadius: 6, padding: '0.75rem 1.5rem',
+            border: `1px solid ${GOLD}33`,
+          }}>
+            <span style={{
+              fontFamily: 'Cinzel, serif', fontSize: '2rem',
+              color: GOLD, fontWeight: 700, lineHeight: 1,
+            }}>
+              {16 - ageYears}
+            </span>
+            <span style={{
+              fontFamily: 'Cinzel, serif', fontSize: '0.5rem',
+              color: '#555', letterSpacing: '0.18em', marginTop: '0.3rem',
+            }}>
+              {16 - ageYears === 1 ? 'AÑO RESTANTE' : 'AÑOS RESTANTES'}
+            </span>
+          </div>
+          {/* Barra de progreso hacia los 16 */}
+          <div style={{ marginTop: '1.2rem' }}>
+            <div style={{
+              width: '100%', height: 4, background: '#1a1510',
+              borderRadius: 2, overflow: 'hidden',
+            }}>
+              <div style={{
+                width: `${(ageYears / 16) * 100}%`, height: '100%',
+                background: `linear-gradient(90deg, ${GOLD}66, ${GOLD})`,
+                borderRadius: 2,
+                transition: 'width 0.6s ease',
+              }} />
+            </div>
+            <div style={{ fontSize: '0.55rem', color: '#444', marginTop: '0.4rem', letterSpacing: '0.1em' }}>
+              {ageYears} / 16 años
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Categorías (solo si tiene 16+) */}
+      {ageYears >= 16 && CATEGORIES.map(cat => {
         const isOpen = openCats.has(cat.id)
         const urgentCount = cat.items.filter(i =>
           i.urgent?.(ctx) && i.req(ctx).ok
@@ -634,21 +700,26 @@ export default function InitiativePanel() {
               <span style={{ fontSize: '0.85rem' }}>{cat.icon}</span>
               <span style={{
                 fontFamily: 'Cinzel, serif', fontSize: '0.65rem',
-                color: MUTED, letterSpacing: '0.15em', flex: 1,
+                color: `${GOLD}cc`, letterSpacing: '0.15em', flex: 1,
               }}>
                 {cat.label}
               </span>
               {urgentCount > 0 && (
                 <span style={{
-                  background: GOLD, color: '#0d0b08',
-                  fontSize: '0.55rem', fontFamily: 'Cinzel, serif',
+                  background: GARNET, color: '#d4c5a0',
+                  fontSize: '0.52rem', fontFamily: 'Cinzel, serif',
                   padding: '0.1rem 0.35rem', borderRadius: 2,
                 }}>
                   {urgentCount}
                 </span>
               )}
-              <span style={{ color: '#333', fontSize: '0.7rem' }}>
-                {isOpen ? '▲' : '▼'}
+              <span style={{
+                color: `${GOLD}66`, fontSize: '0.65rem',
+                display: 'inline-block',
+                transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
+                transition: 'transform 0.2s ease',
+              }}>
+                ▼
               </span>
             </div>
 
@@ -674,31 +745,43 @@ export default function InitiativePanel() {
                         {/* Título + costes */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
                           <div style={{
-                            fontFamily: 'Cinzel, serif', fontSize: '0.72rem',
-                            color: req.ok ? '#d4c5a0' : '#444',
+                            fontFamily: 'Cinzel, serif', fontSize: '14px',
+                            color: req.ok ? '#e8dfc8' : '#666',
                             letterSpacing: '0.06em',
+                            display: 'flex', alignItems: 'center', gap: '0.3rem', flexWrap: 'wrap',
                           }}>
+                            {!req.ok && <span>🔒</span>}
                             {item.title}
+                            {urgent && (
+                              <span style={{
+                                background: GARNET, color: '#d4c5a0',
+                                fontSize: '0.45rem', fontFamily: 'Cinzel, serif',
+                                letterSpacing: '0.1em', padding: '0.1rem 0.3rem',
+                                borderRadius: 2, verticalAlign: 'middle',
+                              }}>
+                                URGENTE
+                              </span>
+                            )}
                           </div>
-                          <div style={{ fontSize: '0.58rem', color: '#444', textAlign: 'right', flexShrink: 0 }}>
+                          <div style={{ fontSize: '0.58rem', color: `${GOLD}88`, textAlign: 'right', flexShrink: 0 }}>
                             {item.weekCost > 0 && <div>{item.weekCost}sem</div>}
                             {item.moneyCost > 0 && <div>€{item.moneyCost.toLocaleString('es')}</div>}
                           </div>
                         </div>
 
                         {/* Descripción */}
-                        <div style={{ fontSize: '0.62rem', color: '#444', marginTop: '0.2rem', lineHeight: 1.5 }}>
+                        <div style={{ fontSize: '12px', color: req.ok ? '#a09080' : '#3a3530', marginTop: '0.25rem', lineHeight: 1.5 }}>
                           {item.desc}
                         </div>
 
-                        {/* Requisito */}
+                        {/* Requisito bloqueado */}
                         {!req.ok && (
-                          <div style={{ fontSize: '0.58rem', color: GARNET, marginTop: '0.3rem' }}>
+                          <div style={{ fontSize: '0.58rem', color: '#c05050', marginTop: '0.3rem' }}>
                             ✗ {req.reason}
                           </div>
                         )}
                         {req.ok && (
-                          <div style={{ fontSize: '0.58rem', color: '#4aff8a', marginTop: '0.3rem' }}>
+                          <div style={{ fontSize: '0.58rem', color: '#4aff8a88', marginTop: '0.3rem' }}>
                             ✓ Disponible
                           </div>
                         )}
