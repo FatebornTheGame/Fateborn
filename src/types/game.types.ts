@@ -109,6 +109,53 @@ export interface Career {
   salarioMensual: number;
 }
 
+// ─── Sistemas — deltas y consecuencias ───────────────────────────────────────
+export interface StatDelta {
+  stat: keyof CharacterStats;
+  delta: number;
+}
+
+export interface PendingConsequence {
+  id: string;
+  quartersRemaining: number;
+  type: string;
+  severity: 'leve' | 'moderado' | 'grave';
+  message: string;
+}
+
+// ─── Sistema de amistades ─────────────────────────────────────────────────────
+export interface Friend {
+  id: string;
+  nombre: string;
+  edad: number;
+  origen: 'infancia' | 'instituto' | 'trabajo' | 'ocio';
+  afinidad: number;     // 0-10
+  confianza: number;    // 0-10
+  ultimoContacto: number; // semana del juego
+  activo: boolean;
+}
+
+// ─── Estado puro del juego (usado por los sistemas sin UI) ────────────────────
+export interface GameState {
+  character: Character | null;
+  ageYears: number;
+  currentYear: number;
+  totalWeeks: number;
+  vitalLoad: number;
+  legacyScore: number;
+  feed: FeedEntry[];
+  timeline: TimelineEvent[];
+  economy: Economy;
+  career: Career | null;
+  gameFlags: GameFlags;
+  difficulty: Difficulty;
+  friends: Friend[];
+  pendingConsequences: PendingConsequence[];
+}
+
+// NarrativeEntry: entrada para el feed (sin id, lo genera el store)
+export type NarrativeEntry = Omit<FeedEntry, 'id'>;
+
 // ─── Flags de juego ───────────────────────────────────────────────────────────
 export interface GameFlags {
   emancipado: boolean;

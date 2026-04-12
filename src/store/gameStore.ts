@@ -3,9 +3,14 @@ import type {
   AppScreen, Character, CharacterStats,
   FeedEntry, FeedOption, TimelineEvent,
   Economy, Career, GameFlags, LifeStage, Difficulty,
+  Friend, PendingConsequence, GameState, StatDelta, NarrativeEntry,
 } from '../types/game.types';
 import { COUNTRIES } from '../data/countries';
-import { annualDeathProbability } from '../systems/timeSystem';
+import { annualDeathProbability, advanceQuarter } from '../systems/timeSystem';
+import type { Quarter } from '../systems/timeSystem';
+import { getEventsForQuarter } from '../systems/eventSystem';
+import { processAllocation, checkInactionConsequences } from '../systems/allocationSystem';
+import { updateFriendships } from '../systems/friendSystem';
 
 // ─── Tipos auxiliares ─────────────────────────────────────────────────────────
 export type AncestorSlots = [string | null, string | null, string | null, string | null];
@@ -45,8 +50,8 @@ const STAT_LABEL: Record<string, string> = {
   fisico: 'la vitalidad física', riesgo: 'la audacia', estabilidad: 'la estabilidad',
 };
 
-// ─── GameState ────────────────────────────────────────────────────────────────
-interface GameState {
+// ─── StoreState (Zustand — incluye acciones además del estado puro) ──────────
+interface StoreState {
   // ── Navegación ──
   screen: AppScreen;
   difficulty: Difficulty;
@@ -69,6 +74,8 @@ interface GameState {
   economy: Economy;
   career: Career | null;
   gameFlags: GameFlags;
+  friends: Friend[];
+  pendingConsequences: PendingConsequence[];
 
   // ── Acciones pre-juego ──
   setScreen: (s: AppScreen) => void;
@@ -83,6 +90,7 @@ interface GameState {
   // ── Acciones en partida ──
   initGame: () => void;
   advanceWeeks: (n: number) => void;
+  processQuarter: (allocation: Quarter['allocation']) => void;
   addFeedEntry: (entry: Omit<FeedEntry, 'id'>) => void;
   answerFeedEntry: (id: string, optionId: string) => void;
   addTimelineEvent: (ev: Omit<TimelineEvent, 'id'>) => void;
@@ -95,7 +103,7 @@ interface GameState {
 
 const DEFAULT_ANCESTORS: AncestorSlots = [null, null, null, null];
 
-export const useGameStore = create<GameState>((set) => ({
+export const useGameStore = create<StoreState>((set) => ({
   // ── Estado inicial ─────────────────────────────────────────────────────────
   screen: 'start',
   difficulty: 'fateborn',
@@ -114,6 +122,8 @@ export const useGameStore = create<GameState>((set) => ({
   economy: DEFAULT_ECO,
   career: null,
   gameFlags: DEFAULT_FLAGS,
+  friends: [],
+  pendingConsequences: [],
 
   // ── Navegación ────────────────────────────────────────────────────────────
   setScreen: (screen) => set({ screen }),
@@ -145,6 +155,7 @@ export const useGameStore = create<GameState>((set) => ({
     selectedCountry: null, character: null, gameInitialized: false,
     totalWeeks: 0, ageYears: 0, currentYear: 1990, vitalLoad: 10, legacyScore: 0,
     feed: [], timeline: [], economy: DEFAULT_ECO, career: null, gameFlags: DEFAULT_FLAGS,
+    friends: [], pendingConsequences: [],
   }),
 
   // ── initGame ──────────────────────────────────────────────────────────────
@@ -300,6 +311,115 @@ export const useGameStore = create<GameState>((set) => ({
 
   addLegacy: (delta) =>
     set((s) => ({ legacyScore: Math.min(100, Math.max(0, s.legacyScore + delta)) })),
+
+  // ── processQuarter — motor principal de avance trimestral ────────────────
+  processQuarter: (allocation) => set((s) => {
+    if (!s.character) return {};
+
+    // Construir GameState puro para los sistemas
+    const core: GameState = {
+      character: s.character,
+      ageYears: s.ageYears,
+      currentYear: s.currentYear,
+      totalWeeks: s.totalWeeks,
+      vitalLoad: s.vitalLoad,
+      legacyScore: s.legacyScore,
+      feed: s.feed,
+      timeline: s.timeline,
+      economy: s.economy,
+      career: s.career,
+      gameFlags: s.gameFlags,
+      difficulty: s.difficulty,
+      friends: s.friends,
+      pendingConsequences: s.pendingConsequences,
+    };
+
+    // 1. Avanzar trimestre (tiempo + carga vital)
+    const advanced = advanceQuarter(core, allocation);
+
+    // 2. Obtener eventos para este trimestre
+    const events = getEventsForQuarter(advanced);
+
+    // 3. Calcular deltas de stats por asignación
+    const statDeltas: StatDelta[] = processAllocation(core, allocation);
+
+    // 4. Comprobar consecuencias por inacción
+    const newConsequences = checkInactionConsequences(core, allocation);
+
+    // 5. Actualizar amistades
+    const updatedFriends = updateFriendships(core, allocation);
+
+    // Aplicar deltas a stats del personaje
+    const baseStats = { ...s.character.stats };
+    for (const { stat, delta } of statDeltas) {
+      baseStats[stat] = parseFloat(
+        Math.min(10, Math.max(0, baseStats[stat] + delta)).toFixed(1)
+      );
+    }
+
+    // Entradas narrativas de eventos (marcar como fired en flags)
+    const newFlags = { ...s.character.flags };
+    const newEntries: NarrativeEntry[] = events.map(ev => {
+      newFlags[`ev_${ev.id}`] = true;
+      return ev.generate(advanced);
+    });
+
+    // 6. Comprobar muerte (probabilidad trimestral = anual / 4)
+    let dies = advanced.ageYears >= 95;
+    if (!dies) {
+      const prob = annualDeathProbability(
+        advanced.ageYears, advanced.vitalLoad, s.gameFlags, s.difficulty,
+      );
+      dies = Math.random() < prob / 4;
+    }
+
+    if (dies) {
+      const deathEntry: NarrativeEntry = {
+        week: advanced.totalWeeks % 52,
+        year: advanced.currentYear,
+        text: `${s.character.name} ha llegado al final de su camino.`,
+        importance: 'critica',
+        answered: true,
+      };
+      newEntries.unshift(deathEntry);
+      setTimeout(() => useGameStore.getState().setScreen('death'), 2000);
+    }
+
+    const feedEntries = newEntries.map(e => ({ id: feedId(), ...e }));
+
+    // Consecuencias diferidas: decrementar contador, disparar las vencidas
+    const firedConsequences = s.pendingConsequences
+      .map(c => ({ ...c, quartersRemaining: c.quartersRemaining - 1 }))
+      .filter(c => c.quartersRemaining <= 0);
+
+    const firedEntries = firedConsequences.map(c => ({
+      id: feedId(),
+      week: advanced.totalWeeks % 52,
+      year: advanced.currentYear,
+      text: c.message,
+      importance: (c.severity === 'grave' ? 'critica' : c.severity === 'moderado' ? 'alta' : 'normal') as FeedEntry['importance'],
+      answered: true,
+    }));
+
+    const remainingConsequences = [
+      ...s.pendingConsequences
+        .map(c => ({ ...c, quartersRemaining: c.quartersRemaining - 1 }))
+        .filter(c => c.quartersRemaining > 0),
+      ...newConsequences,
+    ];
+
+    return {
+      totalWeeks: advanced.totalWeeks,
+      ageYears: advanced.ageYears,
+      currentYear: advanced.currentYear,
+      vitalLoad: advanced.vitalLoad,
+      character: { ...s.character, stats: baseStats, flags: newFlags },
+      feed: [...feedEntries, ...firedEntries, ...s.feed],
+      friends: updatedFriends,
+      pendingConsequences: remainingConsequences,
+      legacyScore: Math.min(100, advanced.legacyScore + (advanced.ageYears > s.ageYears ? 0.5 : 0)),
+    };
+  }),
 }));
 
 // ─── Helper: computar stats del personaje desde los 4 arquetipos ─────────────
