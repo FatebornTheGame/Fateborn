@@ -2,6 +2,10 @@ import { useState } from 'react'
 import { useGameStore } from '../store/gameStore'
 import type { Economy, Career, GameFlags, Character } from '../types/game.types'
 
+interface InitiativePanelProps {
+  onRequestQuarter?: () => void
+}
+
 const GOLD   = '#C9A84C'
 const GARNET = '#8B1A2A'
 const MUTED  = '#555'
@@ -277,7 +281,7 @@ const CATEGORIES: CategoryDef[] = [
 ]
 
 // ─── Componente principal ─────────────────────────────────────────────────────
-export default function InitiativePanel() {
+export default function InitiativePanel({ onRequestQuarter }: InitiativePanelProps) {
   const character   = useGameStore(s => s.character)
   const ageYears    = useGameStore(s => s.ageYears)
   const economy     = useGameStore(s => s.economy)
@@ -894,7 +898,7 @@ export default function InitiativePanel() {
         )
       })}
 
-      {/* ── Avanzar año: flotante en esquina inferior derecha del panel ────── */}
+      {/* ── Vivir trimestre: flotante en esquina inferior derecha del panel ── */}
       <div style={{
         position: 'sticky', bottom: 0, zIndex: 10,
         display: 'flex', justifyContent: 'flex-end',
@@ -903,8 +907,8 @@ export default function InitiativePanel() {
         pointerEvents: 'none',
       }}>
         <button
-          onClick={() => advanceWeeks(52)}
-          title="Avanzar 1 año"
+          onClick={() => onRequestQuarter?.()}
+          title="Asignar tiempo y avanzar trimestre"
           style={{
             pointerEvents: 'auto',
             background: '#0f0d0a',
@@ -927,7 +931,7 @@ export default function InitiativePanel() {
             e.currentTarget.style.background = '#0f0d0a'
           }}
         >
-          AVANZAR AÑO ▶
+          VIVIR TRIMESTRE ▶
         </button>
       </div>
     </div>
