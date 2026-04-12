@@ -29,7 +29,7 @@ export function GameScreen() {
   const eventDisplayState = preEventState ?? gameState
 
   return (
-    <div className="flex flex-col h-screen" style={{ background: '#0d0b08' }}>
+    <div className="flex flex-col h-screen overflow-hidden" style={{ background: '#0d0b08' }}>
       {/* Fixed top bar */}
       <StatusBar
         character={gameState.character}

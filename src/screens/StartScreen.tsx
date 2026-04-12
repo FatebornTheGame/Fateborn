@@ -82,7 +82,7 @@ export function StartScreen() {
       justifyContent: 'center',
       padding:        '2rem 1.5rem',
       position:       'relative',
-      overflow:       'hidden',
+      overflowY:      'auto',
     }}>
 
       {/* ── Logo (title-only image) ─────────────────────────────────────────── */}
@@ -143,14 +143,15 @@ export function StartScreen() {
         gap:           '2rem',
         width:         '100%',
         maxWidth:      '420px',
-        opacity:       ctaVisible ? 1 : 0,
-        transition:    'opacity 0.8s ease',
-        pointerEvents: ctaVisible ? 'auto' : 'none',
+        opacity:    ctaVisible ? 1 : 0,
+        transition: 'opacity 0.8s ease',
+        // Never block pointer events — opacity handles the visual hide,
+        // but the button must always be clickable once rendered
       }}>
 
         {/* Button */}
         <button
-          onClick={() => setScreen('ancestors')}
+          onClick={() => { console.log('[StartScreen] NUEVA VIDA clicked'); setScreen('ancestors') }}
           style={{
             background:    'transparent',
             border:        '2px solid #c9a84c',

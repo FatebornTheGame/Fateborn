@@ -14,10 +14,15 @@
 /* ── Reset ──────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body, #root {
+html, body {
   height: 100%;
   width: 100%;
-  overflow: hidden;
+}
+
+/* #root fills the viewport but lets each screen manage its own overflow */
+#root {
+  height: 100%;
+  width: 100%;
 }
 
 body {
