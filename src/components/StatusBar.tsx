@@ -1,5 +1,4 @@
 import type { Character, Stats, Economy } from '../types/game.types'
-import { COLOR_GOLD, COLOR_GARNET } from '../constants/game.constants'
 
 interface Props {
   character:   Character
@@ -10,82 +9,111 @@ interface Props {
   vitalLoad:   number
 }
 
-// SVG arc helper: draws a partial circle arc
-function arcPath(cx: number, cy: number, r: number, pct: number): string {
-  const angle = pct * 2 * Math.PI - Math.PI / 2
-  const x     = cx + r * Math.cos(angle)
-  const y     = cy + r * Math.sin(angle)
-  const large = pct > 0.5 ? 1 : 0
-  const start = { x: cx, y: cy - r }
-  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${large} 1 ${x.toFixed(2)} ${y.toFixed(2)}`
+// Three key stats shown as mini bars
+const VITAL_STATS: { key: keyof Stats; label: string }[] = [
+  { key: 'fisico',      label: 'FÍS' },
+  { key: 'emocional',   label: 'EMO' },
+  { key: 'estabilidad', label: 'EST' },
+]
+
+function barColor(value: number): string {
+  if (value >= 6) return '#C9A84C'
+  if (value >= 4) return '#8B6914'
+  return '#8B1A2A'
 }
 
-export function StatusBar({ character, stats: _stats, economy, ageYears, legacyScore, vitalLoad }: Props) {
-  const currentYear = character.birthYear + ageYears
-  const vitalPct    = Math.max(0, Math.min(1, vitalLoad / 100))
+// Life stage label from age
+function stageLabel(age: number): string {
+  if (age < 13)  return 'Infancia'
+  if (age < 19)  return 'Adolescencia'
+  if (age < 31)  return 'Juventud'
+  if (age < 51)  return 'Adultez'
+  if (age < 71)  return 'Madurez'
+  if (age < 81)  return 'Vejez'
+  if (age < 91)  return 'Vejez tardía'
+  return 'Centenario'
+}
 
-  // Vital load color: green when low, red when high
-  const vitalColor = vitalLoad < 40
-    ? '#4ade80'
-    : vitalLoad < 70
-      ? COLOR_GOLD
-      : COLOR_GARNET
+export function StatusBar({ character, stats, economy, ageYears, legacyScore, vitalLoad: _vitalLoad }: Props) {
+  const currentYear = character.birthYear + ageYears
 
   return (
-    <header
-      className="fixed top-0 left-0 right-0 z-50 flex items-center gap-4 px-4"
-      style={{ height: 56, background: '#0d0b08ee', borderBottom: `1px solid ${COLOR_GOLD}22` }}
-    >
-      {/* Name + location */}
-      <div className="flex flex-col leading-none min-w-0">
-        <span className="font-cinzel text-gold text-sm font-semibold truncate">
+    <header style={{
+      position:       'fixed',
+      top:            0,
+      left:           0,
+      right:          0,
+      zIndex:         50,
+      height:         56,
+      display:        'flex',
+      alignItems:     'center',
+      gap:            12,
+      padding:        '0 16px',
+      background:     '#0d0b08cc',
+      backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
+      borderBottom:   '1px solid #2a2620',
+    }}>
+
+      {/* Name + stage */}
+      <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1, minWidth: 0, flexShrink: 1 }}>
+        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.75rem', color: '#C9A84C', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {character.name}
         </span>
-        <span className="text-xs opacity-50 truncate">
-          {character.country} · {currentYear}
+        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.5rem', color: '#6b6045', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
+          {stageLabel(ageYears)}
         </span>
       </div>
 
       {/* Age badge */}
-      <div
-        className="flex-shrink-0 flex flex-col items-center leading-none px-3 py-1"
-        style={{ border: `1px solid ${COLOR_GOLD}33` }}
-      >
-        <span className="font-cinzel text-gold text-lg font-bold leading-none">{ageYears}</span>
-        <span className="text-xs opacity-40 leading-none">años</span>
-      </div>
-
-      {/* Vital load arc */}
-      <div className="flex-shrink-0 relative" style={{ width: 40, height: 40 }}>
-        <svg width={40} height={40} viewBox="0 0 40 40">
-          {/* Track */}
-          <circle cx={20} cy={20} r={16} fill="none" stroke={COLOR_GOLD} strokeOpacity={0.1} strokeWidth={3} />
-          {/* Arc */}
-          {vitalPct > 0 && (
-            <path
-              d={arcPath(20, 20, 16, vitalPct)}
-              fill="none"
-              stroke={vitalColor}
-              strokeWidth={3}
-              strokeLinecap="round"
-            />
-          )}
-        </svg>
-        <span
-          className="absolute inset-0 flex items-center justify-center text-[9px] font-bold"
-          style={{ color: vitalColor }}
-        >
-          {vitalLoad}
+      <div style={{
+        flexShrink:    0,
+        display:       'flex',
+        flexDirection: 'column',
+        alignItems:    'center',
+        lineHeight:    1,
+        padding:       '4px 10px',
+        border:        '1px solid #3a3228',
+      }}>
+        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '1.1rem', fontWeight: 700, color: '#C9A84C' }}>
+          {ageYears}
+        </span>
+        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.45rem', color: '#6b6045', letterSpacing: '0.1em' }}>
+          {currentYear}
         </span>
       </div>
 
-      {/* Spacer */}
-      <div className="flex-1" />
+      {/* Vital stat bars */}
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        {VITAL_STATS.map(({ key, label }) => {
+          const value = stats[key]
+          const color = barColor(value)
+          return (
+            <div key={key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+              <div style={{ width: 28, height: 3, background: '#2a2620', borderRadius: 2 }}>
+                <div style={{
+                  height:       '100%',
+                  width:        `${(value / 10) * 100}%`,
+                  background:   color,
+                  borderRadius: 2,
+                  transition:   'width 0.4s ease',
+                }} />
+              </div>
+              <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.4rem', color: '#6b6045', letterSpacing: '0.05em' }}>
+                {label}
+              </span>
+            </div>
+          )
+        })}
+      </div>
 
-      {/* Economy */}
-      <div className="hidden sm:flex flex-col items-end leading-none">
-        <span className="text-xs opacity-50">patrimonio</span>
-        <span className="font-cinzel text-gold text-sm">
+      {/* Spacer */}
+      <div style={{ flex: 1 }} />
+
+      {/* Economy — hidden on very small screens */}
+      <div className="hidden sm:flex" style={{ flexDirection: 'column', alignItems: 'flex-end', lineHeight: 1 }}>
+        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.45rem', color: '#6b6045', letterSpacing: '0.05em' }}>patrimonio</span>
+        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.75rem', color: '#C9A84C' }}>
           {economy.liquidez >= 1000
             ? `${(economy.liquidez / 1000).toFixed(0)}k`
             : economy.liquidez.toFixed(0)}
@@ -93,12 +121,19 @@ export function StatusBar({ character, stats: _stats, economy, ageYears, legacyS
       </div>
 
       {/* Legacy score */}
-      <div
-        className="flex-shrink-0 flex flex-col items-center leading-none px-3 py-1"
-        style={{ border: `1px solid ${COLOR_GOLD}33` }}
-      >
-        <span className="font-cinzel text-gold text-sm font-bold leading-none">{legacyScore}</span>
-        <span className="text-xs opacity-40 leading-none">legado</span>
+      <div style={{
+        flexShrink:    0,
+        display:       'flex',
+        flexDirection: 'column',
+        alignItems:    'center',
+        lineHeight:    1,
+        padding:       '4px 10px',
+        border:        '1px solid #3a3228',
+      }}>
+        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.85rem', fontWeight: 700, color: '#C9A84C' }}>
+          {legacyScore}
+        </span>
+        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.45rem', color: '#6b6045', letterSpacing: '0.05em' }}>legado</span>
       </div>
     </header>
   )

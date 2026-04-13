@@ -1,30 +1,46 @@
-import { useState } from 'react'
 import type { Lifestyle, LifestyleType } from '../systems/lifestyleSystem'
 import type { GameState } from '../types/game.types'
-import { COLOR_GOLD, COLOR_GARNET } from '../constants/game.constants'
 
 interface Props {
-  gameState:     GameState
-  lifestyle:     Lifestyle | null
-  allLifestyles: Lifestyle[]
-  canAdvance:    boolean
-  hasPending:    boolean
+  gameState:      GameState
+  lifestyle:      Lifestyle | null
+  allLifestyles:  Lifestyle[]
+  canAdvance:     boolean
+  hasPending:     boolean
   onSetLifestyle: (type: LifestyleType) => void
   onAdvance:      () => void
+}
+
+function stageLabel(age: number): string {
+  if (age < 13)  return 'Infancia'
+  if (age < 19)  return 'Adolescencia'
+  if (age < 31)  return 'Juventud'
+  if (age < 51)  return 'Adultez'
+  if (age < 71)  return 'Madurez'
+  if (age < 81)  return 'Vejez'
+  return 'Vejez tardía'
 }
 
 function AllocationBar({ label, value, max = 13 }: { label: string; value: number; max?: number }) {
   const pct = (value / max) * 100
   return (
-    <div className="flex items-center gap-2 text-xs">
-      <span className="w-16 opacity-50 uppercase tracking-wider">{label}</span>
-      <div className="flex-1 h-[3px] rounded-full" style={{ background: `${COLOR_GOLD}22` }}>
-        <div
-          className="h-full rounded-full transition-all"
-          style={{ width: `${pct}%`, background: COLOR_GOLD, opacity: 0.7 }}
-        />
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.5rem', letterSpacing: '0.05em', color: '#6b6045', textTransform: 'uppercase', width: 52, flexShrink: 0 }}>
+        {label}
+      </span>
+      <div style={{ flex: 1, height: 2, background: '#2a2620', borderRadius: 1 }}>
+        <div style={{
+          height:     '100%',
+          width:      `${pct}%`,
+          background: '#C9A84C',
+          opacity:    0.7,
+          borderRadius: 1,
+          transition: 'width 0.3s ease',
+        }} />
       </div>
-      <span className="w-4 text-right opacity-60">{value}</span>
+      <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.5rem', color: '#6b6045', width: 14, textAlign: 'right' }}>
+        {value}
+      </span>
     </div>
   )
 }
@@ -38,132 +54,126 @@ export function LifestylePanel({
   onSetLifestyle,
   onAdvance,
 }: Props) {
-  const [showSelector, setShowSelector] = useState(!lifestyle)
-
-  const ageText = gameState.ageYears < 13
-    ? 'Infancia'
-    : gameState.ageYears < 19
-      ? 'Adolescencia'
-      : gameState.ageYears < 31
-        ? 'Juventud'
-        : gameState.ageYears < 51
-          ? 'Adultez'
-          : gameState.ageYears < 71
-            ? 'Madurez'
-            : 'Vejez'
-
   return (
-    <div className="h-full flex flex-col px-4 py-4 gap-4 overflow-y-auto">
-      {/* Stage label */}
-      <div className="flex items-baseline gap-2">
-        <span className="font-cinzel text-xs opacity-40 uppercase tracking-widest">{ageText}</span>
-        <span className="text-xs opacity-30">·</span>
-        <span className="text-xs opacity-30">{gameState.totalQuarters} trimestres</span>
+    <div style={{
+      height:        '100%',
+      display:       'flex',
+      flexDirection: 'column',
+      overflow:      'hidden',
+    }}>
+      {/* Panel title */}
+      <div style={{
+        padding:      '14px 20px',
+        borderBottom: '1px solid #2a2620',
+        flexShrink:   0,
+      }}>
+        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.6rem', letterSpacing: '0.2em', color: '#6b6045', textTransform: 'uppercase' }}>
+          Iniciativa
+        </span>
+        <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+          <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', color: '#4a4035' }}>
+            {stageLabel(gameState.ageYears)}
+          </span>
+          <span style={{ color: '#2a2620', fontSize: '0.55rem' }}>·</span>
+          <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', color: '#3a3228' }}>
+            {gameState.totalQuarters} trimestres
+          </span>
+        </div>
       </div>
 
-      {/* Lifestyle selector / current */}
-      {showSelector || !lifestyle ? (
-        <div className="flex flex-col gap-2">
-          <p className="text-xs opacity-50 uppercase tracking-wider mb-1">
-            {lifestyle ? 'Cambiar estilo de vida' : 'Elige tu estilo de vida'}
-          </p>
-          {allLifestyles.map(ls => (
+      {/* Lifestyle list — scrollable */}
+      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+        {allLifestyles.map(ls => {
+          const active = lifestyle?.type === ls.type
+          return (
             <button
               key={ls.type}
-              onClick={() => {
-                onSetLifestyle(ls.type)
-                setShowSelector(false)
-              }}
-              className="text-left px-3 py-2 text-sm transition-all"
+              onClick={() => onSetLifestyle(ls.type)}
               style={{
-                border:  `1px solid ${lifestyle?.type === ls.type ? COLOR_GOLD + '99' : COLOR_GOLD + '33'}`,
-                color:   COLOR_GOLD,
-                opacity: lifestyle?.type === ls.type ? 1 : 0.65,
-                background: lifestyle?.type === ls.type ? `${COLOR_GOLD}0d` : 'transparent',
+                textAlign:     'left',
+                padding:       '10px 20px',
+                background:    active ? '#C9A84C0f' : 'transparent',
+                borderLeft:    active ? '2px solid #C9A84C' : '2px solid transparent',
+                border:        active ? undefined : '2px solid transparent',
+                color:         active ? '#C9A84C' : '#6b6045',
+                cursor:        'pointer',
+                transition:    'all 0.2s cubic-bezier(0.4,0,0.2,1)',
+                borderBottom:  '1px solid #1c1915',
+              }}
+              onMouseEnter={e => {
+                if (!active) (e.currentTarget as HTMLButtonElement).style.background = '#1c1915'
+              }}
+              onMouseLeave={e => {
+                if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'
               }}
             >
-              <span className="font-cinzel text-xs uppercase tracking-widest block mb-0.5">
+              <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.7rem', letterSpacing: '0.08em', display: 'block', marginBottom: 2 }}>
                 {ls.label}
               </span>
-              <span className="text-xs opacity-60">{ls.description}</span>
-            </button>
-          ))}
-          {lifestyle && (
-            <button
-              onClick={() => setShowSelector(false)}
-              className="text-xs opacity-40 hover:opacity-70 transition-opacity mt-1"
-              style={{ color: COLOR_GOLD }}
-            >
-              cancelar
-            </button>
-          )}
-        </div>
-      ) : (
-        <div className="flex flex-col gap-3">
-          {/* Current lifestyle */}
-          <div
-            className="px-3 py-2"
-            style={{ border: `1px solid ${COLOR_GOLD}44` }}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span className="font-cinzel text-xs uppercase tracking-widest" style={{ color: COLOR_GOLD }}>
-                {lifestyle.label}
+              <span style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: '0.55rem', color: active ? '#8a7a5a' : '#3a3228', display: 'block' }}>
+                {ls.description}
               </span>
-              <button
-                onClick={() => setShowSelector(true)}
-                className="text-[10px] opacity-40 hover:opacity-70 transition-opacity"
-                style={{ color: COLOR_GOLD }}
-              >
-                cambiar
-              </button>
-            </div>
-            <p className="text-xs opacity-50">{lifestyle.description}</p>
+            </button>
+          )
+        })}
+
+        {/* Allocation breakdown for active lifestyle */}
+        {lifestyle && (
+          <div style={{ padding: '12px 20px', display: 'flex', flexDirection: 'column', gap: 6, borderTop: '1px solid #2a2620' }}>
+            <AllocationBar label="Trabajo"  value={lifestyle.allocation.trabajo}  />
+            <AllocationBar label="Estudios" value={lifestyle.allocation.estudios} />
+            <AllocationBar label="Familia"  value={lifestyle.allocation.familia}  />
+            <AllocationBar label="Social"   value={lifestyle.allocation.social}   />
+            <AllocationBar label="Salud"    value={lifestyle.allocation.salud}    />
+            <AllocationBar label="Ocio"     value={lifestyle.allocation.ocio}     />
           </div>
+        )}
+      </div>
 
-          {/* Allocation breakdown */}
-          <div className="flex flex-col gap-1.5">
-            <AllocationBar label="Trabajo"   value={lifestyle.allocation.trabajo}  />
-            <AllocationBar label="Estudios"  value={lifestyle.allocation.estudios} />
-            <AllocationBar label="Familia"   value={lifestyle.allocation.familia}  />
-            <AllocationBar label="Social"    value={lifestyle.allocation.social}   />
-            <AllocationBar label="Salud"     value={lifestyle.allocation.salud}    />
-            <AllocationBar label="Ocio"      value={lifestyle.allocation.ocio}     />
+      {/* Advance button — fixed at panel bottom */}
+      <div style={{ flexShrink: 0, borderTop: '1px solid #2a2620' }}>
+        {hasPending ? (
+          <div style={{ padding: '14px 20px', textAlign: 'center' }}>
+            <span style={{
+              fontFamily:    'Cinzel, serif',
+              fontSize:      '0.6rem',
+              letterSpacing: '0.15em',
+              color:         '#8B1A2A',
+              opacity:       0.7,
+              textTransform: 'uppercase',
+            }}>
+              Toma una decisión
+            </span>
           </div>
-        </div>
-      )}
-
-      <div className="flex-1" />
-
-      {/* Advance button */}
-      {hasPending ? (
-        <p
-          className="text-xs text-center font-cinzel uppercase tracking-wider opacity-50"
-          style={{ color: COLOR_GARNET }}
-        >
-          Toma una decisión
-        </p>
-      ) : (
-        <button
-          onClick={canAdvance ? onAdvance : undefined}
-          disabled={!canAdvance}
-          className="w-full py-3 font-cinzel text-sm uppercase tracking-widest transition-all"
-          style={{
-            border:     `1px solid ${canAdvance ? COLOR_GOLD + 'aa' : COLOR_GOLD + '22'}`,
-            color:      canAdvance ? COLOR_GOLD : COLOR_GOLD + '44',
-            background: 'transparent',
-            cursor:     canAdvance ? 'pointer' : 'not-allowed',
-          }}
-          onMouseEnter={e => {
-            if (canAdvance)
-              (e.currentTarget as HTMLButtonElement).style.background = `${COLOR_GOLD}11`
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLButtonElement).style.background = 'transparent'
-          }}
-        >
-          Vivir trimestre
-        </button>
-      )}
+        ) : (
+          <button
+            onClick={canAdvance ? onAdvance : undefined}
+            disabled={!canAdvance}
+            style={{
+              width:         '100%',
+              padding:       '14px 20px',
+              fontFamily:    'Cinzel, serif',
+              fontSize:      '0.75rem',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              background:    canAdvance ? '#C9A84C' : 'transparent',
+              color:         canAdvance ? '#0d0b08' : '#3a3228',
+              border:        'none',
+              cursor:        canAdvance ? 'pointer' : 'not-allowed',
+              transition:    'all 0.25s cubic-bezier(0.4,0,0.2,1)',
+              opacity:       canAdvance ? 1 : 0.5,
+            }}
+            onMouseEnter={e => {
+              if (canAdvance) (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 24px #C9A84C44'
+            }}
+            onMouseLeave={e => {
+              if (canAdvance) (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none'
+            }}
+          >
+            Avanzar Trimestre
+          </button>
+        )}
+      </div>
     </div>
   )
 }

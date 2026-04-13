@@ -3,7 +3,26 @@ import { useGameStore } from '../store/gameStore'
 import { StatsRadarChart }    from '../components/StatsRadarChart'
 import { HiddenGenesDisplay } from '../components/HiddenGenesDisplay'
 import { AncestralNarrative } from '../components/AncestralNarrative'
-import { COLOR_GOLD, COLOR_GARNET } from '../constants/game.constants'
+
+// ─── Decorative header ─────────────────────────────────────────────────────────
+function ScreenHeader({ label }: { label: string }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%', maxWidth: 480, alignSelf: 'center' }}>
+      <div style={{ flex: 1, height: 1, background: 'linear-gradient(90deg, transparent, #C9A84C66, transparent)' }} />
+      <span style={{
+        fontFamily:    'Cinzel, serif',
+        fontSize:      '0.75rem',
+        letterSpacing: '0.35em',
+        color:         '#C9A84C',
+        textShadow:    '0 0 40px #C9A84C44',
+        fontWeight:    700,
+      }}>
+        {label}
+      </span>
+      <div style={{ flex: 1, height: 1, background: 'linear-gradient(90deg, transparent, #C9A84C66, transparent)' }} />
+    </div>
+  )
+}
 
 export function BirthScreen() {
   const inheritedStats    = useGameStore(s => s.inheritedStats)
@@ -16,10 +35,7 @@ export function BirthScreen() {
   const [name,   setName]   = useState('')
   const [gender, setGender] = useState<'hombre' | 'mujer'>('hombre')
 
-  if (!inheritedStats) {
-    // Should never happen — confirmAncestors sets this
-    return null
-  }
+  if (!inheritedStats) return null
 
   const canConfirm = name.trim().length >= 2
 
@@ -30,49 +46,58 @@ export function BirthScreen() {
 
   return (
     <div
-      className="flex flex-col items-center min-h-screen px-4 py-8 gap-6 overflow-y-auto"
-      style={{ background: '#0d0b08' }}
+      className="animate-screen-enter flex flex-col items-center min-h-screen px-4 py-8 gap-6 overflow-y-auto"
+      style={{ background: '#0d0b08', position: 'relative' }}
     >
-      {/* Back button */}
-      <div className="w-full max-w-xl flex justify-start">
+      {/* Atmospheric bg */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 80% 60% at 50% 0%, #1a1408 0%, #0d0b08 60%, #080604 100%)' }} />
+
+      <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 480, display: 'flex', justifyContent: 'flex-start' }}>
         <button
           onClick={() => setScreen('ancestors')}
-          className="text-xs opacity-30 hover:opacity-60 transition-opacity"
-          style={{ color: COLOR_GOLD }}
+          style={{ fontFamily: 'Cinzel, serif', fontSize: '0.6rem', color: '#3a3228', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.1em', transition: 'color 0.2s' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#6b6045' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#3a3228' }}
         >
           ← linaje
         </button>
       </div>
 
-      {/* Section title */}
-      <h1 className="font-cinzel uppercase tracking-[0.3em] text-sm" style={{ color: COLOR_GOLD, opacity: 0.6 }}>
-        Nacimiento
-      </h1>
+      {/* ── Header ──────────────────────────────────────────────────────────── */}
+      <div style={{ position: 'relative', zIndex: 1, width: '100%' }}>
+        <ScreenHeader label="✦ HERENCIA ✦" />
+      </div>
 
-      {/* Ancestral narrative */}
-      <AncestralNarrative ancestors={selectedAncestors} country={selectedCountry} />
+      {/* ── Ancestral narrative ─────────────────────────────────────────────── */}
+      <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 480 }}>
+        <div style={{ background: '#141210', borderLeft: '2px solid #C9A84C44', padding: '16px 20px' }}>
+          <AncestralNarrative ancestors={selectedAncestors} country={selectedCountry} />
+        </div>
+      </div>
 
-      {/* Stats radar */}
-      <div className="flex flex-col items-center gap-2">
-        <p className="text-[10px] font-cinzel uppercase tracking-widest opacity-40" style={{ color: COLOR_GOLD }}>
+      {/* ── Stats radar ─────────────────────────────────────────────────────── */}
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+        <p style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.2em', color: '#6b6045', textTransform: 'uppercase' }}>
           Stats heredados
         </p>
         <StatsRadarChart stats={inheritedStats} size={280} />
       </div>
 
-      {/* Hidden genes */}
-      <div className="w-full max-w-sm">
-        <HiddenGenesDisplay hiddenGenes={hiddenGenes} />
+      {/* ── Hidden genes ────────────────────────────────────────────────────── */}
+      <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 480 }}>
+        <div style={{ background: '#141210', padding: '12px 16px', border: '1px solid #2a2620' }}>
+          <p style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.15em', color: '#6b6045', textTransform: 'uppercase', marginBottom: 8 }}>
+            Genes latentes
+          </p>
+          <HiddenGenesDisplay hiddenGenes={hiddenGenes} />
+        </div>
       </div>
 
-      {/* Character creation form */}
-      <div className="w-full max-w-sm flex flex-col gap-4">
+      {/* ── Character creation form ─────────────────────────────────────────── */}
+      <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 480, display: 'flex', flexDirection: 'column', gap: 16 }}>
         {/* Name input */}
-        <div className="flex flex-col gap-1">
-          <label
-            className="text-[10px] font-cinzel uppercase tracking-widest opacity-50"
-            style={{ color: COLOR_GOLD }}
-          >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <label style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.15em', color: '#6b6045', textTransform: 'uppercase' }}>
             Nombre
           </label>
           <input
@@ -81,34 +106,43 @@ export function BirthScreen() {
             onChange={e => setName(e.target.value)}
             placeholder="El nombre de tu personaje"
             maxLength={32}
-            className="px-3 py-2 text-sm bg-transparent outline-none"
             style={{
-              border:  `1px solid ${COLOR_GOLD}55`,
-              color:   COLOR_GOLD,
+              padding:     '12px 16px',
+              background:  '#141210',
+              border:      '1px solid #3a3228',
+              color:       '#C9A84C',
+              fontFamily:  'Cinzel, serif',
+              fontSize:    '0.85rem',
+              outline:     'none',
+              transition:  'border-color 0.2s',
             }}
-            onFocus={e => { (e.currentTarget as HTMLInputElement).style.borderColor = `${COLOR_GOLD}cc` }}
-            onBlur={e  => { (e.currentTarget as HTMLInputElement).style.borderColor = `${COLOR_GOLD}55` }}
+            onFocus={e => { (e.currentTarget as HTMLInputElement).style.borderColor = '#C9A84C' }}
+            onBlur={e  => { (e.currentTarget as HTMLInputElement).style.borderColor = '#3a3228' }}
           />
         </div>
 
         {/* Gender selector */}
-        <div className="flex flex-col gap-1">
-          <label
-            className="text-[10px] font-cinzel uppercase tracking-widest opacity-50"
-            style={{ color: COLOR_GOLD }}
-          >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <label style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.15em', color: '#6b6045', textTransform: 'uppercase' }}>
             Género
           </label>
-          <div className="flex gap-2">
+          <div style={{ display: 'flex', gap: 8 }}>
             {(['hombre', 'mujer'] as const).map(g => (
               <button
                 key={g}
                 onClick={() => setGender(g)}
-                className="flex-1 py-2 text-xs font-cinzel uppercase tracking-widest transition-all"
                 style={{
-                  border:     `1px solid ${gender === g ? COLOR_GOLD + 'cc' : COLOR_GOLD + '33'}`,
-                  color:      gender === g ? COLOR_GOLD : COLOR_GOLD + '66',
-                  background: gender === g ? `${COLOR_GOLD}0d` : 'transparent',
+                  flex:          1,
+                  padding:       '10px 0',
+                  fontFamily:    'Cinzel, serif',
+                  fontSize:      '0.7rem',
+                  letterSpacing: '0.15em',
+                  textTransform: 'uppercase',
+                  background:    gender === g ? '#C9A84C' : 'transparent',
+                  color:         gender === g ? '#0d0b08' : '#6b6045',
+                  border:        `1px solid ${gender === g ? '#C9A84C' : '#2a2620'}`,
+                  cursor:        'pointer',
+                  transition:    'all 0.2s',
                 }}
               >
                 {g}
@@ -118,33 +152,59 @@ export function BirthScreen() {
         </div>
       </div>
 
-      {/* CTA */}
+      {/* ── CTA ─────────────────────────────────────────────────────────────── */}
       <button
         onClick={canConfirm ? handleStart : undefined}
         disabled={!canConfirm}
-        className="w-full max-w-sm py-4 font-cinzel uppercase tracking-widest text-sm transition-all"
         style={{
-          border:     `1px solid ${canConfirm ? COLOR_GOLD : COLOR_GOLD + '22'}`,
-          color:      canConfirm ? COLOR_GOLD : COLOR_GOLD + '33',
-          background: 'transparent',
-          cursor:     canConfirm ? 'pointer' : 'not-allowed',
+          position:      'relative',
+          zIndex:        1,
+          width:         '100%',
+          maxWidth:      480,
+          padding:       '16px 56px',
+          fontFamily:    'Cinzel, serif',
+          fontSize:      '0.85rem',
+          letterSpacing: '0.3em',
+          background:    canConfirm ? 'transparent' : 'transparent',
+          border:        `1px solid ${canConfirm ? '#C9A84C' : '#2a2620'}`,
+          color:         canConfirm ? '#C9A84C' : '#3a3228',
+          cursor:        canConfirm ? 'pointer' : 'not-allowed',
+          transition:    'all 0.25s cubic-bezier(0.4,0,0.2,1)',
+          opacity:       canConfirm ? 1 : 0.4,
         }}
         onMouseEnter={e => {
-          if (canConfirm)
-            (e.currentTarget as HTMLButtonElement).style.background = `${COLOR_GOLD}11`
+          if (canConfirm) {
+            const btn = e.currentTarget as HTMLButtonElement
+            btn.style.background = '#C9A84C'
+            btn.style.color      = '#0d0b08'
+            btn.style.boxShadow  = '0 0 32px #C9A84C44'
+          }
         }}
         onMouseLeave={e => {
-          (e.currentTarget as HTMLButtonElement).style.background = 'transparent'
+          if (canConfirm) {
+            const btn = e.currentTarget as HTMLButtonElement
+            btn.style.background = 'transparent'
+            btn.style.color      = '#C9A84C'
+            btn.style.boxShadow  = 'none'
+          }
         }}
       >
-        Comenzar vida
+        NACER
       </button>
 
       {/* Flavor */}
-      <p
-        className="text-[10px] text-center opacity-20 max-w-xs font-cinzel uppercase tracking-widest"
-        style={{ color: COLOR_GARNET }}
-      >
+      <p style={{
+        position:      'relative',
+        zIndex:        1,
+        fontFamily:    'Cinzel, serif',
+        fontSize:      '0.5rem',
+        letterSpacing: '0.15em',
+        color:         '#8B1A2A',
+        opacity:       0.2,
+        textAlign:     'center',
+        textTransform: 'uppercase',
+        paddingBottom: '1rem',
+      }}>
         Lo que heredas no define lo que serás
       </p>
     </div>

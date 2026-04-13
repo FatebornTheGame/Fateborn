@@ -1,13 +1,8 @@
 import type { Stats } from '../types/game.types'
-import { COLOR_GOLD, COLOR_GARNET } from '../constants/game.constants'
 
 interface Props {
   stats: Stats
   size:  number
-  /**
-   * Optional second stats layer (e.g., ancestor stats) drawn behind the main layer.
-   * Used in BirthScreen to show inherited vs raw.
-   */
   compareStats?: Stats
 }
 
@@ -26,10 +21,10 @@ const STAT_LABELS: [keyof Stats, string][] = [
 function statsToPoints(stats: Stats, cx: number, cy: number, r: number): string {
   const count = STAT_LABELS.length
   return STAT_LABELS.map(([key], i) => {
-    const angle  = (i / count) * 2 * Math.PI - Math.PI / 2
-    const ratio  = stats[key] / 10
-    const x      = cx + r * ratio * Math.cos(angle)
-    const y      = cy + r * ratio * Math.sin(angle)
+    const angle = (i / count) * 2 * Math.PI - Math.PI / 2
+    const ratio = stats[key] / 10
+    const x     = cx + r * ratio * Math.cos(angle)
+    const y     = cy + r * ratio * Math.sin(angle)
     return `${x.toFixed(2)},${y.toFixed(2)}`
   }).join(' ')
 }
@@ -60,8 +55,7 @@ export function StatsRadarChart({ stats, size, compareStats }: Props) {
           key={level}
           points={gridPoints(cx, cy, r, level)}
           fill="none"
-          stroke={COLOR_GOLD}
-          strokeOpacity={0.12}
+          stroke="#2a2620"
           strokeWidth={1}
         />
       ))}
@@ -76,42 +70,41 @@ export function StatsRadarChart({ stats, size, compareStats }: Props) {
             key={label}
             x1={cx} y1={cy}
             x2={x.toFixed(2)} y2={y.toFixed(2)}
-            stroke={COLOR_GOLD}
-            strokeOpacity={0.15}
+            stroke="#2a2620"
             strokeWidth={1}
           />
         )
       })}
 
-      {/* Compare stats (background) */}
+      {/* Compare stats (background layer) */}
       {compareStats && (
         <polygon
           points={statsToPoints(compareStats, cx, cy, r)}
-          fill={COLOR_GARNET}
-          fillOpacity={0.15}
-          stroke={COLOR_GARNET}
-          strokeOpacity={0.4}
+          fill="#8B1A2A"
+          fillOpacity={0.12}
+          stroke="#8B1A2A"
+          strokeOpacity={0.35}
           strokeWidth={1}
         />
       )}
 
-      {/* Main stats */}
+      {/* Main stats polygon */}
       <polygon
         points={statsToPoints(stats, cx, cy, r)}
-        fill={COLOR_GOLD}
-        fillOpacity={0.22}
-        stroke={COLOR_GOLD}
-        strokeOpacity={0.8}
+        fill="#C9A84C"
+        fillOpacity={0.1}
+        stroke="#C9A84C"
+        strokeOpacity={0.88}
         strokeWidth={1.5}
       />
 
-      {/* Stat labels */}
+      {/* Stat labels + values */}
       {STAT_LABELS.map(([key, label], i) => {
-        const angle  = (i / count) * 2 * Math.PI - Math.PI / 2
-        const lr     = r * 1.18
-        const x      = cx + lr * Math.cos(angle)
-        const y      = cy + lr * Math.sin(angle)
-        const value  = stats[key]
+        const angle = (i / count) * 2 * Math.PI - Math.PI / 2
+        const lr    = r * 1.2
+        const x     = cx + lr * Math.cos(angle)
+        const y     = cy + lr * Math.sin(angle)
+        const value = stats[key]
 
         return (
           <g key={label}>
@@ -120,22 +113,22 @@ export function StatsRadarChart({ stats, size, compareStats }: Props) {
               y={(y - 5).toFixed(2)}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill={COLOR_GOLD}
-              fillOpacity={0.5}
-              fontSize={size * 0.055}
-              fontFamily="sans-serif"
+              fill="#6b6045"
+              fontSize={size * 0.05}
+              fontFamily="Cinzel, serif"
               letterSpacing="1"
             >
               {label}
             </text>
             <text
               x={x.toFixed(2)}
-              y={(y + 8).toFixed(2)}
+              y={(y + 7).toFixed(2)}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill={COLOR_GOLD}
-              fontSize={size * 0.065}
-              fontFamily="sans-serif"
+              fill="#C9A84C"
+              fillOpacity={0.9}
+              fontSize={size * 0.06}
+              fontFamily="Cinzel, serif"
               fontWeight="600"
             >
               {value.toFixed(1)}

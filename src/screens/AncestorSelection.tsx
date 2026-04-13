@@ -1,11 +1,28 @@
 import { useGameStore } from '../store/gameStore'
 import type { AncestorSlot } from '../types/archetype.types'
-import { AncestorSlots }  from '../components/AncestorSlots'
-import { ArchetypeCard }  from '../components/ArchetypeCard'
+import { AncestorSlots }   from '../components/AncestorSlots'
+import { ArchetypeCard }   from '../components/ArchetypeCard'
 import { CountrySelector } from '../components/CountrySelector'
-import { ARCHETYPES }     from '../data/archetypes'
-import { COUNTRIES }      from '../data/countries'
-import { COLOR_GOLD } from '../constants/game.constants'
+import { ARCHETYPES }      from '../data/archetypes'
+import { COUNTRIES }       from '../data/countries'
+
+// ─── Decorative separator ─────────────────────────────────────────────────────
+function Separator({ label }: { label: string }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+      <div style={{ flex: 1, height: 1, background: 'linear-gradient(90deg, transparent, #C9A84C44, transparent)' }} />
+      <span style={{
+        fontFamily:    'Cinzel, serif',
+        fontSize:      '0.6rem',
+        letterSpacing: '0.25em',
+        color:         '#4a4035',
+      }}>
+        {label}
+      </span>
+      <div style={{ flex: 1, height: 1, background: 'linear-gradient(90deg, transparent, #C9A84C44, transparent)' }} />
+    </div>
+  )
+}
 
 export function AncestorSelection() {
   const selectedAncestors = useGameStore(s => s.selectedAncestors)
@@ -17,23 +34,20 @@ export function AncestorSelection() {
   const setScreen         = useGameStore(s => s.setScreen)
 
   const filledCount = selectedAncestors.filter(Boolean).length
-  const canConfirm  = filledCount === 4
+  const canConfirm  = filledCount === 4 && !!selectedCountry
 
-  // Find the next available grandfather slot (0 or 2)
   function nextGrandfatherSlot(): AncestorSlot | null {
     if (!selectedAncestors[0]) return 0
     if (!selectedAncestors[2]) return 2
     return null
   }
 
-  // Find the next available grandmother slot (1 or 3)
   function nextGrandmotherSlot(): AncestorSlot | null {
     if (!selectedAncestors[1]) return 1
     if (!selectedAncestors[3]) return 3
     return null
   }
 
-  // Build a map: archetypeId → which slot (and as what)
   type SelectionInfo = { slot: AncestorSlot; as: 'grandfather' | 'grandmother' }
   const selectionMap = new Map<string, SelectionInfo>()
   selectedAncestors.forEach((a, i) => {
@@ -45,50 +59,96 @@ export function AncestorSelection() {
     }
   })
 
+  // Slot indicator dots (gold for abuelos, crimson for abuelas)
+  const slotDotColors = ['#C9A84C', '#8B1A2A', '#C9A84C', '#8B1A2A']
+
   return (
     <div
-      className="flex flex-col h-screen overflow-hidden"
-      style={{ background: '#0d0b08' }}
+      className="animate-screen-enter flex flex-col h-screen overflow-hidden"
+      style={{ background: '#0d0b08', position: 'relative' }}
     >
-      {/* Header */}
+      {/* Atmospheric bg */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 80% 60% at 50% 0%, #1a1408 0%, #0d0b08 60%, #080604 100%)' }} />
+
+      {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div
-        className="flex-shrink-0 flex items-center justify-between px-6 py-3"
-        style={{ borderBottom: `1px solid ${COLOR_GOLD}22` }}
+        className="flex-shrink-0 flex flex-col items-center px-6 py-4 gap-1"
+        style={{ borderBottom: '1px solid #2a2620', position: 'relative', zIndex: 1 }}
       >
-        <div>
-          <h1 className="font-cinzel text-base uppercase tracking-widest" style={{ color: COLOR_GOLD }}>
-            Linaje
-          </h1>
-          <p className="text-xs opacity-40">Elige los 4 ancestros que forjan tu herencia</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%', maxWidth: 480 }}>
+          <div style={{ flex: 1, height: 1, background: 'linear-gradient(90deg, transparent, #C9A84C66, transparent)' }} />
+          <span style={{
+            fontFamily:  'Cinzel, serif',
+            fontSize:    '0.75rem',
+            letterSpacing: '0.35em',
+            color:       '#C9A84C',
+            textShadow:  '0 0 40px #C9A84C44',
+            fontWeight:  700,
+          }}>
+            ✦ LINAJE ✦
+          </span>
+          <div style={{ flex: 1, height: 1, background: 'linear-gradient(90deg, transparent, #C9A84C66, transparent)' }} />
         </div>
-        <button
-          onClick={() => setScreen('start')}
-          className="text-xs opacity-30 hover:opacity-60 transition-opacity"
-          style={{ color: COLOR_GOLD }}
-        >
-          ← volver
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <p style={{ fontFamily: 'Cinzel, serif', fontSize: '0.7rem', color: '#6b6045' }}>
+            Elige los 4 ancestros que forjan tu herencia
+          </p>
+          <button
+            onClick={() => setScreen('start')}
+            style={{ fontFamily: 'Cinzel, serif', fontSize: '0.6rem', color: '#3a3228', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.1em' }}
+          >
+            ← volver
+          </button>
+        </div>
       </div>
 
-      {/* Slots + country */}
-      <div className="flex-shrink-0 px-6 pt-4 pb-3 flex flex-col gap-3">
+      {/* ── Slots + country ─────────────────────────────────────────────────── */}
+      <div className="flex-shrink-0 px-6 pt-4 pb-3 flex flex-col gap-3" style={{ position: 'relative', zIndex: 1 }}>
         <AncestorSlots
           slots={selectedAncestors}
           onRemoveSlot={removeAncestor}
         />
-        <CountrySelector
-          countries={countries}
-          selectedCountry={selectedCountry}
-          onChange={setCountry}
-        />
+
+        {/* Country row with slot dots indicator */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1rem' }}>
+          <div style={{ flex: 1 }}>
+            <CountrySelector
+              countries={COUNTRIES}
+              selectedCountry={selectedCountry}
+              onChange={setCountry}
+            />
+          </div>
+          {/* Slot dots + counter */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, paddingBottom: 8 }}>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {slotDotColors.map((color, i) => {
+                const filled = !!selectedAncestors[i]
+                return (
+                  <div key={i} style={{
+                    width:     10,
+                    height:    10,
+                    borderRadius: '50%',
+                    background: filled ? color : 'transparent',
+                    border:    `1px solid ${color}`,
+                    boxShadow: filled ? `0 0 6px ${color}88` : 'none',
+                    transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)',
+                  }} />
+                )
+              })}
+            </div>
+            <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.5rem', color: '#4a4035', letterSpacing: '0.1em' }}>
+              {filledCount} / 4
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Archetype grid — scrollable */}
-      <div className="flex-1 overflow-y-auto px-6 pb-4">
-        <p className="text-[10px] font-cinzel uppercase tracking-widest opacity-30 mb-3">
-          {filledCount < 4 ? `${4 - filledCount} por elegir` : 'Selección completa'}
-        </p>
-        <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
+      {/* ── Archetype grid — scrollable ─────────────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto px-6 pb-4" style={{ position: 'relative', zIndex: 1 }}>
+        <div style={{ marginBottom: '0.75rem' }}>
+          <Separator label={filledCount < 4 ? 'ELIGE TU LINAJE' : 'SELECCIÓN COMPLETA'} />
+        </div>
+        <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
           {ARCHETYPES.map(archetype => {
             const info = selectionMap.get(archetype.id) ?? null
             return (
@@ -111,35 +171,52 @@ export function AncestorSelection() {
         </div>
       </div>
 
-      {/* Confirm footer */}
+      {/* ── Confirm footer ──────────────────────────────────────────────────── */}
       <div
-        className="flex-shrink-0 px-6 py-4"
-        style={{ borderTop: `1px solid ${COLOR_GOLD}22` }}
+        className="flex-shrink-0 px-6 py-4 flex flex-col gap-2"
+        style={{ borderTop: '1px solid #2a2620', position: 'relative', zIndex: 1 }}
       >
+        {!selectedCountry && filledCount === 4 && (
+          <p style={{ fontFamily: 'Cinzel, serif', fontSize: '0.62rem', color: '#4a4035', textAlign: 'center', letterSpacing: '0.1em' }}>
+            Elige un país de nacimiento
+          </p>
+        )}
+        {filledCount < 4 && (
+          <p style={{ fontFamily: 'Cinzel, serif', fontSize: '0.62rem', color: '#4a4035', textAlign: 'center', letterSpacing: '0.1em' }}>
+            {4 - filledCount} {4 - filledCount === 1 ? 'ancestro' : 'ancestros'} por elegir
+          </p>
+        )}
         <button
           onClick={canConfirm ? confirmAncestors : undefined}
           disabled={!canConfirm}
-          className="w-full py-4 font-cinzel uppercase tracking-widest text-sm transition-all"
           style={{
-            border:     `1px solid ${canConfirm ? COLOR_GOLD : COLOR_GOLD + '22'}`,
-            color:      canConfirm ? COLOR_GOLD : COLOR_GOLD + '33',
-            background: 'transparent',
-            cursor:     canConfirm ? 'pointer' : 'not-allowed',
+            width:         '100%',
+            padding:       '16px 48px',
+            fontFamily:    'Cinzel, serif',
+            fontSize:      '0.85rem',
+            letterSpacing: '0.25em',
+            border:        canConfirm ? '1px solid #C9A84C' : '1px solid #2a2620',
+            color:         canConfirm ? '#0d0b08' : '#3a3228',
+            background:    canConfirm ? '#C9A84C' : 'transparent',
+            cursor:        canConfirm ? 'pointer' : 'not-allowed',
+            boxShadow:     canConfirm ? '0 0 32px #C9A84C44' : 'none',
+            transition:    'all 0.25s cubic-bezier(0.4,0,0.2,1)',
+            opacity:       canConfirm ? 1 : 0.35,
           }}
           onMouseEnter={e => {
-            if (canConfirm)
-              (e.currentTarget as HTMLButtonElement).style.background = `${COLOR_GOLD}11`
+            if (canConfirm) {
+              (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 48px #C9A84C66'
+            }
           }}
           onMouseLeave={e => {
-            (e.currentTarget as HTMLButtonElement).style.background = 'transparent'
+            if (canConfirm) {
+              (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 32px #C9A84C44'
+            }
           }}
         >
-          {canConfirm ? 'Confirmar linaje' : `${4 - filledCount} ancestros por elegir`}
+          FORJAR MI HERENCIA
         </button>
       </div>
     </div>
   )
 }
-
-// Alias to avoid name collision with import
-const countries = COUNTRIES

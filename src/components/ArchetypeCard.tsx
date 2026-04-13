@@ -1,10 +1,9 @@
 import type { Archetype } from '../types/archetype.types'
-import { COLOR_GOLD, COLOR_GARNET } from '../constants/game.constants'
 
 interface Props {
-  archetype:            Archetype
-  selectedAs:           'grandfather' | 'grandmother' | null
-  selectionCount:       number
+  archetype:             Archetype
+  selectedAs:            'grandfather' | 'grandmother' | null
+  selectionCount:        number
   onSelectAsGrandfather: () => void
   onSelectAsGrandmother: () => void
 }
@@ -16,6 +15,27 @@ const STAT_SHORT: Record<string, string> = {
   fisico: 'FÍS', riesgo: 'RIE', estabilidad: 'EST',
 }
 
+// Glyph per archetype id — fallback ◆
+const GLYPH: Record<string, string> = {
+  academico:    '✦',
+  lider:        '⚜',
+  atleta:       '◈',
+  artista:      '✧',
+  filosofo:     '◎',
+  emprendedor:  '◆',
+  cuidador:     '♾',
+  explorador:   '✺',
+  medico:       '✙',
+  militar:      '⚔',
+  politico:     '⚑',
+  criminal:     '◉',
+  marinero:     '⛵',
+  sacerdote:    '☩',
+  mercader:     '⬡',
+  abogado:      '⚖',
+  obrero:       '⚙',
+}
+
 export function ArchetypeCard({
   archetype,
   selectedAs,
@@ -24,6 +44,8 @@ export function ArchetypeCard({
   onSelectAsGrandmother,
 }: Props) {
   const isSelected = selectedAs !== null
+  const accentColor = selectedAs === 'grandmother' ? '#8B1A2A' : '#C9A84C'
+  const glyph = GLYPH[archetype.id] ?? '◆'
 
   const topStats = STAT_KEYS
     .map(k => ({ key: k, value: archetype.stats[k] }))
@@ -32,63 +54,183 @@ export function ArchetypeCard({
 
   return (
     <div
-      className="flex flex-col p-3 transition-all cursor-default"
       style={{
-        border:     `1px solid ${isSelected ? (selectedAs === 'grandfather' ? COLOR_GOLD + 'cc' : COLOR_GARNET + 'cc') : COLOR_GOLD + '33'}`,
-        background: isSelected ? `${selectedAs === 'grandfather' ? COLOR_GOLD : COLOR_GARNET}09` : 'transparent',
-        minWidth:   160,
+        position:    'relative',
+        display:     'flex',
+        flexDirection: 'column',
+        padding:     '12px',
+        background:  isSelected ? `${accentColor}08` : '#0f0d0a',
+        border:      `1px solid ${isSelected ? accentColor + 'cc' : '#2a2620'}`,
+        borderRadius: 2,
+        minHeight:   200,
+        cursor:      isSelected ? 'default' : 'default',
+        opacity:     isSelected ? 0.45 : 1,
+        transition:  'all 0.25s cubic-bezier(0.4,0,0.2,1)',
+        overflow:    'hidden',
+      }}
+      onMouseEnter={e => {
+        if (!isSelected) {
+          const el = e.currentTarget as HTMLDivElement
+          el.style.transform = 'translateY(-4px)'
+          el.style.border    = '1px solid #C9A84C'
+          el.style.boxShadow = '0 8px 32px #C9A84C22'
+        }
+      }}
+      onMouseLeave={e => {
+        if (!isSelected) {
+          const el = e.currentTarget as HTMLDivElement
+          el.style.transform = 'translateY(0)'
+          el.style.border    = '1px solid #2a2620'
+          el.style.boxShadow = 'none'
+        }
       }}
     >
-      {/* Name + lore */}
-      <div className="mb-2">
-        <span className="font-cinzel text-sm font-semibold block" style={{ color: COLOR_GOLD }}>
-          {archetype.name}
-        </span>
-        <span className="text-[11px] opacity-40 block leading-snug mt-0.5">
-          {archetype.lore}
-        </span>
-      </div>
+      {/* Top accent line — becomes gradient on hover via onMouseEnter on container */}
+      <div style={{
+        position:   'absolute',
+        top:        0,
+        left:       0,
+        right:      0,
+        height:     1,
+        background: isSelected
+          ? `linear-gradient(90deg, transparent, ${accentColor}, transparent)`
+          : 'transparent',
+      }} />
 
-      {/* Top 3 stats */}
-      <div className="flex gap-2 mb-3">
+      {/* ✓ ELEGIDO overlay */}
+      {isSelected && (
+        <div style={{
+          position:    'absolute',
+          inset:       0,
+          display:     'flex',
+          alignItems:  'center',
+          justifyContent: 'center',
+          background:  `${accentColor}11`,
+          zIndex:      2,
+        }}>
+          <span style={{
+            fontFamily:    'Cinzel, serif',
+            fontSize:      '0.6rem',
+            letterSpacing: '0.2em',
+            color:         accentColor,
+            fontWeight:    700,
+          }}>
+            ✓ ELEGIDO
+          </span>
+        </div>
+      )}
+
+      {/* Glyph */}
+      <span style={{
+        fontFamily:  'serif',
+        fontSize:    '1.5rem',
+        color:       '#C9A84C',
+        opacity:     0.6,
+        lineHeight:  1,
+        marginBottom: 6,
+        display:     'block',
+      }}>
+        {glyph}
+      </span>
+
+      {/* Name */}
+      <span style={{
+        fontFamily:    'Cinzel, serif',
+        fontSize:      '0.65rem',
+        letterSpacing: '0.18em',
+        color:         '#C9A84C',
+        fontWeight:    700,
+        display:       'block',
+        marginBottom:  4,
+      }}>
+        {archetype.name}
+      </span>
+
+      {/* Lore */}
+      <span style={{
+        fontFamily:  'Georgia, serif',
+        fontStyle:   'italic',
+        fontSize:    '0.55rem',
+        color:       '#4a4035',
+        lineHeight:  1.4,
+        display:     'block',
+        marginBottom: 10,
+      }}>
+        "{archetype.lore}"
+      </span>
+
+      {/* Top 3 stat bars */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 8 }}>
         {topStats.map(({ key, value }) => (
-          <div key={key} className="flex flex-col items-center leading-none">
-            <span className="text-[9px] opacity-40 uppercase">{STAT_SHORT[key]}</span>
-            <span className="text-xs font-bold" style={{ color: COLOR_GOLD }}>{value}</span>
+          <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{
+              fontFamily:  'Cinzel, serif',
+              fontSize:    '0.5rem',
+              color:       '#6b6045',
+              width:       24,
+              flexShrink:  0,
+            }}>
+              {STAT_SHORT[key]}
+            </span>
+            <div style={{ flex: 1, height: 2, background: '#2a2620', borderRadius: 1 }}>
+              <div style={{
+                height:     '100%',
+                width:      `${(value / 10) * 100}%`,
+                background: 'linear-gradient(90deg, #C9A84C88, #C9A84C)',
+                borderRadius: 1,
+                transition: 'width 0.3s ease',
+              }} />
+            </div>
+            <span style={{
+              fontFamily: 'Cinzel, serif',
+              fontSize:   '0.55rem',
+              color:      '#C9A84C',
+              width:      14,
+              textAlign:  'right',
+            }}>
+              {value}
+            </span>
           </div>
         ))}
       </div>
 
-      {/* Selection indicator */}
-      {isSelected && (
-        <div
-          className="text-[10px] font-cinzel uppercase tracking-widest mb-2 text-center py-0.5"
-          style={{
-            background: selectedAs === 'grandfather' ? `${COLOR_GOLD}22` : `${COLOR_GARNET}22`,
-            color:      selectedAs === 'grandfather' ? COLOR_GOLD : COLOR_GARNET,
-          }}
-        >
-          {selectedAs === 'grandfather' ? 'Abuelo' : 'Abuela'}
-        </div>
-      )}
-
-      {/* Action buttons */}
+      {/* Action buttons — only shown when not selected and slots available */}
       {!isSelected && selectionCount < 4 && (
-        <div className="flex gap-1 mt-auto">
+        <div style={{ display: 'flex', gap: 6, marginTop: 'auto' }}>
           <button
             onClick={onSelectAsGrandfather}
-            className="flex-1 py-1 text-[10px] font-cinzel uppercase tracking-widest transition-colors"
-            style={{ border: `1px solid ${COLOR_GOLD}55`, color: COLOR_GOLD, background: 'transparent' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = `${COLOR_GOLD}22` }}
+            style={{
+              flex:          1,
+              padding:       '5px 0',
+              fontFamily:    'Cinzel, serif',
+              fontSize:      '0.5rem',
+              letterSpacing: '0.1em',
+              color:         '#C9A84C',
+              background:    'transparent',
+              border:        '1px solid #C9A84C55',
+              cursor:        'pointer',
+              transition:    'background 0.2s',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#C9A84C22' }}
             onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
           >
             Abuelo
           </button>
           <button
             onClick={onSelectAsGrandmother}
-            className="flex-1 py-1 text-[10px] font-cinzel uppercase tracking-widest transition-colors"
-            style={{ border: `1px solid ${COLOR_GARNET}55`, color: COLOR_GARNET, background: 'transparent' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = `${COLOR_GARNET}22` }}
+            style={{
+              flex:          1,
+              padding:       '5px 0',
+              fontFamily:    'Cinzel, serif',
+              fontSize:      '0.5rem',
+              letterSpacing: '0.1em',
+              color:         '#8B1A2A',
+              background:    'transparent',
+              border:        '1px solid #8B1A2A55',
+              cursor:        'pointer',
+              transition:    'background 0.2s',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#8B1A2A22' }}
             onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent' }}
           >
             Abuela
