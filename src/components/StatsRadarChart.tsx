@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import type { Stats } from '../types/game.types'
 
 interface Props {
@@ -39,11 +40,22 @@ function gridPoints(cx: number, cy: number, r: number, level: number): string {
   }).join(' ')
 }
 
+// Normalised path length — using pathLength="1000" on the polygon
+// allows strokeDasharray/offset to be in 0-1000 space.
+const PATH_LEN = 1000
+
 export function StatsRadarChart({ stats, size, compareStats }: Props) {
-  const cx = size / 2
-  const cy = size / 2
-  const r  = (size / 2) * 0.72
+  const cx    = size / 2
+  const cy    = size / 2
+  const r     = (size / 2) * 0.72
   const count = STAT_LABELS.length
+
+  // Animate stroke draw-on at mount: dashoffset goes from full → 0
+  const [drawn, setDrawn] = useState(false)
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setDrawn(true))
+    return () => cancelAnimationFrame(id)
+  }, [])
 
   const gridLevels = [0.2, 0.4, 0.6, 0.8, 1.0]
 
@@ -88,7 +100,7 @@ export function StatsRadarChart({ stats, size, compareStats }: Props) {
         />
       )}
 
-      {/* Main stats polygon */}
+      {/* Main stats polygon — animated draw-on */}
       <polygon
         points={statsToPoints(stats, cx, cy, r)}
         fill="#C9A84C"
@@ -96,6 +108,10 @@ export function StatsRadarChart({ stats, size, compareStats }: Props) {
         stroke="#C9A84C"
         strokeOpacity={0.88}
         strokeWidth={1.5}
+        pathLength={PATH_LEN}
+        strokeDasharray={PATH_LEN}
+        strokeDashoffset={drawn ? 0 : PATH_LEN}
+        style={{ transition: 'stroke-dashoffset 0.8s ease' }}
       />
 
       {/* Stat labels + values */}

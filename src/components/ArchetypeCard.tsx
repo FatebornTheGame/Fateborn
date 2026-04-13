@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Archetype } from '../types/archetype.types'
 
 interface Props {
@@ -15,25 +16,24 @@ const STAT_SHORT: Record<string, string> = {
   fisico: 'FÍS', riesgo: 'RIE', estabilidad: 'EST',
 }
 
-// Glyph per archetype id — fallback ◆
 const GLYPH: Record<string, string> = {
-  academico:    '✦',
-  lider:        '⚜',
-  atleta:       '◈',
-  artista:      '✧',
-  filosofo:     '◎',
-  emprendedor:  '◆',
-  cuidador:     '♾',
-  explorador:   '✺',
-  medico:       '✙',
-  militar:      '⚔',
-  politico:     '⚑',
-  criminal:     '◉',
-  marinero:     '⛵',
-  sacerdote:    '☩',
-  mercader:     '⬡',
-  abogado:      '⚖',
-  obrero:       '⚙',
+  academico:   '✦',
+  lider:       '⚜',
+  atleta:      '◈',
+  artista:     '✧',
+  filosofo:    '◎',
+  emprendedor: '◆',
+  cuidador:    '♾',
+  explorador:  '✺',
+  medico:      '✙',
+  militar:     '⚔',
+  politico:    '⚑',
+  criminal:    '◉',
+  marinero:    '⛵',
+  sacerdote:   '☩',
+  mercader:    '⬡',
+  abogado:     '⚖',
+  obrero:      '⚙',
 }
 
 export function ArchetypeCard({
@@ -43,9 +43,11 @@ export function ArchetypeCard({
   onSelectAsGrandfather,
   onSelectAsGrandmother,
 }: Props) {
-  const isSelected = selectedAs !== null
+  const [hovered, setHovered] = useState(false)
+
+  const isSelected  = selectedAs !== null
   const accentColor = selectedAs === 'grandmother' ? '#8B1A2A' : '#C9A84C'
-  const glyph = GLYPH[archetype.id] ?? '◆'
+  const glyph       = GLYPH[archetype.id] ?? '◆'
 
   const topStats = STAT_KEYS
     .map(k => ({ key: k, value: archetype.stats[k] }))
@@ -55,37 +57,25 @@ export function ArchetypeCard({
   return (
     <div
       style={{
-        position:    'relative',
-        display:     'flex',
+        position:      'relative',
+        display:       'flex',
         flexDirection: 'column',
-        padding:     '12px',
-        background:  isSelected ? `${accentColor}08` : '#0f0d0a',
-        border:      `1px solid ${isSelected ? accentColor + 'cc' : '#2a2620'}`,
-        borderRadius: 2,
-        minHeight:   200,
-        cursor:      isSelected ? 'default' : 'default',
-        opacity:     isSelected ? 0.45 : 1,
-        transition:  'all 0.25s cubic-bezier(0.4,0,0.2,1)',
-        overflow:    'hidden',
+        padding:       '12px',
+        background:    isSelected ? `${accentColor}08` : '#0f0d0a',
+        border:        `1px solid ${isSelected ? accentColor + 'cc' : hovered ? '#C9A84C' : '#2a2620'}`,
+        borderRadius:  4,
+        minHeight:     200,
+        opacity:       isSelected ? 0.45 : 1,
+        transform:     !isSelected && hovered ? 'translateY(-4px)' : 'translateY(0)',
+        boxShadow:     !isSelected && hovered ? '0 8px 32px #C9A84C22' : 'none',
+        transition:    'all 0.25s cubic-bezier(0.4,0,0.2,1)',
+        overflow:      'hidden',
+        cursor:        isSelected ? 'default' : 'default',
       }}
-      onMouseEnter={e => {
-        if (!isSelected) {
-          const el = e.currentTarget as HTMLDivElement
-          el.style.transform = 'translateY(-4px)'
-          el.style.border    = '1px solid #C9A84C'
-          el.style.boxShadow = '0 8px 32px #C9A84C22'
-        }
-      }}
-      onMouseLeave={e => {
-        if (!isSelected) {
-          const el = e.currentTarget as HTMLDivElement
-          el.style.transform = 'translateY(0)'
-          el.style.border    = '1px solid #2a2620'
-          el.style.boxShadow = 'none'
-        }
-      }}
+      onMouseEnter={() => { if (!isSelected) setHovered(true) }}
+      onMouseLeave={() => setHovered(false)}
     >
-      {/* Top accent line — becomes gradient on hover via onMouseEnter on container */}
+      {/* Top accent line — appears on hover */}
       <div style={{
         position:   'absolute',
         top:        0,
@@ -94,19 +84,22 @@ export function ArchetypeCard({
         height:     1,
         background: isSelected
           ? `linear-gradient(90deg, transparent, ${accentColor}, transparent)`
-          : 'transparent',
+          : hovered
+            ? 'linear-gradient(90deg, transparent, #C9A84C, transparent)'
+            : 'transparent',
+        transition: 'background 0.25s ease',
       }} />
 
       {/* ✓ ELEGIDO overlay */}
       {isSelected && (
         <div style={{
-          position:    'absolute',
-          inset:       0,
-          display:     'flex',
-          alignItems:  'center',
+          position:       'absolute',
+          inset:          0,
+          display:        'flex',
+          alignItems:     'center',
           justifyContent: 'center',
-          background:  `${accentColor}11`,
-          zIndex:      2,
+          background:     `${accentColor}11`,
+          zIndex:         2,
         }}>
           <span style={{
             fontFamily:    'Cinzel, serif',
@@ -120,15 +113,17 @@ export function ArchetypeCard({
         </div>
       )}
 
-      {/* Glyph */}
+      {/* Glyph — glows on hover */}
       <span style={{
-        fontFamily:  'serif',
-        fontSize:    '1.5rem',
-        color:       '#C9A84C',
-        opacity:     0.6,
-        lineHeight:  1,
+        fontFamily:   'serif',
+        fontSize:     '1.8rem',
+        color:        '#C9A84C',
+        opacity:      hovered ? 1 : 0.5,
+        lineHeight:   1,
         marginBottom: 6,
-        display:     'block',
+        display:      'block',
+        textShadow:   hovered ? '0 0 20px #C9A84C66' : 'none',
+        transition:   'opacity 0.2s ease, text-shadow 0.2s ease',
       }}>
         {glyph}
       </span>
@@ -138,22 +133,23 @@ export function ArchetypeCard({
         fontFamily:    'Cinzel, serif',
         fontSize:      '0.65rem',
         letterSpacing: '0.18em',
-        color:         '#C9A84C',
+        color:         hovered ? '#C9A84C' : '#C9A84C',
         fontWeight:    700,
         display:       'block',
         marginBottom:  4,
+        transition:    'color 0.2s ease',
       }}>
         {archetype.name}
       </span>
 
       {/* Lore */}
       <span style={{
-        fontFamily:  'Georgia, serif',
-        fontStyle:   'italic',
-        fontSize:    '0.55rem',
-        color:       '#4a4035',
-        lineHeight:  1.4,
-        display:     'block',
+        fontFamily:   'Georgia, serif',
+        fontStyle:    'italic',
+        fontSize:     '0.55rem',
+        color:        '#4a4035',
+        lineHeight:   1.4,
+        display:      'block',
         marginBottom: 10,
       }}>
         "{archetype.lore}"
@@ -164,21 +160,23 @@ export function ArchetypeCard({
         {topStats.map(({ key, value }) => (
           <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{
-              fontFamily:  'Cinzel, serif',
-              fontSize:    '0.5rem',
-              color:       '#6b6045',
-              width:       24,
-              flexShrink:  0,
+              fontFamily: 'Cinzel, serif',
+              fontSize:   '0.5rem',
+              color:      '#6b6045',
+              width:      24,
+              flexShrink: 0,
             }}>
               {STAT_SHORT[key]}
             </span>
             <div style={{ flex: 1, height: 2, background: '#2a2620', borderRadius: 1 }}>
               <div style={{
-                height:     '100%',
-                width:      `${(value / 10) * 100}%`,
-                background: 'linear-gradient(90deg, #C9A84C88, #C9A84C)',
+                height:       '100%',
+                width:        `${(value / 10) * 100}%`,
+                background:   hovered
+                  ? 'linear-gradient(90deg, #C9A84C88, #C9A84C)'
+                  : 'linear-gradient(90deg, #C9A84C55, #C9A84C88)',
                 borderRadius: 1,
-                transition: 'width 0.3s ease',
+                transition:   'background 0.25s ease',
               }} />
             </div>
             <span style={{
@@ -194,7 +192,7 @@ export function ArchetypeCard({
         ))}
       </div>
 
-      {/* Action buttons — only shown when not selected and slots available */}
+      {/* Action buttons */}
       {!isSelected && selectionCount < 4 && (
         <div style={{ display: 'flex', gap: 6, marginTop: 'auto' }}>
           <button
