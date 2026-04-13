@@ -52,10 +52,12 @@ export function AncestorSelection() {
     return selectedAncestors.some(a => a?.id === archetype.id)
   }
 
-  // Assign archetype to active slot (if set) or fall back to type-based slot
+  // Assign archetype to active slot (if set) or fall back to type-based slot.
+  // Only use activeSlot if it matches the gender: grandfather slots = 0,2 / grandmother slots = 1,3
   function handleSelectAsGrandfather(archetype: Archetype) {
     if (isAlreadySelected(archetype)) return
-    if (activeSlot !== null && !selectedAncestors[activeSlot]) {
+    const activeIsGrandfatherSlot = activeSlot === 0 || activeSlot === 2
+    if (activeSlot !== null && activeIsGrandfatherSlot && !selectedAncestors[activeSlot]) {
       selectAncestor(archetype, activeSlot)
       setActiveSlot(null)
     } else {
@@ -66,7 +68,8 @@ export function AncestorSelection() {
 
   function handleSelectAsGrandmother(archetype: Archetype) {
     if (isAlreadySelected(archetype)) return
-    if (activeSlot !== null && !selectedAncestors[activeSlot]) {
+    const activeIsGrandmotherSlot = activeSlot === 1 || activeSlot === 3
+    if (activeSlot !== null && activeIsGrandmotherSlot && !selectedAncestors[activeSlot]) {
       selectAncestor(archetype, activeSlot)
       setActiveSlot(null)
     } else {

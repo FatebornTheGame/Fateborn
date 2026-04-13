@@ -39,7 +39,7 @@ export function AncestorSlots({ slots, activeSlot, onRemoveSlot, onActivateSlot 
   }, [slots])
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 10 }}>
       {SLOT_CONFIG.map((config, index) => {
         const slot      = index as AncestorSlot
         const archetype = slots[slot]
