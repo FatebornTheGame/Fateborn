@@ -12,16 +12,19 @@ interface Props {
 }
 
 const AGE_MILESTONES = [13, 19, 31, 51, 71]
-const MILESTONE_LABELS: Record<number, string> = {
-  13: 'ADO',
-  19: 'JUV',
-  31: 'ADU',
-  51: 'MAD',
-  71: 'VEJ',
+
+function stageLabel(age: number): string {
+  if (age < 13)  return 'Infancia'
+  if (age < 19)  return 'Adolescencia'
+  if (age < 31)  return 'Juventud'
+  if (age < 51)  return 'Adultez'
+  if (age < 71)  return 'Madurez'
+  if (age < 81)  return 'Vejez'
+  return 'Vejez tardía'
 }
 
-export function LifeTimeline({ birthYear, currentAge, maxAge, events }: Props) {
-  const totalYears = maxAge - 0
+export function LifeTimeline({ birthYear: _birthYear, currentAge, maxAge, events }: Props) {
+  const totalYears = maxAge
   const currentPct = Math.min(1, currentAge / totalYears)
 
   function ageToPct(age: number): number {
@@ -34,57 +37,45 @@ export function LifeTimeline({ birthYear, currentAge, maxAge, events }: Props) {
       bottom:               0,
       left:                 0,
       right:                0,
-      zIndex:               40,
+      zIndex:               50,
       height:               48,
-      padding:              '0 16px',
-      background:           '#0d0b08cc',
+      background:           '#0d0b08ee',
       backdropFilter:       'blur(8px)',
       WebkitBackdropFilter: 'blur(8px)',
       borderTop:            '1px solid #2a2620',
+      display:              'flex',
+      alignItems:           'center',
+      padding:              '0 20px',
+      gap:                  12,
     }}>
-      <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center' }}>
-        {/* Track lines (SVG) */}
-        <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} preserveAspectRatio="none">
-          {/* Base line */}
-          <line x1="0" y1="50%" x2="100%" y2="50%"
-            stroke="#C9A84C" strokeOpacity={0.1} strokeWidth={1} />
-          {/* Progress line */}
-          <line x1="0" y1="50%" x2={`${(currentPct * 100).toFixed(1)}%`} y2="50%"
-            stroke="#C9A84C" strokeOpacity={0.5} strokeWidth={1.5} />
-        </svg>
+      {/* Timeline SVG — flex:1, tall enough to contain the r:4 needle circle */}
+      <svg
+        style={{ flex: 1, height: 16, overflow: 'visible' }}
+        preserveAspectRatio="none"
+      >
+        {/* Base track */}
+        <line x1="0" y1="50%" x2="100%" y2="50%" stroke="#1c1915" strokeWidth={2} />
+        {/* Progress segment */}
+        <line
+          x1="0" y1="50%"
+          x2={`${(currentPct * 100).toFixed(1)}%`} y2="50%"
+          stroke="#3a3228" strokeWidth={2}
+        />
 
-        {/* Milestone markers */}
+        {/* Milestone ticks */}
         {AGE_MILESTONES.map(age => {
           const pct     = ageToPct(age)
           const reached = currentAge >= age
           return (
-            <div
+            <circle
               key={age}
-              style={{
-                position:  'absolute',
-                left:      `${(pct * 100).toFixed(1)}%`,
-                transform: 'translateX(-50%)',
-                display:   'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-              }}
-            >
-              <div style={{
-                width:        6,
-                height:       6,
-                borderRadius: '50%',
-                background:   reached ? '#C9A84C' : 'transparent',
-                border:       `1px solid ${reached ? '#C9A84C' : '#C9A84C44'}`,
-              }} />
-              <span style={{
-                fontFamily: 'Cinzel, serif',
-                fontSize:   '0.5rem',
-                marginTop:  2,
-                color:      reached ? '#C9A84C' : '#C9A84C44',
-              }}>
-                {MILESTONE_LABELS[age]}
-              </span>
-            </div>
+              cx={`${(pct * 100).toFixed(1)}%`}
+              cy="50%"
+              r={2}
+              fill={reached ? '#C9A84C44' : 'transparent'}
+              stroke={reached ? '#C9A84C44' : '#2a2620'}
+              strokeWidth={1}
+            />
           )
         })}
 
@@ -93,75 +84,38 @@ export function LifeTimeline({ birthYear, currentAge, maxAge, events }: Props) {
           const pct   = ageToPct(ev.age)
           const color = ev.type === 'npc' ? '#8B1A2A' : '#C9A84C'
           return (
-            <div
+            <circle
               key={ev.id}
-              style={{
-                position:     'absolute',
-                left:         `${(pct * 100).toFixed(1)}%`,
-                top:          '50%',
-                width:        4,
-                height:       4,
-                borderRadius: '50%',
-                background:   color,
-                opacity:      0.6,
-                transform:    'translateX(-50%) translateY(-50%)',
-              }}
+              cx={`${(pct * 100).toFixed(1)}%`}
+              cy="50%"
+              r={2}
+              fill={color}
+              opacity={0.5}
             />
           )
         })}
 
-        {/* Current position needle — with glow */}
-        <div style={{
-          position:   'absolute',
-          left:       `${(currentPct * 100).toFixed(1)}%`,
-          top:        '10%',
-          height:     '80%',
-          width:      2,
-          background: '#C9A84C',
-          opacity:    0.9,
-          filter:     'drop-shadow(0 0 4px #C9A84C)',
-        }} />
+        {/* Current position needle circle */}
+        <circle
+          cx={`${(currentPct * 100).toFixed(1)}%`}
+          cy="50%"
+          r={4}
+          fill="#C9A84C"
+          style={{ filter: 'drop-shadow(0 0 4px #C9A84C88)' }}
+        />
+      </svg>
 
-        {/* Birth year */}
-        <span style={{
-          position:   'absolute',
-          left:       0,
-          top:        '62%',
-          fontFamily: 'Cinzel, serif',
-          fontSize:   '0.45rem',
-          color:      '#6b6045',
-          opacity:    0.5,
-        }}>
-          {birthYear}
-        </span>
-
-        {/* Current year — above needle */}
-        <span style={{
-          position:  'absolute',
-          left:      `${(currentPct * 100).toFixed(1)}%`,
-          top:       '8%',
-          fontFamily: 'Cinzel, serif',
-          fontSize:  '0.45rem',
-          color:     '#6b6045',
-          transform: 'translateX(-50%)',
-          whiteSpace: 'nowrap',
-        }}>
-          {birthYear + currentAge}
-        </span>
-
-        {/* Current stage — right side */}
-        <span style={{
-          position:   'absolute',
-          right:      0,
-          top:        '62%',
-          fontFamily: 'Cinzel, serif',
-          fontSize:   '0.45rem',
-          color:      '#6b6045',
-          opacity:    0.5,
-        }}>
-          {currentAge < 13 ? 'Infancia' : currentAge < 19 ? 'Adolescencia' : currentAge < 31 ? 'Juventud' : currentAge < 51 ? 'Adultez' : currentAge < 71 ? 'Madurez' : 'Vejez'}
-        </span>
-      </div>
+      {/* Current stage label */}
+      <span style={{
+        fontFamily:    'Cinzel, serif',
+        fontSize:      '0.55rem',
+        color:         '#6b6045',
+        letterSpacing: '0.15em',
+        textTransform: 'uppercase',
+        whiteSpace:    'nowrap',
+      }}>
+        {stageLabel(currentAge)}
+      </span>
     </footer>
   )
 }

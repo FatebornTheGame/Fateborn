@@ -9,7 +9,6 @@ interface Props {
   vitalLoad:   number
 }
 
-// Three key stats shown as mini bars
 const VITAL_STATS: { key: keyof Stats; label: string }[] = [
   { key: 'fisico',      label: 'FÍS' },
   { key: 'emocional',   label: 'EMO' },
@@ -22,7 +21,6 @@ function barColor(value: number): string {
   return '#8B1A2A'
 }
 
-// Life stage label from age
 function stageLabel(age: number): string {
   if (age < 13)  return 'Infancia'
   if (age < 19)  return 'Adolescencia'
@@ -34,63 +32,84 @@ function stageLabel(age: number): string {
   return 'Centenario'
 }
 
-export function StatusBar({ character, stats, economy, ageYears, legacyScore, vitalLoad: _vitalLoad }: Props) {
-  const currentYear = character.birthYear + ageYears
-
+export function StatusBar({ character, stats, economy: _economy, ageYears, legacyScore: _legacyScore, vitalLoad: _vitalLoad }: Props) {
   return (
     <header style={{
-      position:       'fixed',
-      top:            0,
-      left:           0,
-      right:          0,
-      zIndex:         50,
-      height:         56,
-      display:        'flex',
-      alignItems:     'center',
-      gap:            12,
-      padding:        '0 16px',
-      background:     '#0d0b08cc',
-      backdropFilter: 'blur(8px)',
-      WebkitBackdropFilter: 'blur(8px)',
-      borderBottom:   '1px solid #2a2620',
+      position:             'fixed',
+      top:                  0,
+      left:                 0,
+      right:                0,
+      zIndex:               50,
+      height:               56,
+      display:              'flex',
+      alignItems:           'center',
+      padding:              '0 20px',
+      gap:                  20,
+      background:           '#0d0b08ee',
+      backdropFilter:       'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      borderBottom:         '1px solid #2a2620',
     }}>
 
-      {/* Name + stage */}
-      <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1, minWidth: 0, flexShrink: 1 }}>
-        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.75rem', color: '#C9A84C', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {character.name}
-        </span>
-        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.5rem', color: '#6b6045', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
-          {stageLabel(ageYears)}
-        </span>
-      </div>
-
-      {/* Age badge */}
-      <div style={{
-        flexShrink:    0,
-        display:       'flex',
-        flexDirection: 'column',
-        alignItems:    'center',
-        lineHeight:    1,
-        padding:       '4px 10px',
-        border:        '1px solid #3a3228',
+      {/* Character name */}
+      <span style={{
+        fontFamily:    'Cinzel, serif',
+        fontSize:      '0.8rem',
+        fontWeight:    700,
+        color:         '#C9A84C',
+        letterSpacing: '0.15em',
+        whiteSpace:    'nowrap',
+        overflow:      'hidden',
+        textOverflow:  'ellipsis',
+        maxWidth:      160,
       }}>
+        {character.name}
+      </span>
+
+      {/* Separator */}
+      <div style={{ width: 1, height: 20, background: '#2a2620', flexShrink: 0 }} />
+
+      {/* Age */}
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, flexShrink: 0 }}>
         <span style={{ fontFamily: 'Cinzel, serif', fontSize: '1.1rem', fontWeight: 700, color: '#C9A84C' }}>
           {ageYears}
         </span>
-        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.45rem', color: '#6b6045', letterSpacing: '0.1em' }}>
-          {currentYear}
+        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.45rem', color: '#6b6045', letterSpacing: '0.2em', marginLeft: 3 }}>
+          AÑOS
         </span>
       </div>
 
-      {/* Vital stat bars */}
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+      {/* Life stage */}
+      <span style={{
+        fontFamily:    'Cinzel, serif',
+        fontSize:      '0.55rem',
+        color:         '#6b6045',
+        letterSpacing: '0.2em',
+        textTransform: 'uppercase',
+        whiteSpace:    'nowrap',
+      }}>
+        {stageLabel(ageYears)}
+      </span>
+
+      {/* Separator */}
+      <div className="hidden sm:block" style={{ width: 1, height: 20, background: '#2a2620', flexShrink: 0 }} />
+
+      {/* Vital stat bars — right side */}
+      <div style={{ marginLeft: 'auto', display: 'flex', gap: 12, alignItems: 'center' }}>
         {VITAL_STATS.map(({ key, label }) => {
           const value = stats[key]
           const color = barColor(value)
           return (
-            <div key={key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-              <div style={{ width: 28, height: 3, background: '#2a2620', borderRadius: 2 }}>
+            <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-start' }}>
+              <span style={{
+                fontFamily:    'Cinzel, serif',
+                fontSize:      '0.45rem',
+                color:         '#6b6045',
+                letterSpacing: '0.05em',
+              }}>
+                {label}
+              </span>
+              <div style={{ width: 60, height: 3, background: '#2a2620', borderRadius: 2 }}>
                 <div style={{
                   height:       '100%',
                   width:        `${(value / 10) * 100}%`,
@@ -99,41 +118,9 @@ export function StatusBar({ character, stats, economy, ageYears, legacyScore, vi
                   transition:   'width 0.4s ease',
                 }} />
               </div>
-              <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.4rem', color: '#6b6045', letterSpacing: '0.05em' }}>
-                {label}
-              </span>
             </div>
           )
         })}
-      </div>
-
-      {/* Spacer */}
-      <div style={{ flex: 1 }} />
-
-      {/* Economy — hidden on very small screens */}
-      <div className="hidden sm:flex" style={{ flexDirection: 'column', alignItems: 'flex-end', lineHeight: 1 }}>
-        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.45rem', color: '#6b6045', letterSpacing: '0.05em' }}>patrimonio</span>
-        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.75rem', color: '#C9A84C' }}>
-          {economy.liquidez >= 1000
-            ? `${(economy.liquidez / 1000).toFixed(0)}k`
-            : economy.liquidez.toFixed(0)}
-        </span>
-      </div>
-
-      {/* Legacy score */}
-      <div style={{
-        flexShrink:    0,
-        display:       'flex',
-        flexDirection: 'column',
-        alignItems:    'center',
-        lineHeight:    1,
-        padding:       '4px 10px',
-        border:        '1px solid #3a3228',
-      }}>
-        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.85rem', fontWeight: 700, color: '#C9A84C' }}>
-          {legacyScore}
-        </span>
-        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.45rem', color: '#6b6045', letterSpacing: '0.05em' }}>legado</span>
       </div>
     </header>
   )

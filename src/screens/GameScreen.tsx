@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useGameStore } from '../store/gameStore'
+import { useGameStore }     from '../store/gameStore'
 import { useGameEngine }    from '../hooks/useGameEngine'
 import { useNarrativeFeed } from '../hooks/useNarrativeFeed'
 import { useLifestyle }     from '../hooks/useLifestyle'
@@ -26,42 +26,42 @@ export function GameScreen() {
 
   if (!gameState) return null
 
-  // Timeline events: use feed entries that are events or consequences
   const timelineEvents = gameState.feed
     .filter(e => e.type === 'event' || e.type === 'consequence' || e.type === 'npc')
     .map(e => ({ age: e.age, id: e.id, type: e.type as 'event' | 'consequence' | 'npc' }))
 
-  // The state shown to event options renderer (pre-event state if resolving)
   const eventDisplayState = preEventState ?? gameState
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden" style={{ background: '#0d0b08', position: 'relative' }}>
-      {/* Atmospheric bg layers — zIndex -1 so content divs (no z-index) render above */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none', background: 'radial-gradient(ellipse 80% 60% at 50% 0%, #1a1408 0%, #0d0b08 60%, #080604 100%)' }} />
-      <div style={{ position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none', opacity: 0.03, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: '200px' }} />
-      <div style={{ position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none', background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, #000000cc 100%)' }} />
-      {/* Fixed top bar */}
-      <StatusBar
-        character={gameState.character}
-        stats={gameState.stats}
-        economy={gameState.economy}
-        ageYears={gameState.ageYears}
-        legacyScore={gameState.legacyScore}
-        vitalLoad={gameState.vitalLoad}
-      />
+    <div style={{ position: 'relative', height: '100vh', overflow: 'hidden', background: '#0d0b08' }}>
+      {/* Atmospheric bg — zIndex 0, content wrapper at zIndex 1 renders above */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 80% 60% at 50% 0%, #1a1408 0%, #0d0b08 60%, #080604 100%)' }} />
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', opacity: 0.03, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: '200px' }} />
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, #000000cc 100%)' }} />
 
-      {/* Body: below status bar, above timeline */}
-      <div
-        className="flex flex-1 overflow-hidden"
-        style={{ marginTop: 56, marginBottom: 48 }}
-      >
-        {/* Desktop: two-column layout */}
-        <div className="hidden md:flex w-full">
-          {/* Left: lifestyle panel */}
-          <div
-            className="flex-shrink-0 overflow-y-auto"
-            style={{ width: '40%', maxWidth: 320, borderRight: '1px solid #C9A84C22' }}
-          >
+      {/* Content wrapper — above atmospheric layers */}
+      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', height: '100vh' }}>
+        <StatusBar
+          character={gameState.character}
+          stats={gameState.stats}
+          economy={gameState.economy}
+          ageYears={gameState.ageYears}
+          legacyScore={gameState.legacyScore}
+          vitalLoad={gameState.vitalLoad}
+        />
+
+        {/* Desktop layout (md+) */}
+        <div
+          className="hidden md:flex"
+          style={{ paddingTop: 56, paddingBottom: 48, flex: 1, overflow: 'hidden' }}
+        >
+          <div style={{
+            width:       300,
+            minWidth:    300,
+            overflowY:   'auto',
+            borderRight: '1px solid #2a2620',
+            background:  '#0d0b0899',
+          }}>
             <LifestylePanel
               gameState={gameState}
               lifestyle={current}
@@ -72,9 +72,7 @@ export function GameScreen() {
               onAdvance={advanceQuarter}
             />
           </div>
-
-          {/* Right: narrative feed */}
-          <div className="flex-1 overflow-hidden">
+          <div style={{ flex: 1, overflowY: 'auto', background: 'transparent' }}>
             <NarrativeFeed
               groups={grouped}
               pendingEvent={pendingEvent}
@@ -84,10 +82,13 @@ export function GameScreen() {
           </div>
         </div>
 
-        {/* Mobile: tab layout */}
-        <div className="flex flex-col w-full md:hidden">
+        {/* Mobile layout */}
+        <div
+          className="flex flex-col w-full md:hidden"
+          style={{ flex: 1, overflow: 'hidden', paddingTop: 56 }}
+        >
           <TabBar activeTab={activeTab} onChange={setActiveTab} />
-          <div className="flex-1 overflow-hidden">
+          <div style={{ flex: 1, overflow: 'hidden', paddingBottom: 48 }}>
             {activeTab === 'initiative' ? (
               <LifestylePanel
                 gameState={gameState}
@@ -111,17 +112,16 @@ export function GameScreen() {
             )}
           </div>
         </div>
+
+        <LifeTimeline
+          birthYear={gameState.character.birthYear}
+          currentAge={gameState.ageYears}
+          maxAge={90}
+          events={timelineEvents}
+        />
       </div>
 
-      {/* Fixed bottom timeline */}
-      <LifeTimeline
-        birthYear={gameState.character.birthYear}
-        currentAge={gameState.ageYears}
-        maxAge={90}
-        events={timelineEvents}
-      />
-
-      {/* Σ stats button — bottom-left corner, above timeline */}
+      {/* Overlays — in root stacking context, render above content wrapper */}
       {showStats && (
         <StatsPanel
           stats={gameState.stats}

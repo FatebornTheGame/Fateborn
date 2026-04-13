@@ -9,14 +9,6 @@ interface Props {
   pendingState: import('../types/game.types').GameState | null
 }
 
-const TYPE_COLOR: Record<string, string> = {
-  event:       '#C9A84C',
-  consequence: '#8B1A2A',
-  npc:         '#7aa8aa',
-  memory:      '#a888aa',
-  reflection:  '#6b6045',
-}
-
 const IMPORTANCE_OPACITY: Record<string, number> = {
   normal:  0.72,
   alta:    0.9,
@@ -31,53 +23,57 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
   }, [groups.length, pendingEvent])
 
   return (
-    <div style={{
-      height:    '100%',
-      overflowY: 'auto',
-      display:   'flex',
-      flexDirection: 'column',
-    }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+
       {/* Panel title */}
-      <div style={{
-        padding:      '14px 20px',
-        borderBottom: '1px solid #2a2620',
-        flexShrink:   0,
-      }}>
-        <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.6rem', letterSpacing: '0.2em', color: '#6b6045', textTransform: 'uppercase' }}>
+      <div style={{ padding: '16px 24px', borderBottom: '1px solid #2a2620', flexShrink: 0 }}>
+        <span style={{
+          fontFamily:    'Cinzel, serif',
+          fontSize:      '0.55rem',
+          letterSpacing: '0.25em',
+          color:         '#6b6045',
+          textTransform: 'uppercase',
+        }}>
           Historia
         </span>
       </div>
 
       {/* Feed */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 24px', display: 'flex', flexDirection: 'column' }}>
         {groups.map(group => (
           <section key={group.age} className="animate-fade-in">
-            {/* Age/year header */}
+            {/* Age label */}
             <div style={{
-              display:       'flex',
-              alignItems:    'center',
-              gap:           8,
-              marginBottom:  8,
-              paddingBottom: 4,
+              padding:       '20px 0 8px',
               borderBottom:  '1px solid #1c1915',
+              marginBottom:  12,
             }}>
-              <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', color: '#6b6045', letterSpacing: '0.1em' }}>
+              <span style={{
+                fontFamily:    'Cinzel, serif',
+                fontSize:      '0.55rem',
+                color:         '#3a3228',
+                letterSpacing: '0.2em',
+              }}>
                 {group.age} años · {group.year}
               </span>
             </div>
 
             {/* Entries */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
               {group.entries.map(entry => (
                 <p
                   key={entry.id}
                   style={{
-                    fontFamily:  entry.type === 'memory' ? 'Georgia, serif' : 'Georgia, serif',
+                    fontFamily:  'Georgia, serif',
                     fontStyle:   entry.type === 'memory' ? 'italic' : 'normal',
-                    fontSize:    '0.8rem',
-                    lineHeight:  1.7,
-                    color:       TYPE_COLOR[entry.type] ?? '#C9A84C',
+                    fontSize:    '0.85rem',
+                    lineHeight:  1.8,
+                    color:       '#8a7060',
                     opacity:     IMPORTANCE_OPACITY[entry.importance] ?? 0.72,
+                    borderLeft:  '2px solid #1c1915',
+                    paddingLeft: 12,
+                    marginBottom: 6,
+                    margin:      '0 0 6px 0',
                   }}
                 >
                   {entry.text}
@@ -91,32 +87,33 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
         {pendingEvent && pendingState && (
           <section className="animate-fade-in" style={{
             background:   '#141210',
-            border:       '1px solid #C9A84C44',
-            borderLeft:   '2px solid #C9A84C',
-            padding:      '16px 20px',
+            border:       '1px solid #C9A84C22',
+            borderLeft:   '3px solid #C9A84C',
+            borderRadius: 4,
+            padding:      20,
+            marginTop:    16,
+            marginBottom: 16,
           }}>
-            {/* Decision header */}
+            {/* Event title */}
             <div style={{
-              display:       'flex',
-              alignItems:    'center',
-              gap:           8,
+              fontFamily:    'Cinzel, serif',
+              fontSize:      '0.65rem',
+              letterSpacing: '0.2em',
+              color:         '#6b6045',
               marginBottom:  12,
-              paddingBottom: 8,
-              borderBottom:  '1px solid #2a2620',
+              textTransform: 'uppercase',
             }}>
-              <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.75rem', letterSpacing: '0.15em', color: '#C9A84C' }}>
-                DECISIÓN
-              </span>
+              Decisión
             </div>
 
             {/* Context */}
             <p style={{
-              fontFamily:  'Georgia, serif',
-              fontStyle:   'italic',
-              fontSize:    '0.8rem',
-              lineHeight:  1.7,
-              color:       '#b09060',
-              marginBottom: 16,
+              fontFamily:   'Georgia, serif',
+              fontStyle:    'italic',
+              fontSize:     '0.9rem',
+              lineHeight:   1.8,
+              color:        '#b09060',
+              marginBottom: 20,
             }}>
               {pendingEvent.context(pendingState)}
             </p>
@@ -129,16 +126,18 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
                   onClick={() => onResolve(option.id)}
                   style={{
                     textAlign:     'left',
-                    padding:       '10px 14px',
+                    padding:       '12px 16px',
                     fontFamily:    'Cinzel, serif',
                     fontSize:      '0.65rem',
-                    letterSpacing: '0.05em',
+                    letterSpacing: '0.1em',
                     lineHeight:    1.5,
                     background:    '#0f0d0a',
                     border:        '1px solid #2a2620',
-                    color:         '#8a7a5a',
+                    borderRadius:  2,
+                    color:         '#6b6045',
                     cursor:        'pointer',
-                    transition:    'all 0.25s cubic-bezier(0.4,0,0.2,1)',
+                    transition:    'all 0.2s',
+                    minHeight:     44,
                   }}
                   onMouseEnter={e => {
                     const btn = e.currentTarget as HTMLButtonElement
@@ -149,7 +148,7 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
                   onMouseLeave={e => {
                     const btn = e.currentTarget as HTMLButtonElement
                     btn.style.borderColor = '#2a2620'
-                    btn.style.color       = '#8a7a5a'
+                    btn.style.color       = '#6b6045'
                     btn.style.transform   = 'translateX(0)'
                   }}
                 >
@@ -160,7 +159,7 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
           </section>
         )}
 
-        <div ref={bottomRef} />
+        <div ref={bottomRef} style={{ height: 16 }} />
       </div>
     </div>
   )
