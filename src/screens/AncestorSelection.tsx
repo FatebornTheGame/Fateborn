@@ -47,8 +47,14 @@ export function AncestorSelection() {
     return null
   }
 
+  // Guard: never allow the same archetype in more than one slot
+  function isAlreadySelected(archetype: Archetype): boolean {
+    return selectedAncestors.some(a => a?.id === archetype.id)
+  }
+
   // Assign archetype to active slot (if set) or fall back to type-based slot
   function handleSelectAsGrandfather(archetype: Archetype) {
+    if (isAlreadySelected(archetype)) return
     if (activeSlot !== null && !selectedAncestors[activeSlot]) {
       selectAncestor(archetype, activeSlot)
       setActiveSlot(null)
@@ -59,6 +65,7 @@ export function AncestorSelection() {
   }
 
   function handleSelectAsGrandmother(archetype: Archetype) {
+    if (isAlreadySelected(archetype)) return
     if (activeSlot !== null && !selectedAncestors[activeSlot]) {
       selectAncestor(archetype, activeSlot)
       setActiveSlot(null)

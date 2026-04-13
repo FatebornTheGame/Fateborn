@@ -130,9 +130,10 @@ export function LifestylePanel({
         )}
       </div>
 
-      {/* Advance button — fixed at panel bottom */}
+      {/* Advance button — always visible, state-aware label */}
       <div style={{ flexShrink: 0, borderTop: '1px solid #2a2620' }}>
         {hasPending ? (
+          /* Pending event: show message instead of button */
           <div style={{ padding: '14px 20px', textAlign: 'center' }}>
             <span style={{
               fontFamily:    'Cinzel, serif',
@@ -145,7 +146,41 @@ export function LifestylePanel({
               Toma una decisión
             </span>
           </div>
+        ) : !lifestyle ? (
+          /* No lifestyle selected yet: visible hint + disabled button */
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '8px 20px', textAlign: 'center' }}>
+              <span style={{
+                fontFamily:    'Cinzel, serif',
+                fontSize:      '0.55rem',
+                letterSpacing: '0.1em',
+                color:         '#4a4035',
+                textTransform: 'uppercase',
+              }}>
+                Elige un estilo de vida
+              </span>
+            </div>
+            <button
+              disabled
+              style={{
+                width:         '100%',
+                padding:       '14px 20px',
+                fontFamily:    'Cinzel, serif',
+                fontSize:      '0.75rem',
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                background:    'transparent',
+                color:         '#2a2620',
+                border:        'none',
+                cursor:        'not-allowed',
+                opacity:       0.35,
+              }}
+            >
+              Avanzar Trimestre
+            </button>
+          </div>
         ) : (
+          /* Lifestyle set: enabled gold button */
           <button
             onClick={canAdvance ? onAdvance : undefined}
             disabled={!canAdvance}
@@ -156,12 +191,11 @@ export function LifestylePanel({
               fontSize:      '0.75rem',
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
-              background:    canAdvance ? '#C9A84C' : 'transparent',
+              background:    canAdvance ? '#C9A84C' : '#1c1915',
               color:         canAdvance ? '#0d0b08' : '#3a3228',
               border:        'none',
               cursor:        canAdvance ? 'pointer' : 'not-allowed',
               transition:    'all 0.25s cubic-bezier(0.4,0,0.2,1)',
-              opacity:       canAdvance ? 1 : 0.5,
             }}
             onMouseEnter={e => {
               if (canAdvance) (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 24px #C9A84C44'
