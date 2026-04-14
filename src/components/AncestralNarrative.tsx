@@ -1,5 +1,4 @@
 import type { Archetype } from '../types/archetype.types'
-import { COLOR_GOLD, COLOR_GARNET } from '../constants/game.constants'
 
 interface Props {
   ancestors: [Archetype | null, Archetype | null, Archetype | null, Archetype | null]
@@ -39,14 +38,15 @@ export function AncestralNarrative({ ancestors, country }: Props) {
   const narrative = buildNarrative(ancestors, country)
   if (!narrative) return null
 
-  const [gp, , mg] = ancestors
-  const dominantColor = gp ? COLOR_GOLD : mg ? COLOR_GARNET : COLOR_GOLD
-
   return (
-    <p
-      className="text-sm leading-relaxed text-center italic animate-fade-in-slow"
-      style={{ color: dominantColor, opacity: 0.65, maxWidth: 480, margin: '0 auto' }}
-    >
+    <p style={{
+      fontFamily: 'Georgia, serif',
+      fontStyle:  'italic',
+      fontSize:   '0.95rem',
+      color:      '#b09060',
+      lineHeight: 1.9,
+      margin:     0,
+    }}>
       {narrative}
     </p>
   )

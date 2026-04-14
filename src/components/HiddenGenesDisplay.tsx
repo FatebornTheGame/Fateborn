@@ -1,14 +1,19 @@
 import type { Stats } from '../types/game.types'
-import { COLOR_GOLD } from '../constants/game.constants'
 
 interface Props {
   hiddenGenes: Partial<Stats>
 }
 
 const STAT_LABELS: Record<string, string> = {
-  logica: 'Lógica', creatividad: 'Creatividad', disciplina: 'Disciplina',
-  carisma: 'Carisma', emocional: 'Emocional', ambicion: 'Ambición',
-  fisico: 'Físico', riesgo: 'Riesgo', estabilidad: 'Estabilidad',
+  logica:       'Lógica',
+  creatividad:  'Creatividad',
+  disciplina:   'Disciplina',
+  carisma:      'Carisma',
+  emocional:    'Emocional',
+  ambicion:     'Ambición',
+  fisico:       'Físico',
+  riesgo:       'Riesgo',
+  estabilidad:  'Estabilidad',
 }
 
 export function HiddenGenesDisplay({ hiddenGenes }: Props) {
@@ -16,26 +21,65 @@ export function HiddenGenesDisplay({ hiddenGenes }: Props) {
   if (entries.length === 0) return null
 
   return (
-    <div className="flex flex-col gap-1">
-      <p
-        className="text-[10px] font-cinzel uppercase tracking-widest opacity-40 mb-1"
-        style={{ color: COLOR_GOLD }}
-      >
-        Genes ocultos
+    <div>
+      {/* Header */}
+      <p style={{
+        fontFamily:    'Cinzel, serif',
+        fontSize:      '0.55rem',
+        color:         '#C9A84C66',
+        letterSpacing: '0.2em',
+        margin:        0,
+        textTransform: 'uppercase',
+      }}>
+        ✦ Genes Latentes
       </p>
-      <div className="flex flex-wrap gap-x-4 gap-y-1">
+
+      {/* Subtitle */}
+      <p style={{
+        fontFamily:   'Cinzel, serif',
+        fontSize:     '0.5rem',
+        color:        '#3a3228',
+        fontStyle:    'italic',
+        margin:       '4px 0 12px',
+      }}>
+        Se revelarán con el tiempo
+      </p>
+
+      {/* 3-column grid of stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px 12px' }}>
         {entries.map(([key, value]) => (
-          <span
-            key={key}
-            className="text-[11px]"
-            style={{ color: COLOR_GOLD, opacity: 0.25 }}
-          >
-            {STAT_LABELS[key] ?? key} {(value as number).toFixed(1)}
-          </span>
+          <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <span style={{
+              fontFamily:    'Cinzel, serif',
+              fontSize:      '0.5rem',
+              color:         '#4a3a20',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}>
+              {STAT_LABELS[key] ?? key}
+            </span>
+            <span style={{
+              fontFamily: 'Cinzel, serif',
+              fontSize:   '0.7rem',
+              color:      '#6b5030',
+              opacity:    0.35,
+            }}>
+              {(value as number).toFixed(1)}
+            </span>
+          </div>
         ))}
       </div>
-      <p className="text-[10px] opacity-20 mt-1" style={{ color: COLOR_GOLD }}>
-        Potencial genético latente. Puede emerger en circunstancias extremas.
+
+      {/* Footer note */}
+      <p style={{
+        fontFamily: 'Cinzel, serif',
+        fontSize:   '0.5rem',
+        color:      '#2a2620',
+        fontStyle:  'italic',
+        marginTop:  8,
+        marginBottom: 0,
+      }}>
+        Potencial genético latente
       </p>
     </div>
   )

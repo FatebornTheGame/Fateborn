@@ -104,14 +104,14 @@ export function StatsRadarChart({ stats, size, compareStats }: Props) {
       <polygon
         points={statsToPoints(stats, cx, cy, r)}
         fill="#C9A84C"
-        fillOpacity={0.1}
+        fillOpacity={0.03}
         stroke="#C9A84C"
-        strokeOpacity={0.88}
+        strokeOpacity={0.6}
         strokeWidth={1.5}
         pathLength={PATH_LEN}
         strokeDasharray={PATH_LEN}
         strokeDashoffset={drawn ? 0 : PATH_LEN}
-        style={{ transition: 'stroke-dashoffset 0.8s ease' }}
+        style={{ transition: 'stroke-dashoffset 0.8s ease', filter: 'drop-shadow(0 0 8px #C9A84C33)' }}
       />
 
       {/* Stat labels + values */}
@@ -129,8 +129,8 @@ export function StatsRadarChart({ stats, size, compareStats }: Props) {
               y={(y - 5).toFixed(2)}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill="#6b6045"
-              fontSize={size * 0.05}
+              fill="#8a7050"
+              fontSize={11}
               fontFamily="Cinzel, serif"
               letterSpacing="1"
             >
