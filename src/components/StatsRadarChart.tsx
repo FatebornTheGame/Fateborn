@@ -1,27 +1,21 @@
-import { useState, useEffect } from 'react'
-import type { Stats } from '../types/game.types'
+import { useState, useEffect }  from 'react'
+import { useTranslation }       from 'react-i18next'
+import type { Stats }           from '../types/game.types'
+import { colors, fonts }        from '../styles/tokens'
 
 interface Props {
-  stats: Stats
-  size:  number
-  compareStats?: Stats
+  stats:          Stats
+  size:           number
+  compareStats?:  Stats
 }
 
-const STAT_LABELS: [keyof Stats, string][] = [
-  ['logica',      'LÓG'],
-  ['creatividad', 'CRE'],
-  ['disciplina',  'DIS'],
-  ['carisma',     'CAR'],
-  ['emocional',   'EMO'],
-  ['ambicion',    'AMB'],
-  ['fisico',      'FÍS'],
-  ['riesgo',      'RIE'],
-  ['estabilidad', 'EST'],
+const STAT_KEYS: (keyof Stats)[] = [
+  'logica', 'creatividad', 'disciplina', 'carisma', 'emocional', 'ambicion', 'fisico', 'riesgo', 'estabilidad',
 ]
 
 function statsToPoints(stats: Stats, cx: number, cy: number, r: number): string {
-  const count = STAT_LABELS.length
-  return STAT_LABELS.map(([key], i) => {
+  const count = STAT_KEYS.length
+  return STAT_KEYS.map((key, i) => {
     const angle = (i / count) * 2 * Math.PI - Math.PI / 2
     const ratio = stats[key] / 10
     const x     = cx + r * ratio * Math.cos(angle)
@@ -31,7 +25,7 @@ function statsToPoints(stats: Stats, cx: number, cy: number, r: number): string 
 }
 
 function gridPoints(cx: number, cy: number, r: number, level: number): string {
-  const count = STAT_LABELS.length
+  const count = STAT_KEYS.length
   return Array.from({ length: count }, (_, i) => {
     const angle = (i / count) * 2 * Math.PI - Math.PI / 2
     const x     = cx + r * level * Math.cos(angle)
@@ -40,17 +34,15 @@ function gridPoints(cx: number, cy: number, r: number, level: number): string {
   }).join(' ')
 }
 
-// Normalised path length — using pathLength="1000" on the polygon
-// allows strokeDasharray/offset to be in 0-1000 space.
 const PATH_LEN = 1000
 
 export function StatsRadarChart({ stats, size, compareStats }: Props) {
-  const cx    = size / 2
-  const cy    = size / 2
-  const r     = (size / 2) * 0.72
-  const count = STAT_LABELS.length
+  const { t }   = useTranslation()
+  const cx      = size / 2
+  const cy      = size / 2
+  const r       = (size / 2) * 0.72
+  const count   = STAT_KEYS.length
 
-  // Animate stroke draw-on at mount: dashoffset goes from full → 0
   const [drawn, setDrawn] = useState(false)
   useEffect(() => {
     const id = requestAnimationFrame(() => setDrawn(true))
@@ -67,55 +59,55 @@ export function StatsRadarChart({ stats, size, compareStats }: Props) {
           key={level}
           points={gridPoints(cx, cy, r, level)}
           fill="none"
-          stroke="#2a2620"
+          stroke={colors.border.default}
           strokeWidth={1}
         />
       ))}
 
       {/* Axis lines */}
-      {STAT_LABELS.map(([, label], i) => {
+      {STAT_KEYS.map((key, i) => {
         const angle = (i / count) * 2 * Math.PI - Math.PI / 2
         const x     = cx + r * Math.cos(angle)
         const y     = cy + r * Math.sin(angle)
         return (
           <line
-            key={label}
+            key={key}
             x1={cx} y1={cy}
             x2={x.toFixed(2)} y2={y.toFixed(2)}
-            stroke="#2a2620"
+            stroke={colors.border.default}
             strokeWidth={1}
           />
         )
       })}
 
-      {/* Compare stats (background layer) */}
+      {/* Compare stats */}
       {compareStats && (
         <polygon
           points={statsToPoints(compareStats, cx, cy, r)}
-          fill="#8B1A2A"
+          fill={colors.crimson}
           fillOpacity={0.12}
-          stroke="#8B1A2A"
+          stroke={colors.crimson}
           strokeOpacity={0.35}
           strokeWidth={1}
         />
       )}
 
-      {/* Main stats polygon — animated draw-on */}
+      {/* Main stats polygon */}
       <polygon
         points={statsToPoints(stats, cx, cy, r)}
-        fill="#C9A84C"
+        fill={colors.gold}
         fillOpacity={0.03}
-        stroke="#C9A84C"
+        stroke={colors.gold}
         strokeOpacity={0.6}
         strokeWidth={1.5}
         pathLength={PATH_LEN}
         strokeDasharray={PATH_LEN}
         strokeDashoffset={drawn ? 0 : PATH_LEN}
-        style={{ transition: 'stroke-dashoffset 0.8s ease', filter: 'drop-shadow(0 0 8px #C9A84C33)' }}
+        style={{ transition: 'stroke-dashoffset 0.8s ease', filter: `drop-shadow(0 0 8px ${colors.gold}33)` }}
       />
 
-      {/* Stat labels + values */}
-      {STAT_LABELS.map(([key, label], i) => {
+      {/* Labels + values */}
+      {STAT_KEYS.map((key, i) => {
         const angle = (i / count) * 2 * Math.PI - Math.PI / 2
         const lr    = r * 1.2
         const x     = cx + lr * Math.cos(angle)
@@ -123,28 +115,28 @@ export function StatsRadarChart({ stats, size, compareStats }: Props) {
         const value = stats[key]
 
         return (
-          <g key={label}>
+          <g key={key}>
             <text
               x={x.toFixed(2)}
               y={(y - 5).toFixed(2)}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill="#8a7050"
+              fill={colors.text.secondary}
               fontSize={11}
-              fontFamily="Cinzel, serif"
+              fontFamily={fonts.display}
               letterSpacing="1"
             >
-              {label}
+              {t(`statAbbr.${key}`)}
             </text>
             <text
               x={x.toFixed(2)}
               y={(y + 7).toFixed(2)}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill="#C9A84C"
+              fill={colors.gold}
               fillOpacity={0.9}
               fontSize={size * 0.06}
-              fontFamily="Cinzel, serif"
+              fontFamily={fonts.display}
               fontWeight="600"
             >
               {value.toFixed(1)}

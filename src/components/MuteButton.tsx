@@ -1,7 +1,10 @@
-import { useState } from 'react'
+import { useState }                           from 'react'
+import { useTranslation }                     from 'react-i18next'
 import { playMusic, stopMusic, getCurrentSrc } from '../utils/audio'
+import { colors, transitions }                from '../styles/tokens'
 
 export function MuteButton() {
+  const { t }      = useTranslation()
   const [isMuted, setIsMuted] = useState(false)
 
   function handleClick() {
@@ -18,40 +21,40 @@ export function MuteButton() {
   return (
     <button
       onClick={handleClick}
-      title={isMuted ? 'Activar música' : 'Silenciar música'}
+      title={isMuted ? t('mute.unmute') : t('mute.mute')}
       style={{
-        position:     'fixed',
-        bottom:       60,
-        right:        20,
-        zIndex:       100,
-        width:        36,
-        height:       36,
-        borderRadius: '50%',
-        background:   '#141210',
-        border:       '1px solid #2a2620',
-        cursor:       'pointer',
-        transition:   'all 0.2s',
-        display:      'flex',
-        alignItems:   'center',
+        position:       'fixed',
+        bottom:         60,
+        right:          20,
+        zIndex:         100,
+        width:          36,
+        height:         36,
+        borderRadius:   '50%',
+        background:     colors.bg.secondary,
+        border:         `1px solid ${colors.border.default}`,
+        cursor:         'pointer',
+        transition:     transitions.fast,
+        display:        'flex',
+        alignItems:     'center',
         justifyContent: 'center',
-        padding:      0,
+        padding:        0,
       }}
       onMouseEnter={e => {
         const btn = e.currentTarget as HTMLButtonElement
-        btn.style.border     = '1px solid #C9A84C'
-        btn.style.background = '#1c1915'
+        btn.style.border     = `1px solid ${colors.gold}`
+        btn.style.background = colors.bg.tertiary
         const icon = btn.firstElementChild as HTMLElement | null
-        if (icon) icon.style.color = '#C9A84C'
+        if (icon) icon.style.color = colors.gold
       }}
       onMouseLeave={e => {
         const btn = e.currentTarget as HTMLButtonElement
-        btn.style.border     = '1px solid #2a2620'
-        btn.style.background = '#141210'
+        btn.style.border     = `1px solid ${colors.border.default}`
+        btn.style.background = colors.bg.secondary
         const icon = btn.firstElementChild as HTMLElement | null
-        if (icon) icon.style.color = '#6b6045'
+        if (icon) icon.style.color = colors.text.muted
       }}
     >
-      <span style={{ fontSize: 14, color: '#6b6045', lineHeight: 1, userSelect: 'none', transition: 'color 0.2s' }}>
+      <span style={{ fontSize: 14, color: colors.text.muted, lineHeight: 1, userSelect: 'none', transition: `color ${transitions.fast}` }}>
         {isMuted ? '🔇' : '🔊'}
       </span>
     </button>

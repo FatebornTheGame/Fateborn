@@ -1,16 +1,17 @@
-import { useState } from 'react'
-import { useGameStore }     from '../store/gameStore'
-import { useGameEngine }    from '../hooks/useGameEngine'
-import { useNarrativeFeed } from '../hooks/useNarrativeFeed'
-import { useLifestyle }     from '../hooks/useLifestyle'
-import { StatusBar }        from '../components/StatusBar'
-import { LifestylePanel }   from '../components/LifestylePanel'
-import { NarrativeFeed }    from '../components/NarrativeFeed'
-import { LifeTimeline }     from '../components/LifeTimeline'
-import { TabBar }           from '../components/TabBar'
-import { StatsPanel }       from '../components/StatsPanel'
-import { COLOR_GOLD }       from '../constants/game.constants'
-import { MuteButton }       from '../components/MuteButton'
+import { useState }                    from 'react'
+import { useGameStore }               from '../store/gameStore'
+import { useGameEngine }              from '../hooks/useGameEngine'
+import { useNarrativeFeed }           from '../hooks/useNarrativeFeed'
+import { useLifestyle }               from '../hooks/useLifestyle'
+import { StatusBar }                  from '../components/StatusBar'
+import { LifestylePanel }             from '../components/LifestylePanel'
+import { NarrativeFeed }              from '../components/NarrativeFeed'
+import { LifeTimeline }               from '../components/LifeTimeline'
+import { TabBar }                     from '../components/TabBar'
+import { StatsPanel }                 from '../components/StatsPanel'
+import { MuteButton }                 from '../components/MuteButton'
+import { AtmosphericBackground }      from '../styles/AtmosphericBackground'
+import { colors }                     from '../styles/tokens'
 
 export function GameScreen() {
   const gameState       = useGameStore(s => s.gameState)
@@ -34,22 +35,16 @@ export function GameScreen() {
   const eventDisplayState = preEventState ?? gameState
 
   return (
-    <div style={{ position: 'relative', height: '100vh', overflow: 'hidden', background: '#0d0b08' }}>
+    <div style={{ position: 'relative', height: '100vh', overflow: 'hidden', background: colors.bg.primary }}>
       <MuteButton />
-      {/* Atmospheric bg — zIndex 0, content wrapper at zIndex 1 renders above */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 80% 60% at 50% 0%, #1a1408 0%, #0d0b08 60%, #080604 100%)' }} />
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', opacity: 0.03, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`, backgroundSize: '200px' }} />
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, #000000cc 100%)' }} />
+      <AtmosphericBackground />
 
-      {/* Content wrapper — above atmospheric layers */}
+      {/* Content wrapper */}
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', height: '100vh' }}>
         <StatusBar
           character={gameState.character}
           stats={gameState.stats}
-          economy={gameState.economy}
           ageYears={gameState.ageYears}
-          legacyScore={gameState.legacyScore}
-          vitalLoad={gameState.vitalLoad}
         />
 
         {/* Desktop layout (md+) */}
@@ -61,8 +56,8 @@ export function GameScreen() {
             width:       300,
             minWidth:    300,
             overflowY:   'auto',
-            borderRight: '1px solid #2a2620',
-            background:  '#0d0b0899',
+            borderRight: `1px solid ${colors.border.default}`,
+            background:  `${colors.bg.primary}99`,
           }}>
             <LifestylePanel
               gameState={gameState}
@@ -116,14 +111,13 @@ export function GameScreen() {
         </div>
 
         <LifeTimeline
-          birthYear={gameState.character.birthYear}
           currentAge={gameState.ageYears}
           maxAge={90}
           events={timelineEvents}
         />
       </div>
 
-      {/* Overlays — in root stacking context, render above content wrapper */}
+      {/* Overlays */}
       {showStats && (
         <StatsPanel
           stats={gameState.stats}
@@ -138,9 +132,9 @@ export function GameScreen() {
           style={{
             width:      36,
             height:     36,
-            border:     `1px solid ${showStats ? COLOR_GOLD + 'aa' : COLOR_GOLD + '33'}`,
-            color:      showStats ? COLOR_GOLD : COLOR_GOLD + '88',
-            background: showStats ? `${COLOR_GOLD}11` : 'transparent',
+            border:     `1px solid ${showStats ? colors.gold + 'aa' : colors.gold + '33'}`,
+            color:      showStats ? colors.gold : colors.gold + '88',
+            background: showStats ? `${colors.gold}11` : 'transparent',
           }}
         >
           Σ

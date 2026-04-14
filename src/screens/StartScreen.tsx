@@ -1,59 +1,35 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useTypingAnimation } from '../hooks/useTypingAnimation'
-import { useGameStore } from '../store/gameStore'
-import type { Difficulty } from '../store/gameStore'
-import { playMusic } from '../utils/audio'
-import { MUSIC_OPENING } from '../constants/game.constants'
-import { MuteButton } from '../components/MuteButton'
+import { useTranslation }                           from 'react-i18next'
+import { useTypingAnimation }                       from '../hooks/useTypingAnimation'
+import { useGameStore }                             from '../store/gameStore'
+import type { Difficulty }                          from '../store/gameStore'
+import { playMusic }                                from '../utils/audio'
+import { MUSIC_OPENING }                            from '../constants/game.constants'
+import { MuteButton }                               from '../components/MuteButton'
+import { AtmosphericBackground }                    from '../styles/AtmosphericBackground'
+import { setLanguage, SUPPORTED_LANGUAGES }         from '../i18n/index'
+import { colors, fonts, transitions }               from '../styles/tokens'
 
-// ─── Copy ─────────────────────────────────────────────────────────────────────
-const LINE_1 = 'DE SU SANGRE NACES.'
-const LINE_2 = 'DE TUS DECISIONES TE FORJAS.'
-
-// ─── Timing ───────────────────────────────────────────────────────────────────
 const CHAR_SPEED_MS    = 55
 const PAUSE_BETWEEN_MS = 1500
 const BUTTON_DELAY_MS  = 600
-const FALLBACK_MS      = 9000   // show everything if animation stalls
+const FALLBACK_MS      = 9000
 
-// ─── Difficulty options ───────────────────────────────────────────────────────
-const DIFFICULTIES: { id: Difficulty; label: string; desc: string }[] = [
-  { id: 'historia', label: 'Historia',  desc: 'Sin muerte permanente. Explora la narrativa sin restricciones.' },
-  { id: 'fateborn', label: 'Fateborn',  desc: 'Experiencia completa. Cada decisión tiene peso real.' },
-  { id: 'ironman',  label: 'Ironman',   desc: 'Una sola vida. Sin guardado. Sin segunda oportunidad.' },
-  { id: 'legado',   label: 'Legado',    desc: 'Modo Dinastía. Tu linaje persiste más allá de la muerte.' },
-]
-
-// ─── Atmospheric layers (position:fixed, zIndex 0, pointerEvents none) ────────
-function AtmosphericBg() {
-  return (
-    <>
-      <div style={{
-        position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-        background: 'radial-gradient(ellipse 80% 60% at 50% 0%, #221608 0%, #0d0b08 60%, #080604 100%)',
-      }} />
-      <div style={{
-        position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-        opacity: 0.03,
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-        backgroundSize: '200px',
-      }} />
-      <div style={{
-        position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-        background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, #000000cc 100%)',
-      }} />
-    </>
-  )
-}
+const DIFFICULTY_IDS: Difficulty[] = ['historia', 'fateborn', 'ironman', 'legado']
 
 export function StartScreen() {
-  const setScreen     = useGameStore(s => s.setScreen)
-  const setDifficulty = useGameStore(s => s.setDifficulty)
-  const difficulty    = useGameStore(s => s.difficulty)
+  const { t, i18n }   = useTranslation()
+  const setScreen      = useGameStore(s => s.setScreen)
+  const setDifficulty  = useGameStore(s => s.setDifficulty)
+  const difficulty     = useGameStore(s => s.difficulty)
 
   const [lineIndex,      setLineIndex]      = useState<0 | 1>(0)
   const [showDifficulty, setShowDifficulty] = useState(false)
   const [showButton,     setShowButton]     = useState(false)
+  const [showLang,       setShowLang]       = useState(false)
+
+  const line1Text = t('start.line1')
+  const line2Text = t('start.line2')
 
   const onLine1Complete = useCallback(() => {
     setShowDifficulty(true)
@@ -65,12 +41,12 @@ export function StartScreen() {
   }, [])
 
   const { displayed: line1 } = useTypingAnimation(
-    lineIndex === 0 ? LINE_1 : '',
+    lineIndex === 0 ? line1Text : '',
     CHAR_SPEED_MS,
     lineIndex === 0 ? onLine1Complete : undefined,
   )
   const { displayed: line2 } = useTypingAnimation(
-    lineIndex === 1 ? LINE_2 : '',
+    lineIndex === 1 ? line2Text : '',
     CHAR_SPEED_MS,
     lineIndex === 1 ? onLine2Complete : undefined,
   )
@@ -101,21 +77,85 @@ export function StartScreen() {
       overflowY:      'auto',
       zIndex:         1,
     }}>
-      <AtmosphericBg />
+      <AtmosphericBackground />
       <MuteButton />
 
-      {/* ── Content wrapper ─────────────────────────────────────────────────── */}
+      {/* Language selector button */}
+      <button
+        onClick={() => setShowLang(v => !v)}
+        style={{
+          position:      'fixed',
+          top:           16,
+          right:         20,
+          zIndex:        100,
+          fontFamily:    fonts.display,
+          fontSize:      '0.55rem',
+          letterSpacing: '0.15em',
+          color:         colors.text.muted,
+          background:    'none',
+          border:        `1px solid ${colors.border.default}`,
+          padding:       '6px 12px',
+          cursor:        'pointer',
+          transition:    `color ${transitions.fast}`,
+        }}
+        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = colors.gold }}
+        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = colors.text.muted }}
+      >
+        {i18n.language.toUpperCase()}
+      </button>
+
+      {showLang && (
+        <div style={{
+          position:  'fixed',
+          top:       52,
+          right:     20,
+          zIndex:    100,
+          background: colors.bg.secondary,
+          border:    `1px solid ${colors.border.default}`,
+          minWidth:  140,
+        }}>
+          {SUPPORTED_LANGUAGES.map(lang => (
+            <button
+              key={lang.code}
+              onClick={() => { setLanguage(lang.code); setShowLang(false) }}
+              style={{
+                display:       'block',
+                width:         '100%',
+                textAlign:     'left',
+                padding:       '8px 14px',
+                fontFamily:    fonts.display,
+                fontSize:      '0.6rem',
+                letterSpacing: '0.1em',
+                color:         i18n.language === lang.code ? colors.gold : colors.text.muted,
+                background:    i18n.language === lang.code ? `${colors.gold}0a` : 'transparent',
+                border:        'none',
+                cursor:        'pointer',
+                transition:    `background ${transitions.fast}`,
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = colors.bg.tertiary }}
+              onMouseLeave={e => {
+                const btn = e.currentTarget as HTMLButtonElement
+                btn.style.background = i18n.language === lang.code ? `${colors.gold}0a` : 'transparent'
+              }}
+            >
+              {lang.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Content wrapper */}
       <div className="animate-screen-enter" style={{
-        position:       'relative',
-        zIndex:         1,
-        display:        'flex',
-        flexDirection:  'column',
-        alignItems:     'center',
-        width:          '100%',
-        maxWidth:       '520px',
+        position:      'relative',
+        zIndex:        1,
+        display:       'flex',
+        flexDirection: 'column',
+        alignItems:    'center',
+        width:         '100%',
+        maxWidth:      '520px',
       }}>
 
-        {/* ── Logo ──────────────────────────────────────────────────────────── */}
+        {/* Logo */}
         <img
           src="/fateborn_title.png"
           alt="FATEBORN"
@@ -127,29 +167,29 @@ export function StartScreen() {
             marginBottom:  '2.5rem',
             userSelect:    'none',
             pointerEvents: 'none',
-            filter:        'drop-shadow(0 0 40px #C9A84C33)',
+            filter:        `drop-shadow(0 0 40px ${colors.gold}33)`,
           }}
         />
 
-        {/* ── Tagline ───────────────────────────────────────────────────────── */}
+        {/* Tagline */}
         <div style={{ textAlign: 'center', minHeight: '5rem', marginBottom: '2.5rem' }}>
           <p style={{
-            fontFamily:    'Cinzel, serif',
-            color:         '#8a7a5a',
+            fontFamily:    fonts.display,
+            color:         colors.text.secondary,
             fontSize:      '0.75rem',
             letterSpacing: '0.4em',
             margin:        '0 0 0.65rem',
             minHeight:     '1.5em',
           }}>
-            {lineIndex === 0 ? line1 : LINE_1}
-            {lineIndex === 0 && line1.length < LINE_1.length && (
+            {lineIndex === 0 ? line1 : line1Text}
+            {lineIndex === 0 && line1.length < line1Text.length && (
               <span style={{ animation: 'blink 0.8s step-end infinite' }}>|</span>
             )}
           </p>
 
           <p style={{
-            fontFamily:    'Cinzel, serif',
-            color:         '#8a7a5a',
+            fontFamily:    fonts.display,
+            color:         colors.text.secondary,
             fontSize:      '0.75rem',
             letterSpacing: '0.4em',
             margin:        0,
@@ -158,13 +198,13 @@ export function StartScreen() {
             transition:    'opacity 0.4s ease',
           }}>
             {line2}
-            {lineIndex === 1 && line2.length > 0 && line2.length < LINE_2.length && (
+            {lineIndex === 1 && line2.length > 0 && line2.length < line2Text.length && (
               <span style={{ animation: 'blink 0.8s step-end infinite' }}>|</span>
             )}
           </p>
         </div>
 
-        {/* ── CTA + Difficulty ────────────────────────────────────────────────── */}
+        {/* CTA + Difficulty */}
         <div style={{
           display:       'flex',
           flexDirection: 'column',
@@ -175,93 +215,87 @@ export function StartScreen() {
           transition:    'opacity 0.8s ease',
         }}>
 
-          {/* Button */}
           <button
             onClick={() => setScreen('ancestors')}
             style={{
               background:    'transparent',
-              border:        '1px solid #C9A84C',
-              color:         '#C9A84C',
-              fontFamily:    'Cinzel, serif',
+              border:        `1px solid ${colors.gold}`,
+              color:         colors.gold,
+              fontFamily:    fonts.display,
               fontSize:      '0.85rem',
               letterSpacing: '0.3em',
               padding:       '16px 56px',
               minHeight:     '52px',
               cursor:        'pointer',
               width:         '100%',
-              transition:    'background 0.25s cubic-bezier(0.4,0,0.2,1), color 0.25s cubic-bezier(0.4,0,0.2,1), box-shadow 0.25s cubic-bezier(0.4,0,0.2,1)',
+              transition:    `background ${transitions.normal}, color ${transitions.normal}, box-shadow ${transitions.normal}`,
             }}
             onMouseEnter={e => {
               const btn = e.currentTarget as HTMLButtonElement
-              btn.style.background = '#C9A84C'
-              btn.style.color      = '#0d0b08'
-              btn.style.boxShadow  = '0 0 32px #C9A84C44'
+              btn.style.background = colors.gold
+              btn.style.color      = colors.bg.primary
+              btn.style.boxShadow  = `0 0 32px ${colors.gold}44`
             }}
             onMouseLeave={e => {
               const btn = e.currentTarget as HTMLButtonElement
               btn.style.background = 'transparent'
-              btn.style.color      = '#C9A84C'
+              btn.style.color      = colors.gold
               btn.style.boxShadow  = 'none'
             }}
           >
-            NUEVA VIDA
+            {t('start.cta')}
           </button>
 
-          {/* Difficulty selector — shown after line 1 completes */}
+          {/* Difficulty selector */}
           {showDifficulty && (
             <div style={{ width: '100%' }}>
               <p style={{
-                fontFamily:    'Cinzel, serif',
-                color:         '#6b6045',
+                fontFamily:    fonts.display,
+                color:         colors.text.muted,
                 fontSize:      '0.6rem',
                 letterSpacing: '0.22em',
                 textAlign:     'center',
                 margin:        '0 0 0.75rem',
               }}>
-                DIFICULTAD
+                {t('start.difficulty')}
               </p>
-              {/* 2×2 grid on mobile, row on wider screens */}
-              <div style={{
-                display:             'grid',
-                gridTemplateColumns: 'repeat(2, 1fr)',
-                gap:                 '0.5rem',
-              }}>
-                {DIFFICULTIES.map(d => {
-                  const active = difficulty === d.id
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
+                {DIFFICULTY_IDS.map(id => {
+                  const active = difficulty === id
                   return (
                     <button
-                      key={d.id}
-                      onClick={() => setDifficulty(d.id)}
+                      key={id}
+                      onClick={() => setDifficulty(id)}
                       style={{
-                        background:  active ? '#1e1a12' : '#0f0d0a',
-                        border:      active ? '2px solid #C9A84C' : '1px solid #2a2620',
-                        boxShadow:   active ? '0 0 16px #C9A84C22' : 'none',
-                        padding:     '0.65rem 0.75rem',
-                        minHeight:   '60px',
-                        cursor:      'pointer',
-                        textAlign:   'left',
-                        display:     'flex',
+                        background:    active ? colors.bg.tertiary : colors.bg.card,
+                        border:        active ? `2px solid ${colors.gold}` : `1px solid ${colors.border.default}`,
+                        boxShadow:     active ? `0 0 16px ${colors.gold}22` : 'none',
+                        padding:       '0.65rem 0.75rem',
+                        minHeight:     '60px',
+                        cursor:        'pointer',
+                        textAlign:     'left',
+                        display:       'flex',
                         flexDirection: 'column',
-                        gap:         '0.25rem',
-                        transition:  'all 0.25s cubic-bezier(0.4,0,0.2,1)',
+                        gap:           '0.25rem',
+                        transition:    `all ${transitions.normal}`,
                       }}
                     >
                       <span style={{
-                        fontFamily:    'Cinzel, serif',
+                        fontFamily:    fonts.display,
                         fontSize:      '0.7rem',
                         letterSpacing: '0.15em',
-                        color:         active ? '#C9A84C' : '#6b6045',
+                        color:         active ? colors.gold : colors.text.muted,
                       }}>
-                        {d.label}
+                        {t(`start.difficulties.${id}.label`)}
                       </span>
                       <span style={{
                         fontSize:   '0.6rem',
-                        color:      active ? '#6b6045' : '#3a3228',
-                        fontFamily: 'Georgia, serif',
+                        color:      active ? colors.text.muted : colors.border.warm,
+                        fontFamily: fonts.body,
                         fontStyle:  'italic',
                         lineHeight: 1.3,
                       }}>
-                        {d.desc}
+                        {t(`start.difficulties.${id}.desc`)}
                       </span>
                     </button>
                   )
@@ -271,23 +305,23 @@ export function StartScreen() {
           )}
         </div>
 
-      </div>{/* /content wrapper */}
+      </div>
 
-      {/* ── Music credit ────────────────────────────────────────────────────── */}
+      {/* Music credit */}
       <p style={{
         position:      'fixed',
         bottom:        '0.75rem',
         left:          '50%',
         transform:     'translateX(-50%)',
-        fontFamily:    'Cinzel, serif',
+        fontFamily:    fonts.display,
         fontSize:      '0.5rem',
         letterSpacing: '0.15em',
-        color:         '#2a2620',
+        color:         colors.border.default,
         whiteSpace:    'nowrap',
         zIndex:        1,
         pointerEvents: 'none',
       }}>
-        Música: Serat — Piano Textures (CC BY)
+        {t('start.musicCredit')}
       </p>
 
       <style>{`

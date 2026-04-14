@@ -1,10 +1,13 @@
-import { useState } from 'react'
-import { useGameStore } from '../store/gameStore'
-import type { AncestorSlot } from '../types/archetype.types'
-import type { Archetype } from '../types/archetype.types'
-import { ARCHETYPES } from '../data/archetypes'
-import { COUNTRIES }  from '../data/countries'
-import { MuteButton } from '../components/MuteButton'
+import { useState }                    from 'react'
+import { useTranslation }              from 'react-i18next'
+import { useGameStore }               from '../store/gameStore'
+import type { AncestorSlot }          from '../types/archetype.types'
+import type { Archetype }             from '../types/archetype.types'
+import { ARCHETYPES }                 from '../data/archetypes'
+import { COUNTRIES }                  from '../data/countries'
+import { MuteButton }                 from '../components/MuteButton'
+import { AtmosphericBackground }      from '../styles/AtmosphericBackground'
+import { colors, fonts, transitions } from '../styles/tokens'
 
 // ─── Static maps ─────────────────────────────────────────────────────────────
 
@@ -14,12 +17,6 @@ const STAT_KEYS = [
   'fisico', 'riesgo', 'estabilidad',
 ] as const
 
-const STAT_SHORT: Record<string, string> = {
-  logica: 'LÓG', creatividad: 'CRE', disciplina: 'DIS',
-  carisma: 'CAR', emocional: 'EMO', ambicion: 'AMB',
-  fisico: 'FÍS', riesgo: 'RIE', estabilidad: 'EST',
-}
-
 const GLYPH: Record<string, string> = {
   academico: '✦', lider: '⚜',    atleta: '◈',  artista: '✧',
   filosofo:  '◎', emprendedor: '◆', cuidador: '♾', explorador: '✺',
@@ -27,9 +24,8 @@ const GLYPH: Record<string, string> = {
   marinero:  '⛵', sacerdote: '☩', mercader: '⬡', abogado: '⚖', obrero: '⚙',
 }
 
-// Slot 0,2 = grandfather (dorado) · Slot 1,3 = grandmother (granate)
-const SLOT_ACCENT  = ['#C9A84C', '#8B1A2A', '#C9A84C', '#8B1A2A'] as const
-const SLOT_LABELS  = ['ABUELO PATERNO', 'ABUELA PATERNA', 'ABUELO MATERNO', 'ABUELA MATERNA'] as const
+// Slot 0,2 = grandfather (gold) · Slot 1,3 = grandmother (crimson)
+const SLOT_ACCENT = [colors.gold, colors.crimson, colors.gold, colors.crimson] as const
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
@@ -43,6 +39,7 @@ function top3Stats(archetype: Archetype) {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function AncestorSelection() {
+  const { t }             = useTranslation()
   const selectedAncestors = useGameStore(s => s.selectedAncestors)
   const selectedCountry   = useGameStore(s => s.selectedCountry)
   const selectAncestor    = useGameStore(s => s.selectAncestor)
@@ -58,21 +55,16 @@ export function AncestorSelection() {
   const filledCount = selectedAncestors.filter(Boolean).length
   const canConfirm  = filledCount === 4 && !!selectedCountry
 
-  // Times each archetype id appears across all 4 slots
   const archetypeCount = new Map<string, number>()
   for (const a of selectedAncestors) {
     if (a) archetypeCount.set(a.id, (archetypeCount.get(a.id) ?? 0) + 1)
   }
 
-  // ── Interaction handlers ────────────────────────────────────────────────────
-
   function handleSlotClick(slot: AncestorSlot) {
     if (selectedAncestors[slot]) {
-      // Filled slot → clear it
       removeAncestor(slot)
       if (activeSlot === slot) setActiveSlot(null)
     } else {
-      // Empty slot → activate / deactivate
       setActiveSlot(prev => (prev === slot ? null : slot))
     }
   }
@@ -88,66 +80,69 @@ export function AncestorSelection() {
     }
   }
 
-  // ── Decorative line shared in header ───────────────────────────────────────
   const decorLine = (
     <div style={{
       maxWidth:   480,
       margin:     '0 auto',
       height:     1,
       width:      '100%',
-      background: 'linear-gradient(90deg, transparent, #C9A84C66, #C9A84C, #C9A84C66, transparent)',
+      background: `linear-gradient(90deg, transparent, ${colors.gold}66, ${colors.gold}, ${colors.gold}66, transparent)`,
     }} />
   )
 
   return (
     <div
       className="animate-screen-enter"
-      style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: '#0d0b08' }}
+      style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: colors.bg.primary }}
     >
-      {/* ── Atmospheric background ─────────────────────────────────────────── */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 80% 60% at 50% 0%, #221608 0%, #0d0b08 60%, #080604 100%)' }} />
-      <div style={{
-        position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', opacity: 0.03,
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-        backgroundSize: '200px',
-      }} />
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, #000000cc 100%)' }} />
+      <AtmosphericBackground />
       <MuteButton />
 
-      {/* ── Header ────────────────────────────────────────────────────────── */}
+      {/* Header */}
       <div style={{ flexShrink: 0, position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 24px 16px', gap: 8 }}>
         {decorLine}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', position: 'relative' }}>
           <h1 style={{
-            fontFamily:    'Cinzel, serif',
+            fontFamily:    fonts.display,
             fontSize:      'clamp(1.6rem, 4vw, 2.4rem)',
             fontWeight:    700,
             letterSpacing: '0.35em',
-            color:         '#C9A84C',
-            textShadow:    '0 0 40px #C9A84C33',
+            color:         colors.gold,
+            textShadow:    `0 0 40px ${colors.gold}33`,
             margin:        0,
           }}>
-            ✦ LINAJE ✦
+            {t('ancestors.title')}
           </h1>
           <button
             onClick={() => setScreen('start')}
-            style={{ position: 'absolute', right: 0, fontFamily: 'Cinzel, serif', fontSize: '0.6rem', color: '#3a3228', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.1em', transition: 'color 0.2s' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#6b6045' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#3a3228' }}
+            style={{
+              position:      'absolute',
+              right:         0,
+              fontFamily:    fonts.display,
+              fontSize:      '0.6rem',
+              color:         colors.border.warm,
+              background:    'none',
+              border:        'none',
+              cursor:        'pointer',
+              letterSpacing: '0.1em',
+              transition:    `color ${transitions.fast}`,
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = colors.text.muted }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = colors.border.warm }}
           >
-            ← volver
+            {t('ancestors.back')}
           </button>
         </div>
-        <p style={{ fontFamily: 'Cinzel, serif', fontSize: '0.7rem', color: '#6b6045', letterSpacing: '0.2em', margin: 0, textAlign: 'center' }}>
-          Elige los 4 ancestros que forjan tu herencia
+        <p style={{ fontFamily: fonts.display, fontSize: '0.7rem', color: colors.text.muted, letterSpacing: '0.2em', margin: 0, textAlign: 'center' }}>
+          {t('ancestors.subtitle')}
         </p>
         {decorLine}
       </div>
 
-      {/* ── Scrollable body ───────────────────────────────────────────────── */}
+      {/* Scrollable body */}
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 1, padding: '16px 24px 32px' }}>
 
-        {/* ── 4 SLOTS ─────────────────────────────────────────────────────── */}
+        {/* 4 SLOTS */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
           {([0, 1, 2, 3] as AncestorSlot[]).map(slot => {
             const accent    = SLOT_ACCENT[slot]
@@ -158,75 +153,70 @@ export function AncestorSelection() {
 
             return (
               <div key={slot} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {/* Slot label */}
                 <span style={{
-                  fontFamily:    'Cinzel, serif',
+                  fontFamily:    fonts.display,
                   fontSize:      '0.5rem',
                   letterSpacing: '0.2em',
                   color:         `${accent}66`,
                   textAlign:     'center',
                   display:       'block',
                 }}>
-                  {SLOT_LABELS[slot]}
+                  {t(`ancestors.slotLabels.${slot}`)}
                 </span>
 
-                {/* Slot box */}
                 <div
                   onClick={() => handleSlotClick(slot)}
                   onMouseEnter={() => setHoveredSlot(slot)}
                   onMouseLeave={() => setHoveredSlot(null)}
                   style={{
-                    position:        'relative',
-                    minHeight:       130,
-                    background:      '#0f0d0a',
-                    border:          `1px solid ${(isActive || (!!filled && isHovered)) ? accent : '#2a2620'}`,
-                    borderRadius:    4,
-                    cursor:          'pointer',
-                    transition:      'all 0.3s',
-                    display:         'flex',
-                    flexDirection:   'column',
-                    alignItems:      'center',
-                    justifyContent:  'center',
-                    padding:         '10px 8px',
-                    boxShadow:       filled
+                    position:       'relative',
+                    minHeight:      130,
+                    background:     colors.bg.card,
+                    border:         `1px solid ${(isActive || (!!filled && isHovered)) ? accent : colors.border.default}`,
+                    borderRadius:   4,
+                    cursor:         'pointer',
+                    transition:     'all 0.3s',
+                    display:        'flex',
+                    flexDirection:  'column',
+                    alignItems:     'center',
+                    justifyContent: 'center',
+                    padding:        '10px 8px',
+                    boxShadow:      filled
                       ? isHovered ? `0 0 20px ${accent}44` : `0 0 12px ${accent}22`
                       : isActive  ? `0 0 20px ${accent}44` : 'none',
                   }}
                 >
-                  {/* Corner decorations */}
                   <span style={{ position: 'absolute', top: 4,    left: 5,  fontSize: '0.8rem', color: `${accent}44`, lineHeight: 1, userSelect: 'none' }}>┌</span>
                   <span style={{ position: 'absolute', top: 4,    right: 5, fontSize: '0.8rem', color: `${accent}44`, lineHeight: 1, userSelect: 'none' }}>┐</span>
                   <span style={{ position: 'absolute', bottom: 4, left: 5,  fontSize: '0.8rem', color: `${accent}44`, lineHeight: 1, userSelect: 'none' }}>└</span>
                   <span style={{ position: 'absolute', bottom: 4, right: 5, fontSize: '0.8rem', color: `${accent}44`, lineHeight: 1, userSelect: 'none' }}>┘</span>
 
                   {filled ? (
-                    /* Slot lleno */
                     <>
                       <span style={{ fontSize: '2rem', color: accent, lineHeight: 1, marginBottom: 4 }}>
                         {GLYPH[filled.id] ?? '◆'}
                       </span>
-                      <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.65rem', fontWeight: 700, color: '#d4b87a', letterSpacing: '0.1em', textAlign: 'center', marginBottom: 4 }}>
+                      <span style={{ fontFamily: fonts.display, fontSize: '0.65rem', fontWeight: 700, color: '#d4b87a', letterSpacing: '0.1em', textAlign: 'center', marginBottom: 4 }}>
                         {filled.name}
                       </span>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, justifyContent: 'center', marginBottom: 4 }}>
                         {stats.map(({ key }) => (
-                          <span key={key} style={{ fontFamily: 'Cinzel, serif', fontSize: '0.5rem', color: accent, border: `1px solid ${accent}`, opacity: 0.5, padding: '2px 6px', borderRadius: 2 }}>
-                            {STAT_SHORT[key]}
+                          <span key={key} style={{ fontFamily: fonts.display, fontSize: '0.5rem', color: accent, border: `1px solid ${accent}`, opacity: 0.5, padding: '2px 6px', borderRadius: 2 }}>
+                            {t(`statAbbr.${key}`)}
                           </span>
                         ))}
                       </div>
-                      <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.45rem', color: '#3a3228', marginTop: 4 }}>
-                        × eliminar
+                      <span style={{ fontFamily: fonts.display, fontSize: '0.45rem', color: colors.border.warm, marginTop: 4 }}>
+                        {t('ancestors.slotRemove')}
                       </span>
                     </>
                   ) : (
-                    /* Slot vacío */
                     <>
-                      <span style={{ fontSize: '1.6rem', color: isActive ? accent : '#2a2620', lineHeight: 1, marginBottom: 4, transition: 'color 0.3s', userSelect: 'none' }}>
+                      <span style={{ fontSize: '1.6rem', color: isActive ? accent : colors.border.default, lineHeight: 1, marginBottom: 4, transition: `color 0.3s`, userSelect: 'none' }}>
                         ◈
                       </span>
-                      <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.6rem', color: isActive ? accent : '#2a2620', letterSpacing: '0.1em', transition: 'color 0.3s' }}>
-                        vacío
+                      <span style={{ fontFamily: fonts.display, fontSize: '0.6rem', color: isActive ? accent : colors.border.default, letterSpacing: '0.1em', transition: `color 0.3s` }}>
+                        {t('ancestors.slotEmpty')}
                       </span>
                     </>
                   )}
@@ -236,13 +226,12 @@ export function AncestorSelection() {
           })}
         </div>
 
-        {/* ── FILA META: país + progreso ───────────────────────────────────── */}
+        {/* META ROW: country + progress */}
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1rem', marginBottom: 20 }}>
 
-          {/* Country selector */}
           <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontFamily: 'Cinzel, serif', fontSize: '0.55rem', color: '#6b6045', letterSpacing: '0.15em', marginBottom: 6 }}>
-              PAÍS DE NACIMIENTO
+            <label style={{ display: 'block', fontFamily: fonts.display, fontSize: '0.55rem', color: colors.text.muted, letterSpacing: '0.15em', marginBottom: 6 }}>
+              {t('ancestors.country')}
             </label>
             <div style={{ position: 'relative' }}>
               <select
@@ -251,10 +240,10 @@ export function AncestorSelection() {
                 style={{
                   width:        '100%',
                   appearance:   'none',
-                  background:   '#141210',
-                  border:       '1px solid #3a3228',
-                  color:        selectedCountry ? '#C9A84C' : '#3a3228',
-                  fontFamily:   'Cinzel, serif',
+                  background:   colors.bg.secondary,
+                  border:       `1px solid ${colors.border.warm}`,
+                  color:        selectedCountry ? colors.gold : colors.border.warm,
+                  fontFamily:   fonts.display,
                   fontSize:     '0.8rem',
                   padding:      '10px 40px 10px 16px',
                   borderRadius: 2,
@@ -262,53 +251,55 @@ export function AncestorSelection() {
                   outline:      'none',
                 }}
               >
-                <option value="" disabled style={{ background: '#141210', color: '#3a3228' }}>Elige tu país...</option>
+                <option value="" disabled style={{ background: colors.bg.secondary, color: colors.border.warm }}>
+                  {t('ancestors.selectCountry')}
+                </option>
                 {COUNTRIES.map(c => (
-                  <option key={c.name} value={c.name} style={{ background: '#141210', color: '#C9A84C' }}>
+                  <option key={c.name} value={c.name} style={{ background: colors.bg.secondary, color: colors.gold }}>
                     {c.name}
                   </option>
                 ))}
               </select>
-              <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: '#C9A84C', pointerEvents: 'none', fontSize: '0.8rem', userSelect: 'none' }}>
+              <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: colors.gold, pointerEvents: 'none', fontSize: '0.8rem', userSelect: 'none' }}>
                 ▾
               </span>
             </div>
           </div>
 
-          {/* Progress dots + counter */}
+          {/* Progress dots */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, paddingBottom: 2 }}>
             <div style={{ display: 'flex', gap: 6 }}>
               {([0, 1, 2, 3] as AncestorSlot[]).map(i => {
-                const filled = !!selectedAncestors[i]
-                const color  = SLOT_ACCENT[i]
+                const isFilled = !!selectedAncestors[i]
+                const color    = SLOT_ACCENT[i]
                 return (
                   <div key={i} style={{
                     width:        10,
                     height:       10,
                     borderRadius: '50%',
-                    background:   filled ? color : '#2a2620',
-                    boxShadow:    filled ? `0 0 6px ${color}88` : 'none',
+                    background:   isFilled ? color : colors.border.default,
+                    boxShadow:    isFilled ? `0 0 6px ${color}88` : 'none',
                     transition:   'all 0.25s',
                   }} />
                 )
               })}
             </div>
-            <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.6rem', color: '#6b6045' }}>
+            <span style={{ fontFamily: fonts.display, fontSize: '0.6rem', color: colors.text.muted }}>
               {filledCount} / 4
             </span>
           </div>
         </div>
 
-        {/* ── SEPARADOR ───────────────────────────────────────────────────── */}
+        {/* Separator */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: 16 }}>
-          <div style={{ flex: 1, height: 1, background: 'linear-gradient(90deg, transparent, #2a2620)' }} />
-          <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', color: '#3a3228', letterSpacing: '0.25em', whiteSpace: 'nowrap' }}>
-            ELIGE TU LINAJE
+          <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, transparent, ${colors.border.default})` }} />
+          <span style={{ fontFamily: fonts.display, fontSize: '0.55rem', color: colors.border.warm, letterSpacing: '0.25em', whiteSpace: 'nowrap' }}>
+            {t('ancestors.lineageLabel')}
           </span>
-          <div style={{ flex: 1, height: 1, background: 'linear-gradient(270deg, transparent, #2a2620)' }} />
+          <div style={{ flex: 1, height: 1, background: `linear-gradient(270deg, transparent, ${colors.border.default})` }} />
         </div>
 
-        {/* ── GRID DE CARTAS ──────────────────────────────────────────────── */}
+        {/* Card grid */}
         <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: 12, marginBottom: 28 }}>
           {ARCHETYPES.map(archetype => {
             const isHovered  = hoveredCard === archetype.id
@@ -324,8 +315,8 @@ export function AncestorSelection() {
                 onMouseLeave={() => setHoveredCard(null)}
                 style={{
                   position:       'relative',
-                  background:     '#0f0d0a',
-                  border:         `1px solid ${isHovered ? '#C9A84C44' : '#2a2620'}`,
+                  background:     colors.bg.card,
+                  border:         `1px solid ${isHovered ? `${colors.gold}44` : colors.border.default}`,
                   borderRadius:   4,
                   padding:        '20px 14px 16px',
                   minHeight:      210,
@@ -333,9 +324,9 @@ export function AncestorSelection() {
                   flexDirection:  'column',
                   alignItems:     'center',
                   cursor:         isDisabled ? 'not-allowed' : 'pointer',
-                  transition:     'all 0.25s cubic-bezier(0.4,0,0.2,1)',
+                  transition:     `all ${transitions.normal}`,
                   transform:      isHovered ? 'translateY(-3px)' : 'translateY(0)',
-                  boxShadow:      isHovered ? '0 8px 24px #C9A84C11' : 'none',
+                  boxShadow:      isHovered ? `0 8px 24px ${colors.gold}11` : 'none',
                   opacity:        isDisabled ? 0.5 : 1,
                   overflow:       'hidden',
                 }}
@@ -343,25 +334,23 @@ export function AncestorSelection() {
                 {/* Top accent line */}
                 <div style={{
                   position:   'absolute',
-                  top:        0,
-                  left:       0,
-                  right:      0,
+                  top:        0, left: 0, right: 0,
                   height:     1,
-                  background: isHovered ? 'linear-gradient(90deg, transparent, #C9A84C, transparent)' : 'transparent',
-                  transition: 'background 0.25s ease',
+                  background: isHovered ? `linear-gradient(90deg, transparent, ${colors.gold}, transparent)` : 'transparent',
+                  transition: `background ${transitions.fast}`,
                 }} />
 
-                {/* ×N badge — only when in more than 1 slot */}
+                {/* ×N badge */}
                 {count > 1 && (
                   <div style={{
                     position:     'absolute',
                     top:          6,
                     right:        6,
-                    fontFamily:   'Cinzel, serif',
+                    fontFamily:   fonts.display,
                     fontSize:     '0.5rem',
                     fontWeight:   700,
-                    background:   '#C9A84C',
-                    color:        '#0d0b08',
+                    background:   colors.gold,
+                    color:        colors.bg.primary,
                     padding:      '2px 5px',
                     borderRadius: 2,
                     lineHeight:   1.4,
@@ -375,9 +364,9 @@ export function AncestorSelection() {
                   fontSize:     '2.2rem',
                   lineHeight:   1,
                   marginBottom: 6,
-                  color:        isHovered ? '#C9A84C' : '#4a3a20',
-                  textShadow:   isHovered ? '0 0 20px #C9A84C66' : 'none',
-                  transition:   'color 0.2s ease, text-shadow 0.2s ease',
+                  color:        isHovered ? colors.gold : colors.text.faint,
+                  textShadow:   isHovered ? `0 0 20px ${colors.gold}66` : 'none',
+                  transition:   `color ${transitions.fast}, text-shadow ${transitions.fast}`,
                   userSelect:   'none',
                 }}>
                   {GLYPH[archetype.id] ?? '◆'}
@@ -385,22 +374,22 @@ export function AncestorSelection() {
 
                 {/* Name */}
                 <span style={{
-                  fontFamily:    'Cinzel, serif',
+                  fontFamily:    fonts.display,
                   fontSize:      '0.65rem',
                   fontWeight:    700,
                   letterSpacing: '0.18em',
-                  color:         isHovered ? '#C9A84C' : '#8a7050',
+                  color:         isHovered ? colors.gold : colors.text.secondary,
                   display:       'block',
                   marginBottom:  4,
                   textAlign:     'center',
-                  transition:    'color 0.2s ease',
+                  transition:    `color ${transitions.fast}`,
                 }}>
                   {archetype.name}
                 </span>
 
                 {/* Lore */}
                 <span style={{
-                  fontFamily: 'Georgia, serif',
+                  fontFamily: fonts.body,
                   fontStyle:  'italic',
                   fontSize:   '0.55rem',
                   color:      '#5a4a38',
@@ -416,24 +405,24 @@ export function AncestorSelection() {
                 <div style={{ marginTop: 'auto', width: '100%', display: 'flex', flexDirection: 'column', gap: 5 }}>
                   {stats.map(({ key, value }) => (
                     <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.45rem', color: '#6b5030', width: 24, textAlign: 'right', flexShrink: 0 }}>
-                        {STAT_SHORT[key]}
+                      <span style={{ fontFamily: fonts.display, fontSize: '0.45rem', color: colors.text.secondary, width: 24, textAlign: 'right', flexShrink: 0 }}>
+                        {t(`statAbbr.${key}`)}
                       </span>
-                      <div style={{ flex: 1, height: 2, background: '#1c1915', borderRadius: 1, overflow: 'hidden' }}>
+                      <div style={{ flex: 1, height: 2, background: colors.bg.tertiary, borderRadius: 1, overflow: 'hidden' }}>
                         <div style={{
                           height:     '100%',
                           width:      `${(value / 10) * 100}%`,
-                          background: isHovered ? 'linear-gradient(90deg, #C9A84C66, #C9A84C)' : '#6b5030',
-                          transition: 'background 0.25s ease',
+                          background: isHovered ? `linear-gradient(90deg, ${colors.gold}66, ${colors.gold})` : colors.text.secondary,
+                          transition: `background ${transitions.fast}`,
                         }} />
                       </div>
                       <span style={{
-                        fontFamily: 'Cinzel, serif',
+                        fontFamily: fonts.display,
                         fontSize:   '0.55rem',
-                        color:      isHovered ? '#C9A84C' : '#6b5030',
+                        color:      isHovered ? colors.gold : colors.text.secondary,
                         width:      14,
                         textAlign:  'right',
-                        transition: 'color 0.25s ease',
+                        transition: `color ${transitions.fast}`,
                       }}>
                         {value}
                       </span>
@@ -445,22 +434,22 @@ export function AncestorSelection() {
           })}
         </div>
 
-        {/* ── CTA FINAL ───────────────────────────────────────────────────── */}
+        {/* CTA */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-          <p style={{ fontFamily: 'Cinzel, serif', fontSize: '0.6rem', color: '#3a3228', letterSpacing: '0.15em', textAlign: 'center', margin: 0, minHeight: '1.1rem' }}>
+          <p style={{ fontFamily: fonts.display, fontSize: '0.6rem', color: colors.border.warm, letterSpacing: '0.15em', textAlign: 'center', margin: 0, minHeight: '1.1rem' }}>
             {filledCount < 4
-              ? `${4 - filledCount} ${(4 - filledCount) === 1 ? 'ancestro' : 'ancestros'} por elegir`
+              ? t('ancestors.remaining_other', { count: 4 - filledCount })
               : !selectedCountry
-                ? 'Elige un país de nacimiento'
+                ? t('ancestors.noCountry')
                 : ''}
           </p>
           <button
             onClick={canConfirm ? confirmAncestors : undefined}
             disabled={!canConfirm}
             style={{
-              background:    '#C9A84C',
-              color:         '#0d0b08',
-              fontFamily:    'Cinzel, serif',
+              background:    canConfirm ? colors.gold : colors.border.warm,
+              color:         colors.bg.primary,
+              fontFamily:    fonts.display,
               fontSize:      '0.8rem',
               fontWeight:    700,
               letterSpacing: '0.25em',
@@ -468,14 +457,14 @@ export function AncestorSelection() {
               borderRadius:  2,
               border:        'none',
               cursor:        canConfirm ? 'pointer' : 'not-allowed',
-              boxShadow:     canConfirm ? '0 0 32px #C9A84C33, 0 4px 16px #00000066' : 'none',
+              boxShadow:     canConfirm ? `0 0 32px ${colors.gold}33, 0 4px 16px #00000066` : 'none',
               opacity:       canConfirm ? 1 : 0.3,
-              transition:    'all 0.25s ease',
+              transition:    `all ${transitions.normal}`,
             }}
             onMouseEnter={e => { if (canConfirm) (e.currentTarget as HTMLButtonElement).style.background = '#d4b05a' }}
-            onMouseLeave={e => { if (canConfirm) (e.currentTarget as HTMLButtonElement).style.background = '#C9A84C' }}
+            onMouseLeave={e => { if (canConfirm) (e.currentTarget as HTMLButtonElement).style.background = colors.gold }}
           >
-            FORJAR MI HERENCIA
+            {t('ancestors.proceed')}
           </button>
         </div>
       </div>

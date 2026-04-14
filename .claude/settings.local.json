@@ -39,7 +39,17 @@
       "Bash(sed -n '127,135p' src/data/maturityEvents.ts)",
       "Bash(node -e \":*)",
       "Bash(npm ls:*)",
-      "Bash(timeout 8 npx vite build --mode development)"
+      "Bash(timeout 8 npx vite build --mode development)",
+      "Bash(rm:*)",
+      "Bash(npx tsx:*)",
+      "Bash(ls src/assets/)",
+      "Bash(ls public/)",
+      "Bash(rm -rf src/components src/screens src/store src/data src/types)",
+      "Bash(rm -f src/systems/allocationSystem.ts src/systems/eventSystem.ts src/systems/friendSystem.ts src/systems/test.ts src/systems/timeSystem.ts)",
+      "Bash(rm -f src/App.tsx src/App.css src/main.tsx src/index.css)",
+      "Bash(cmd /c \"cd /d \\\\\"C:\\\\Users\\\\F O R T Y W A N\\\\fateborn\\\\\" && npx tsc --noEmit 2>&1\")",
+      "Bash(cmd:*)",
+      "Bash(powershell:*)"
     ]
   }
 }

@@ -1,3 +1,6 @@
+import { useTranslation }   from 'react-i18next'
+import { colors, fonts }    from '../styles/tokens'
+
 interface TimelineEvent {
   age:  number
   id:   string
@@ -5,7 +8,6 @@ interface TimelineEvent {
 }
 
 interface Props {
-  birthYear:  number
   currentAge: number
   maxAge:     number
   events:     TimelineEvent[]
@@ -13,22 +15,20 @@ interface Props {
 
 const AGE_MILESTONES = [13, 19, 31, 51, 71]
 
-function stageLabel(age: number): string {
-  if (age < 13)  return 'Infancia'
-  if (age < 19)  return 'Adolescencia'
-  if (age < 31)  return 'Juventud'
-  if (age < 51)  return 'Adultez'
-  if (age < 71)  return 'Madurez'
-  if (age < 81)  return 'Vejez'
-  return 'Vejez tardía'
+function stageKey(age: number): string {
+  if (age < 13) return 'game.timeline.stages.infancia'
+  if (age < 31) return 'game.timeline.stages.juventud'
+  if (age < 51) return 'game.timeline.stages.adulto'
+  if (age < 71) return 'game.timeline.stages.madurez'
+  return 'game.timeline.stages.ancianidad'
 }
 
-export function LifeTimeline({ birthYear: _birthYear, currentAge, maxAge, events }: Props) {
-  const totalYears = maxAge
-  const currentPct = Math.min(1, currentAge / totalYears)
+export function LifeTimeline({ currentAge, maxAge, events }: Props) {
+  const { t }        = useTranslation()
+  const currentPct   = Math.min(1, currentAge / maxAge)
 
   function ageToPct(age: number): number {
-    return Math.min(1, age / totalYears)
+    return Math.min(1, age / maxAge)
   }
 
   return (
@@ -39,27 +39,23 @@ export function LifeTimeline({ birthYear: _birthYear, currentAge, maxAge, events
       right:                0,
       zIndex:               50,
       height:               48,
-      background:           '#0d0b08ee',
+      background:           `${colors.bg.primary}ee`,
       backdropFilter:       'blur(8px)',
       WebkitBackdropFilter: 'blur(8px)',
-      borderTop:            '1px solid #2a2620',
+      borderTop:            `1px solid ${colors.border.default}`,
       display:              'flex',
       alignItems:           'center',
       padding:              '0 20px',
       gap:                  12,
     }}>
-      {/* Timeline SVG — flex:1, tall enough to contain the r:4 needle circle */}
-      <svg
-        style={{ flex: 1, height: 16, overflow: 'visible' }}
-        preserveAspectRatio="none"
-      >
+      <svg style={{ flex: 1, height: 16, overflow: 'visible' }} preserveAspectRatio="none">
         {/* Base track */}
-        <line x1="0" y1="50%" x2="100%" y2="50%" stroke="#1c1915" strokeWidth={2} />
+        <line x1="0" y1="50%" x2="100%" y2="50%" stroke={colors.bg.tertiary} strokeWidth={2} />
         {/* Progress segment */}
         <line
           x1="0" y1="50%"
           x2={`${(currentPct * 100).toFixed(1)}%`} y2="50%"
-          stroke="#3a3228" strokeWidth={2}
+          stroke={colors.border.warm} strokeWidth={2}
         />
 
         {/* Milestone ticks */}
@@ -72,8 +68,8 @@ export function LifeTimeline({ birthYear: _birthYear, currentAge, maxAge, events
               cx={`${(pct * 100).toFixed(1)}%`}
               cy="50%"
               r={2}
-              fill={reached ? '#C9A84C44' : 'transparent'}
-              stroke={reached ? '#C9A84C44' : '#2a2620'}
+              fill={reached ? `${colors.gold}44` : 'transparent'}
+              stroke={reached ? `${colors.gold}44` : colors.border.default}
               strokeWidth={1}
             />
           )
@@ -82,7 +78,7 @@ export function LifeTimeline({ birthYear: _birthYear, currentAge, maxAge, events
         {/* Event dots */}
         {events.slice(-20).map(ev => {
           const pct   = ageToPct(ev.age)
-          const color = ev.type === 'npc' ? '#8B1A2A' : '#C9A84C'
+          const color = ev.type === 'npc' ? colors.crimson : colors.gold
           return (
             <circle
               key={ev.id}
@@ -95,26 +91,25 @@ export function LifeTimeline({ birthYear: _birthYear, currentAge, maxAge, events
           )
         })}
 
-        {/* Current position needle circle */}
+        {/* Current position needle */}
         <circle
           cx={`${(currentPct * 100).toFixed(1)}%`}
           cy="50%"
           r={4}
-          fill="#C9A84C"
-          style={{ filter: 'drop-shadow(0 0 4px #C9A84C88)' }}
+          fill={colors.gold}
+          style={{ filter: `drop-shadow(0 0 4px ${colors.gold}88)` }}
         />
       </svg>
 
-      {/* Current stage label */}
       <span style={{
-        fontFamily:    'Cinzel, serif',
+        fontFamily:    fonts.display,
         fontSize:      '0.55rem',
-        color:         '#6b6045',
+        color:         colors.text.muted,
         letterSpacing: '0.15em',
         textTransform: 'uppercase',
         whiteSpace:    'nowrap',
       }}>
-        {stageLabel(currentAge)}
+        {t(stageKey(currentAge))}
       </span>
     </footer>
   )

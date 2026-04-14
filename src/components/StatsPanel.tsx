@@ -1,6 +1,7 @@
-import type { Stats } from '../types/game.types'
-import type { StatFlash } from '../store/gameStore'
-import { COLOR_GOLD, COLOR_GARNET } from '../constants/game.constants'
+import { useTranslation }          from 'react-i18next'
+import type { Stats }              from '../types/game.types'
+import type { StatFlash }          from '../store/gameStore'
+import { colors, fonts, zIndex }   from '../styles/tokens'
 
 interface Props {
   stats:           Stats
@@ -8,34 +9,22 @@ interface Props {
   onClose:         () => void
 }
 
-const GROUPS: { label: string; keys: (keyof Stats)[] }[] = [
-  { label: 'Cognitivo', keys: ['logica', 'creatividad', 'disciplina'] },
-  { label: 'Social',    keys: ['carisma', 'emocional', 'ambicion'] },
-  { label: 'Vital',     keys: ['fisico', 'riesgo', 'estabilidad'] },
+const GROUP_KEYS: { tKey: string; keys: (keyof Stats)[] }[] = [
+  { tKey: 'game.statsPanel.groups.cognitivo', keys: ['logica', 'creatividad', 'disciplina'] },
+  { tKey: 'game.statsPanel.groups.social',    keys: ['carisma', 'emocional', 'ambicion'] },
+  { tKey: 'game.statsPanel.groups.vital',     keys: ['fisico', 'riesgo', 'estabilidad'] },
 ]
 
-const STAT_LABELS: Record<keyof Stats, string> = {
-  logica:       'Lógica',
-  creatividad:  'Creatividad',
-  disciplina:   'Disciplina',
-  carisma:      'Carisma',
-  emocional:    'Emocional',
-  ambicion:     'Ambición',
-  fisico:       'Físico',
-  riesgo:       'Riesgo',
-  estabilidad:  'Estabilidad',
-}
-
 function StatRow({
-  statKey,
+  label,
   value,
   flash,
 }: {
-  statKey: keyof Stats
+  label:   string
   value:   number
   flash:   StatFlash | undefined
 }) {
-  const barColor = value >= 7 ? '#4ade80' : value >= 4 ? COLOR_GOLD : COLOR_GARNET
+  const barColor  = value >= 7 ? '#4ade80' : value >= 4 ? colors.gold : colors.crimson
   const flashClass = flash === 'pos' ? 'stat-flash-pos' : flash === 'neg' ? 'stat-flash-neg' : ''
 
   return (
@@ -44,11 +33,11 @@ function StatRow({
         className="text-xs opacity-60"
         style={{ width: 80, fontFamily: 'system-ui, sans-serif' }}
       >
-        {STAT_LABELS[statKey]}
+        {label}
       </span>
       <div
         className="flex-1 h-[3px] rounded-full"
-        style={{ background: `${COLOR_GOLD}18` }}
+        style={{ background: `${colors.gold}18` }}
       >
         <div
           className="h-full rounded-full transition-all duration-500"
@@ -57,7 +46,7 @@ function StatRow({
       </div>
       <span
         className={`text-xs font-bold w-8 text-right font-cinzel ${flashClass}`}
-        style={{ color: COLOR_GOLD }}
+        style={{ color: colors.gold }}
       >
         {value.toFixed(1)}
       </span>
@@ -66,29 +55,32 @@ function StatRow({
 }
 
 export function StatsPanel({ stats, lastStatChanges, onClose }: Props) {
+  const { t } = useTranslation()
+
   return (
     <div
       className="fixed bottom-14 left-2 z-50 animate-fade-in"
       style={{
-        background:   '#0d0b08f0',
-        border:       `1px solid ${COLOR_GOLD}33`,
-        padding:      '1rem',
-        width:        260,
+        background:     `${colors.bg.primary}f0`,
+        border:         `1px solid ${colors.gold}33`,
+        padding:        '1rem',
+        width:          260,
         backdropFilter: 'blur(4px)',
+        zIndex:         zIndex.overlay,
       }}
     >
       {/* Header */}
       <div
         className="flex items-center justify-between mb-3"
-        style={{ borderBottom: `1px solid ${COLOR_GOLD}22`, paddingBottom: 8 }}
+        style={{ borderBottom: `1px solid ${colors.gold}22`, paddingBottom: 8 }}
       >
-        <span className="font-cinzel text-xs uppercase tracking-widest" style={{ color: COLOR_GOLD, opacity: 0.6 }}>
-          Atributos
+        <span className="font-cinzel text-xs uppercase tracking-widest" style={{ color: colors.gold, opacity: 0.6 }}>
+          {t('game.statsPanel.title')}
         </span>
         <button
           onClick={onClose}
           className="text-xs opacity-40 hover:opacity-70 transition-opacity"
-          style={{ color: COLOR_GOLD }}
+          style={{ color: colors.gold }}
         >
           ✕
         </button>
@@ -96,19 +88,19 @@ export function StatsPanel({ stats, lastStatChanges, onClose }: Props) {
 
       {/* Groups */}
       <div className="flex flex-col gap-4">
-        {GROUPS.map(group => (
-          <div key={group.label}>
+        {GROUP_KEYS.map(group => (
+          <div key={group.tKey}>
             <p
               className="text-[10px] uppercase tracking-widest mb-1.5"
-              style={{ color: COLOR_GOLD, opacity: 0.35 }}
+              style={{ fontFamily: fonts.display, color: colors.gold, opacity: 0.35 }}
             >
-              {group.label}
+              {t(group.tKey)}
             </p>
             <div className="flex flex-col gap-1.5">
               {group.keys.map(key => (
                 <StatRow
                   key={key}
-                  statKey={key}
+                  label={t(`statLabels.${key}`)}
                   value={stats[key]}
                   flash={lastStatChanges[key]}
                 />

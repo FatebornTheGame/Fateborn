@@ -1,4 +1,5 @@
 import type { Archetype } from '../types/archetype.types'
+import { colors, fonts }  from '../styles/tokens'
 
 interface Props {
   ancestors: [Archetype | null, Archetype | null, Archetype | null, Archetype | null]
@@ -40,10 +41,10 @@ export function AncestralNarrative({ ancestors, country }: Props) {
 
   return (
     <p style={{
-      fontFamily: 'Georgia, serif',
+      fontFamily: fonts.body,
       fontStyle:  'italic',
       fontSize:   '0.95rem',
-      color:      '#b09060',
+      color:      colors.text.narrative,
       lineHeight: 1.9,
       margin:     0,
     }}>
