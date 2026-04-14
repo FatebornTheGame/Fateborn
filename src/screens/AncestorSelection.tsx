@@ -3,7 +3,8 @@ import { useGameStore } from '../store/gameStore'
 import type { AncestorSlot } from '../types/archetype.types'
 import type { Archetype } from '../types/archetype.types'
 import { ARCHETYPES } from '../data/archetypes'
-import { COUNTRIES } from '../data/countries'
+import { COUNTRIES }  from '../data/countries'
+import { MuteButton } from '../components/MuteButton'
 
 // ─── Static maps ─────────────────────────────────────────────────────────────
 
@@ -111,6 +112,7 @@ export function AncestorSelection() {
         backgroundSize: '200px',
       }} />
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, #000000cc 100%)' }} />
+      <MuteButton />
 
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <div style={{ flexShrink: 0, position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 24px 16px', gap: 8 }}>

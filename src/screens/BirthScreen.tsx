@@ -3,6 +3,7 @@ import { useGameStore }        from '../store/gameStore'
 import { StatsRadarChart }     from '../components/StatsRadarChart'
 import { HiddenGenesDisplay }  from '../components/HiddenGenesDisplay'
 import { AncestralNarrative }  from '../components/AncestralNarrative'
+import { MuteButton }          from '../components/MuteButton'
 
 export function BirthScreen() {
   const inheritedStats    = useGameStore(s => s.inheritedStats)
@@ -239,6 +240,7 @@ export function BirthScreen() {
         backgroundSize: '200px',
       }} />
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, #000000cc 100%)' }} />
+      <MuteButton />
 
       {/* ── Back button ────────────────────────────────────────────────────── */}
       <button

@@ -1,5 +1,6 @@
-import { useGameStore } from '../store/gameStore'
+import { useGameStore }   from '../store/gameStore'
 import { StatsRadarChart } from '../components/StatsRadarChart'
+import { MuteButton }      from '../components/MuteButton'
 
 export function DeathScreen() {
   const gameState = useGameStore(s => s.gameState)
@@ -16,6 +17,7 @@ export function DeathScreen() {
       className="animate-screen-enter flex flex-col items-center min-h-screen px-4 py-12 gap-8 overflow-y-auto"
       style={{ background: '#0d0b08', position: 'relative' }}
     >
+      <MuteButton />
       {/* Atmospheric bg — extra dark capa para muerte */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 80% 60% at 50% 0%, #100a08 0%, #0d0b08 60%, #050404 100%)' }} />
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, #00000066 100%)' }} />

@@ -4,6 +4,7 @@ import { useGameStore } from '../store/gameStore'
 import type { Difficulty } from '../store/gameStore'
 import { playMusic } from '../utils/audio'
 import { MUSIC_OPENING } from '../constants/game.constants'
+import { MuteButton } from '../components/MuteButton'
 
 // ─── Copy ─────────────────────────────────────────────────────────────────────
 const LINE_1 = 'DE SU SANGRE NACES.'
@@ -101,6 +102,7 @@ export function StartScreen() {
       zIndex:         1,
     }}>
       <AtmosphericBg />
+      <MuteButton />
 
       {/* ── Content wrapper ─────────────────────────────────────────────────── */}
       <div className="animate-screen-enter" style={{

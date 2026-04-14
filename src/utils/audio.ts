@@ -1,4 +1,7 @@
 let currentAudio: HTMLAudioElement | null = null
+let currentSrc:   string | null           = null
+
+export function getCurrentSrc(): string | null { return currentSrc }
 
 /**
  * Plays a music track with a fade-in effect, stopping any previous track.
@@ -13,6 +16,7 @@ export function playMusic(src: string, fadeInMs = 2000, volume = 0.4): void {
   audio.loop     = true
   audio.volume   = 0
   currentAudio   = audio
+  currentSrc     = src
 
   audio.play().catch(() => {
     // Autoplay blocked — user interaction needed
