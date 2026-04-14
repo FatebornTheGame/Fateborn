@@ -50,7 +50,7 @@ export function BirthScreen() {
       style={{ background: '#0d0b08', position: 'relative' }}
     >
       {/* Atmospheric bg */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 80% 60% at 50% 0%, #1a1408 0%, #0d0b08 60%, #080604 100%)' }} />
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 80% 60% at 50% 0%, #221608 0%, #0d0b08 60%, #080604 100%)' }} />
 
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 480, display: 'flex', justifyContent: 'flex-start' }}>
         <button
@@ -70,7 +70,7 @@ export function BirthScreen() {
 
       {/* ── Ancestral narrative ─────────────────────────────────────────────── */}
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 480 }}>
-        <div style={{ background: '#141210', borderLeft: '2px solid #C9A84C44', padding: '16px 20px' }}>
+        <div style={{ background: '#141210', borderLeft: '2px solid #C9A84C66', padding: '16px 20px' }}>
           <AncestralNarrative ancestors={selectedAncestors} country={selectedCountry} />
         </div>
       </div>

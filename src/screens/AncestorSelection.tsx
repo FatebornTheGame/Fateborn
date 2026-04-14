@@ -94,7 +94,7 @@ export function AncestorSelection() {
       margin:     '0 auto',
       height:     1,
       width:      '100%',
-      background: 'linear-gradient(90deg, transparent, #C9A84C44, #C9A84C, #C9A84C44, transparent)',
+      background: 'linear-gradient(90deg, transparent, #C9A84C66, #C9A84C, #C9A84C66, transparent)',
     }} />
   )
 
@@ -104,7 +104,7 @@ export function AncestorSelection() {
       style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: '#0d0b08' }}
     >
       {/* ── Atmospheric background ─────────────────────────────────────────── */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 80% 60% at 50% 0%, #1a1408 0%, #0d0b08 60%, #080604 100%)' }} />
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 80% 60% at 50% 0%, #221608 0%, #0d0b08 60%, #080604 100%)' }} />
       <div style={{
         position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', opacity: 0.03,
         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
@@ -307,7 +307,7 @@ export function AncestorSelection() {
         </div>
 
         {/* ── GRID DE CARTAS ──────────────────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 28 }}>
+        <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: 12, marginBottom: 28 }}>
           {ARCHETYPES.map(archetype => {
             const isHovered  = hoveredCard === archetype.id
             const count      = archetypeCount.get(archetype.id) ?? 0
@@ -373,7 +373,7 @@ export function AncestorSelection() {
                   fontSize:     '2.2rem',
                   lineHeight:   1,
                   marginBottom: 6,
-                  color:        isHovered ? '#C9A84C' : '#2a2620',
+                  color:        isHovered ? '#C9A84C' : '#4a3a20',
                   textShadow:   isHovered ? '0 0 20px #C9A84C66' : 'none',
                   transition:   'color 0.2s ease, text-shadow 0.2s ease',
                   userSelect:   'none',
@@ -387,7 +387,7 @@ export function AncestorSelection() {
                   fontSize:      '0.65rem',
                   fontWeight:    700,
                   letterSpacing: '0.18em',
-                  color:         isHovered ? '#C9A84C' : '#5a4a30',
+                  color:         isHovered ? '#C9A84C' : '#8a7050',
                   display:       'block',
                   marginBottom:  4,
                   textAlign:     'center',
@@ -401,7 +401,7 @@ export function AncestorSelection() {
                   fontFamily: 'Georgia, serif',
                   fontStyle:  'italic',
                   fontSize:   '0.55rem',
-                  color:      '#3a3228',
+                  color:      '#5a4a38',
                   lineHeight: 1.5,
                   margin:     '6px 0',
                   textAlign:  'center',
@@ -414,21 +414,21 @@ export function AncestorSelection() {
                 <div style={{ marginTop: 'auto', width: '100%', display: 'flex', flexDirection: 'column', gap: 5 }}>
                   {stats.map(({ key, value }) => (
                     <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.45rem', color: '#3a3228', width: 24, textAlign: 'right', flexShrink: 0 }}>
+                      <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.45rem', color: '#6b5030', width: 24, textAlign: 'right', flexShrink: 0 }}>
                         {STAT_SHORT[key]}
                       </span>
                       <div style={{ flex: 1, height: 2, background: '#1c1915', borderRadius: 1, overflow: 'hidden' }}>
                         <div style={{
                           height:     '100%',
                           width:      `${(value / 10) * 100}%`,
-                          background: isHovered ? 'linear-gradient(90deg, #C9A84C66, #C9A84C)' : '#3a3228',
+                          background: isHovered ? 'linear-gradient(90deg, #C9A84C66, #C9A84C)' : '#6b5030',
                           transition: 'background 0.25s ease',
                         }} />
                       </div>
                       <span style={{
                         fontFamily: 'Cinzel, serif',
                         fontSize:   '0.55rem',
-                        color:      isHovered ? '#C9A84C' : '#3a3228',
+                        color:      isHovered ? '#C9A84C' : '#6b5030',
                         width:      14,
                         textAlign:  'right',
                         transition: 'color 0.25s ease',

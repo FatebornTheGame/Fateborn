@@ -51,7 +51,7 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
               <span style={{
                 fontFamily:    'Cinzel, serif',
                 fontSize:      '0.55rem',
-                color:         '#3a3228',
+                color:         '#6b6045',
                 letterSpacing: '0.2em',
               }}>
                 {group.age} años · {group.year}
@@ -68,7 +68,7 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
                     fontStyle:   entry.type === 'memory' ? 'italic' : 'normal',
                     fontSize:    '0.85rem',
                     lineHeight:  1.8,
-                    color:       '#8a7060',
+                    color:       '#b09060',
                     opacity:     IMPORTANCE_OPACITY[entry.importance] ?? 0.72,
                     borderLeft:  '2px solid #1c1915',
                     paddingLeft: 12,
@@ -134,7 +134,7 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
                     background:    '#0f0d0a',
                     border:        '1px solid #2a2620',
                     borderRadius:  2,
-                    color:         '#6b6045',
+                    color:         '#8a7060',
                     cursor:        'pointer',
                     transition:    'all 0.2s',
                     minHeight:     44,
@@ -148,7 +148,7 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
                   onMouseLeave={e => {
                     const btn = e.currentTarget as HTMLButtonElement
                     btn.style.borderColor = '#2a2620'
-                    btn.style.color       = '#6b6045'
+                    btn.style.color       = '#8a7060'
                     btn.style.transform   = 'translateX(0)'
                   }}
                 >

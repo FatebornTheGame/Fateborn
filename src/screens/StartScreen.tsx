@@ -29,7 +29,7 @@ function AtmosphericBg() {
     <>
       <div style={{
         position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-        background: 'radial-gradient(ellipse 80% 60% at 50% 0%, #1a1408 0%, #0d0b08 60%, #080604 100%)',
+        background: 'radial-gradient(ellipse 80% 60% at 50% 0%, #221608 0%, #0d0b08 60%, #080604 100%)',
       }} />
       <div style={{
         position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',

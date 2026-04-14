@@ -140,7 +140,7 @@ export function LifestylePanel({
                 display:       'block',
                 fontFamily:    'Cinzel, serif',
                 fontSize:      '0.7rem',
-                color:         active ? '#C9A84C' : '#3a3228',
+                color:         active ? '#C9A84C' : '#6b5030',
                 fontWeight:    active ? 600 : 400,
                 letterSpacing: '0.1em',
               }}>
