@@ -16,6 +16,7 @@ const es = {
   ancestors: {
     title:          '✦ LINAJE ✦',
     subtitle:       'Elige los 4 ancestros que forjan tu herencia',
+    context:        'Cada ancestro transfiere sus fortalezas y sus sombras. Elige con intención.',
     back:           '← volver',
     slotEmpty:      'vacío',
     slotRemove:     '× eliminar',
@@ -38,6 +39,7 @@ const es = {
   birth: {
     title:           '✦ HERENCIA ✦',
     subtitle:        'Lo que llevas en la sangre',
+    context:         'Tu herencia no se elige. Se porta, se carga, y con suerte, se transforma.',
     back:            '← linaje',
     statsLabel:      'Stats Heredados',
     genesTitle:      '✦ GENES LATENTES',

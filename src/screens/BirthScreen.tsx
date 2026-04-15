@@ -138,6 +138,7 @@ export function BirthScreen() {
         {(['hombre', 'mujer'] as const).map(g => {
           const isActive    = gender === g
           const accentColor = g === 'hombre' ? colors.gold : colors.crimson
+          const inactiveColor = g === 'mujer' ? '#6b5535' : colors.border.warm
           const symbol      = g === 'hombre' ? '♂' : '♀'
           const gLabel      = g === 'hombre' ? t('birth.male') : t('birth.female')
           return (
@@ -172,10 +173,10 @@ export function BirthScreen() {
                 }
               }}
             >
-              <span style={{ fontSize: '1.4rem', color: isActive ? accentColor : colors.border.warm, lineHeight: 1 }}>
+              <span style={{ fontSize: '1.4rem', color: isActive ? accentColor : inactiveColor, lineHeight: 1 }}>
                 {symbol}
               </span>
-              <span style={{ fontFamily: fonts.display, fontSize: '0.6rem', letterSpacing: '0.15em', color: isActive ? accentColor : colors.border.warm }}>
+              <span style={{ fontFamily: fonts.display, fontSize: '0.6rem', letterSpacing: '0.15em', color: isActive ? accentColor : inactiveColor }}>
                 {gLabel}
               </span>
             </button>
@@ -192,17 +193,17 @@ export function BirthScreen() {
       style={{
         width:         '100%',
         padding:       18,
-        background:    canConfirm ? colors.gold : colors.border.warm,
-        color:         colors.bg.primary,
+        background:    canConfirm ? colors.gold : '#1c1915',
+        color:         canConfirm ? colors.bg.primary : '#6b6045',
         fontFamily:    fonts.display,
         fontSize:      '0.85rem',
         fontWeight:    700,
         letterSpacing: '0.3em',
-        border:        'none',
+        border:        canConfirm ? 'none' : '1px solid #3a3228',
         borderRadius:  2,
         cursor:        canConfirm ? 'pointer' : 'not-allowed',
         boxShadow:     canConfirm ? `0 0 40px ${colors.gold}33, 0 4px 20px #00000066` : 'none',
-        opacity:       canConfirm ? 1 : 0.3,
+        opacity:       1,
         transition:    `all ${transitions.normal}`,
         marginTop:     32,
       }}
@@ -280,6 +281,9 @@ export function BirthScreen() {
         </h1>
         <p style={{ fontFamily: fonts.display, fontSize: '0.7rem', color: colors.text.muted, letterSpacing: '0.2em', margin: 0 }}>
           {t('birth.subtitle')}
+        </p>
+        <p style={{ fontFamily: fonts.body, fontStyle: 'italic', fontSize: '0.8rem', color: '#6b5535', lineHeight: 1.7, margin: '4px 0 0', textAlign: 'center', maxWidth: 420 }}>
+          {t('birth.context')}
         </p>
         {decorLine}
       </div>

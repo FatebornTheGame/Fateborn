@@ -16,6 +16,7 @@ const en = {
   ancestors: {
     title:          '✦ LINEAGE ✦',
     subtitle:       'Choose up to four ancestors who will forge your heritage',
+    context:        'Each ancestor passes on their strengths and their shadows. Choose with intention.',
     slotEmpty:      'Empty',
     chooseAncestor: 'Choose an ancestor',
     slots:          'ANCESTORS',
@@ -26,6 +27,7 @@ const en = {
   birth: {
     title:           '✦ HERITAGE ✦',
     subtitle:        'What runs in your blood',
+    context:         'Your heritage is not chosen. It is carried, endured, and with luck, transformed.',
     back:            '← lineage',
     statsLabel:      'Inherited Stats',
     genesTitle:      '✦ LATENT GENES',

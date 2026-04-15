@@ -149,6 +149,9 @@ export function AncestorSelection() {
             <p style={{ fontFamily: fonts.display, fontSize: '0.7rem', color: colors.text.muted, letterSpacing: '0.2em', margin: 0, textAlign: 'center' }}>
               {t('ancestors.subtitle')}
             </p>
+            <p style={{ fontFamily: fonts.body, fontStyle: 'italic', fontSize: '0.8rem', color: '#6b5535', lineHeight: 1.7, margin: '4px 0 0', textAlign: 'center', maxWidth: 440 }}>
+              {t('ancestors.context')}
+            </p>
             {decorLine}
           </div>
 
