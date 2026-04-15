@@ -98,51 +98,62 @@ export function AncestorSelection() {
       <AtmosphericBackground />
       <MuteButton />
 
-      {/* Header */}
-      <div style={{ flexShrink: 0, position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 24px 16px', gap: 8 }}>
-        {decorLine}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', position: 'relative' }}>
-          <h1 style={{
-            fontFamily:    fonts.display,
-            fontSize:      'clamp(1.6rem, 4vw, 2.4rem)',
-            fontWeight:    700,
-            letterSpacing: '0.35em',
-            color:         colors.gold,
-            textShadow:    `0 0 40px ${colors.gold}33`,
-            margin:        0,
-          }}>
-            {t('ancestors.title')}
-          </h1>
-          <button
-            onClick={() => setScreen('start')}
-            style={{
-              position:      'absolute',
-              right:         0,
-              fontFamily:    fonts.display,
-              fontSize:      '0.6rem',
-              color:         colors.border.warm,
-              background:    'none',
-              border:        'none',
-              cursor:        'pointer',
-              letterSpacing: '0.1em',
-              transition:    `color ${transitions.fast}`,
-            }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = colors.text.muted }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = colors.border.warm }}
-          >
-            {t('ancestors.back')}
-          </button>
-        </div>
-        <p style={{ fontFamily: fonts.display, fontSize: '0.7rem', color: colors.text.muted, letterSpacing: '0.2em', margin: 0, textAlign: 'center' }}>
-          {t('ancestors.subtitle')}
-        </p>
-        {decorLine}
-      </div>
+      {/* Scrollable body — header + slots + country son sticky dentro de este scroll container */}
+      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 1 }}>
 
-      {/* Scrollable body */}
-      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 1, padding: '16px 24px 32px' }}>
+        {/* STICKY BLOCK: header + slots + country */}
+        <div style={{
+          position:   'sticky',
+          top:        0,
+          zIndex:     10,
+          background: `${colors.bg.primary}f8`,
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          paddingBottom: 16,
+        }}>
+          {/* Header */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 24px 16px', gap: 8 }}>
+            {decorLine}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', position: 'relative' }}>
+              <h1 style={{
+                fontFamily:    fonts.display,
+                fontSize:      'clamp(1.6rem, 4vw, 2.4rem)',
+                fontWeight:    700,
+                letterSpacing: '0.35em',
+                color:         colors.gold,
+                textShadow:    `0 0 40px ${colors.gold}33`,
+                margin:        0,
+              }}>
+                {t('ancestors.title')}
+              </h1>
+              <button
+                onClick={() => setScreen('start')}
+                style={{
+                  position:      'absolute',
+                  right:         0,
+                  fontFamily:    fonts.display,
+                  fontSize:      '0.6rem',
+                  color:         colors.border.warm,
+                  background:    'none',
+                  border:        'none',
+                  cursor:        'pointer',
+                  letterSpacing: '0.1em',
+                  transition:    `color ${transitions.fast}`,
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = colors.text.muted }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = colors.border.warm }}
+              >
+                {t('ancestors.back')}
+              </button>
+            </div>
+            <p style={{ fontFamily: fonts.display, fontSize: '0.7rem', color: colors.text.muted, letterSpacing: '0.2em', margin: 0, textAlign: 'center' }}>
+              {t('ancestors.subtitle')}
+            </p>
+            {decorLine}
+          </div>
 
-        {/* 4 SLOTS */}
+          {/* 4 SLOTS */}
+          <div style={{ padding: '0 24px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
           {([0, 1, 2, 3] as AncestorSlot[]).map(slot => {
             const accent    = SLOT_ACCENT[slot]
@@ -226,8 +237,8 @@ export function AncestorSelection() {
           })}
         </div>
 
-        {/* META ROW: country + progress */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1rem', marginBottom: 20 }}>
+          {/* META ROW: country + progress */}
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1rem', marginBottom: 0 }}>
 
           <div style={{ flex: 1 }}>
             <label style={{ display: 'block', fontFamily: fonts.display, fontSize: '0.55rem', color: colors.text.muted, letterSpacing: '0.15em', marginBottom: 6 }}>
@@ -288,7 +299,12 @@ export function AncestorSelection() {
               {filledCount} / 4
             </span>
           </div>
-        </div>
+          </div>{/* end META ROW */}
+          </div>{/* end slots+meta padding wrapper */}
+        </div>{/* end STICKY BLOCK */}
+
+        {/* Scrollable cards section */}
+        <div style={{ padding: '0 24px 32px' }}>
 
         {/* Separator */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: 16 }}>
@@ -436,7 +452,7 @@ export function AncestorSelection() {
 
         {/* CTA */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-          <p style={{ fontFamily: fonts.display, fontSize: '0.6rem', color: colors.border.warm, letterSpacing: '0.15em', textAlign: 'center', margin: 0, minHeight: '1.1rem' }}>
+          <p style={{ fontFamily: fonts.display, fontSize: '0.6rem', color: '#6b6045', letterSpacing: '0.15em', textAlign: 'center', margin: 0, minHeight: '1.1rem' }}>
             {filledCount < 4
               ? t('ancestors.remaining_other', { count: 4 - filledCount })
               : !selectedCountry
@@ -447,18 +463,18 @@ export function AncestorSelection() {
             onClick={canConfirm ? confirmAncestors : undefined}
             disabled={!canConfirm}
             style={{
-              background:    canConfirm ? colors.gold : colors.border.warm,
-              color:         colors.bg.primary,
+              background:    canConfirm ? colors.gold : '#1c1915',
+              color:         canConfirm ? colors.bg.primary : '#6b6045',
               fontFamily:    fonts.display,
               fontSize:      '0.8rem',
               fontWeight:    700,
               letterSpacing: '0.25em',
               padding:       '16px 56px',
               borderRadius:  2,
-              border:        'none',
+              border:        canConfirm ? 'none' : '1px solid #3a3228',
               cursor:        canConfirm ? 'pointer' : 'not-allowed',
-              boxShadow:     canConfirm ? `0 0 32px ${colors.gold}33, 0 4px 16px #00000066` : 'none',
-              opacity:       canConfirm ? 1 : 0.3,
+              boxShadow:     canConfirm ? `0 0 32px ${colors.gold}33` : 'none',
+              opacity:       1,
               transition:    `all ${transitions.normal}`,
             }}
             onMouseEnter={e => { if (canConfirm) (e.currentTarget as HTMLButtonElement).style.background = '#d4b05a' }}
@@ -467,7 +483,8 @@ export function AncestorSelection() {
             {t('ancestors.proceed')}
           </button>
         </div>
-      </div>
+        </div>{/* end scrollable cards section */}
+      </div>{/* end body scroll container */}
     </div>
   )
 }
