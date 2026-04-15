@@ -27,6 +27,7 @@ export function StartScreen() {
   const [showDifficulty, setShowDifficulty] = useState(false)
   const [showButton,     setShowButton]     = useState(false)
   const [showLang,       setShowLang]       = useState(false)
+  const [hoveredDiff,    setHoveredDiff]    = useState<Difficulty | null>(null)
 
   const line1Text = t('start.line1')
   const line2Text = t('start.line2')
@@ -261,11 +262,14 @@ export function StartScreen() {
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
                 {DIFFICULTY_IDS.map(id => {
-                  const active = difficulty === id
+                  const active    = difficulty === id
+                  const isHovered = hoveredDiff === id
                   return (
                     <button
                       key={id}
                       onClick={() => setDifficulty(id)}
+                      onMouseEnter={() => setHoveredDiff(id)}
+                      onMouseLeave={() => setHoveredDiff(null)}
                       style={{
                         background:    active ? colors.bg.tertiary : colors.bg.card,
                         border:        active ? `2px solid ${colors.gold}` : `1px solid ${colors.border.default}`,
@@ -288,12 +292,15 @@ export function StartScreen() {
                       }}>
                         {t(`start.difficulties.${id}.label`)}
                       </span>
+                      {/* Descripción: solo visible en hover, opacity 0→1 en 0.2s */}
                       <span style={{
                         fontSize:   '0.6rem',
                         color:      active ? colors.text.muted : colors.border.warm,
                         fontFamily: fonts.body,
                         fontStyle:  'italic',
                         lineHeight: 1.3,
+                        opacity:    isHovered || active ? 1 : 0,
+                        transition: `opacity 0.2s ease`,
                       }}>
                         {t(`start.difficulties.${id}.desc`)}
                       </span>

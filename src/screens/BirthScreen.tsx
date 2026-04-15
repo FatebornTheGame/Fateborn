@@ -66,7 +66,7 @@ export function BirthScreen() {
       }}>
         {t('birth.statsLabel')}
       </span>
-      <StatsRadarChart stats={inheritedStats} size={isDesktop ? 320 : 260} />
+      <StatsRadarChart stats={inheritedStats} size={isDesktop ? 360 : 300} />
     </div>
   )
 
