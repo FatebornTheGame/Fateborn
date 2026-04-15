@@ -1,6 +1,6 @@
 import { useTranslation }  from 'react-i18next'
 import type { Stats }      from '../types/game.types'
-import { colors, fonts }   from '../styles/tokens'
+import { fonts }           from '../styles/tokens'
 
 interface Props {
   hiddenGenes: Partial<Stats>
@@ -16,7 +16,7 @@ export function HiddenGenesDisplay({ hiddenGenes }: Props) {
       <p style={{
         fontFamily:    fonts.display,
         fontSize:      '0.55rem',
-        color:         `${colors.gold}66`,
+        color:         '#C9A84C77',
         letterSpacing: '0.2em',
         margin:        0,
         textTransform: 'uppercase',
@@ -27,7 +27,7 @@ export function HiddenGenesDisplay({ hiddenGenes }: Props) {
       <p style={{
         fontFamily: fonts.display,
         fontSize:   '0.5rem',
-        color:      colors.border.warm,
+        color:      '#5a4830',
         fontStyle:  'italic',
         margin:     '4px 0 12px',
       }}>
@@ -39,8 +39,8 @@ export function HiddenGenesDisplay({ hiddenGenes }: Props) {
           <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <span style={{
               fontFamily:    fonts.display,
-              fontSize:      '0.5rem',
-              color:         colors.text.faint,
+              fontSize:      '0.62rem',
+              color:         '#7a6040',
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
             }}>
@@ -49,8 +49,8 @@ export function HiddenGenesDisplay({ hiddenGenes }: Props) {
             <span style={{
               fontFamily: fonts.display,
               fontSize:   '0.7rem',
-              color:      colors.text.secondary,
-              opacity:    0.35,
+              color:      '#a08050',
+              opacity:    0.6,
             }}>
               {(value as number).toFixed(1)}
             </span>
@@ -61,7 +61,7 @@ export function HiddenGenesDisplay({ hiddenGenes }: Props) {
       <p style={{
         fontFamily:   fonts.display,
         fontSize:     '0.5rem',
-        color:        colors.border.default,
+        color:        '#5a4830',
         fontStyle:    'italic',
         marginTop:    8,
         marginBottom: 0,

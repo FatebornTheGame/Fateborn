@@ -121,7 +121,7 @@ export function LifestylePanel({
                 display:       'block',
                 fontFamily:    fonts.display,
                 fontSize:      '0.7rem',
-                color:         active ? colors.gold : colors.text.secondary,
+                color:         active ? colors.gold : '#7a6040',
                 fontWeight:    active ? 600 : 400,
                 letterSpacing: '0.1em',
               }}>
@@ -132,7 +132,7 @@ export function LifestylePanel({
                 fontFamily: fonts.body,
                 fontStyle:  'italic',
                 fontSize:   '0.55rem',
-                color:      active ? colors.text.muted : colors.border.default,
+                color:      active ? colors.text.muted : '#5a4830',
                 marginTop:  4,
               }}>
                 {ls.description}
@@ -166,7 +166,7 @@ export function LifestylePanel({
               fontFamily:    fonts.display,
               fontSize:      '0.55rem',
               letterSpacing: '0.15em',
-              color:         colors.crimson,
+              color:         '#8a7050',
               opacity:       0.8,
               textTransform: 'uppercase',
             }}>
