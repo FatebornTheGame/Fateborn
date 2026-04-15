@@ -89,9 +89,9 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
           }}>
             <div style={{
               fontFamily:    fonts.display,
-              fontSize:      '0.65rem',
+              fontSize:      '0.6rem',
               letterSpacing: '0.2em',
-              color:         colors.text.muted,
+              color:         colors.gold,
               marginBottom:  12,
               textTransform: 'uppercase',
             }}>
@@ -116,15 +116,15 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
                   onClick={() => onResolve(option.id)}
                   style={{
                     textAlign:     'left',
-                    padding:       '12px 16px',
+                    padding:       '14px 18px',
                     fontFamily:    fonts.display,
-                    fontSize:      '0.65rem',
+                    fontSize:      '0.7rem',
                     letterSpacing: '0.1em',
                     lineHeight:    1.5,
-                    background:    colors.bg.card,
-                    border:        `1px solid ${colors.border.default}`,
+                    background:    '#141210',
+                    border:        '1px solid #2e2418',
                     borderRadius:  2,
-                    color:         colors.text.secondary,
+                    color:         '#8a7060',
                     cursor:        'pointer',
                     transition:    `all ${transitions.fast}`,
                     minHeight:     44,
@@ -133,12 +133,14 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
                     const btn = e.currentTarget as HTMLButtonElement
                     btn.style.borderColor = colors.gold
                     btn.style.color       = colors.gold
+                    btn.style.background  = '#C9A84C08'
                     btn.style.transform   = 'translateX(4px)'
                   }}
                   onMouseLeave={e => {
                     const btn = e.currentTarget as HTMLButtonElement
-                    btn.style.borderColor = colors.border.default
-                    btn.style.color       = colors.text.secondary
+                    btn.style.borderColor = '#2e2418'
+                    btn.style.color       = '#8a7060'
+                    btn.style.background  = '#141210'
                     btn.style.transform   = 'translateX(0)'
                   }}
                 >

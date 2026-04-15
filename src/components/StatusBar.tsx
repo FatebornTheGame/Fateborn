@@ -51,13 +51,12 @@ export function StatusBar({ character, stats, ageYears }: Props) {
       borderBottom:         `1px solid ${colors.border.default}`,
     }}>
 
-      {/* Character name */}
+      {/* Character name — fonts.body para preservar exactamente lo escrito por el jugador */}
       <span style={{
-        fontFamily:   fonts.display,
-        fontSize:     '0.8rem',
-        fontWeight:   700,
-        color:        colors.gold,
-        letterSpacing:'0.15em',
+        fontFamily:   fonts.body,
+        fontSize:     '0.85rem',
+        fontWeight:   600,
+        color:        '#b09060',
         whiteSpace:   'nowrap',
         overflow:     'hidden',
         textOverflow: 'ellipsis',
