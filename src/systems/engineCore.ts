@@ -7,6 +7,7 @@ import type {
   NarrativeEntry,
   PendingConsequence,
 } from '../types/game.types'
+import { getPassiveNarrative } from '../data/passiveNarrative'
 import {
   applyStatDeltas,
   resolveDeltas,
@@ -349,6 +350,21 @@ export function prepareQuarter(state: GameState, allocation: TimeAllocation): Qu
   const pendingEvent = eligible.length > 0
     ? eligible.reduce((best, ev) => ev.weight > best.weight ? ev : best, eligible[0])
     : null
+
+  // Si no hay evento de decisión, añadir narrativa pasiva para que el tiempo siempre tenga textura
+  if (!pendingEvent) {
+    const passiveText = getPassiveNarrative(s)
+    if (passiveText) {
+      const passiveEntry: NarrativeEntry = {
+        id:         `passive_${s.totalQuarters}`,
+        age:        s.ageYears,
+        text:       passiveText,
+        importance: 'normal',
+        type:       'reflection',
+      }
+      s = { ...s, feed: [...s.feed, passiveEntry] }
+    }
+  }
 
   return { intermediateState: s, pendingEvent, consequencesDelivered: delivered }
 }

@@ -64,24 +64,36 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
 
             {/* Entries */}
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              {group.entries.map(entry => (
-                <p
-                  key={entry.id}
-                  style={{
-                    fontFamily:   fonts.body,
-                    fontStyle:    entry.type === 'memory' ? 'italic' : 'normal',
-                    fontSize:     '0.85rem',
-                    lineHeight:   1.8,
-                    color:        colors.text.narrative,
-                    opacity:      IMPORTANCE_OPACITY[entry.importance] ?? 0.72,
-                    borderLeft:   `2px solid ${colors.bg.tertiary}`,
-                    paddingLeft:  12,
-                    margin:       '0 0 6px 0',
-                  }}
-                >
-                  {entry.text}
-                </p>
-              ))}
+              {group.entries.map(entry => {
+                const isPassive = entry.type === 'reflection'
+                return (
+                  <p
+                    key={entry.id}
+                    style={isPassive ? {
+                      // Narrativa pasiva: más tenue, sin border-left, italic
+                      fontFamily:  fonts.body,
+                      fontStyle:   'italic',
+                      fontSize:    '0.8rem',
+                      lineHeight:  1.8,
+                      color:       '#7a6040',
+                      margin:      '0 0 8px 0',
+                      paddingLeft: 0,
+                    } : {
+                      fontFamily:  fonts.body,
+                      fontStyle:   entry.type === 'memory' ? 'italic' : 'normal',
+                      fontSize:    '0.85rem',
+                      lineHeight:  1.8,
+                      color:       colors.text.narrative,
+                      opacity:     IMPORTANCE_OPACITY[entry.importance] ?? 0.72,
+                      borderLeft:  `2px solid ${colors.bg.tertiary}`,
+                      paddingLeft: 12,
+                      margin:      '0 0 6px 0',
+                    }}
+                  >
+                    {entry.text}
+                  </p>
+                )
+              })}
             </div>
           </section>
         ))}
