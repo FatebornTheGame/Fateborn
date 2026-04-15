@@ -81,6 +81,7 @@ const es = {
       title:    'Historia',
       decision: 'Decisión',
       anos:     'años',
+      empty:    'Tu historia comenzará con el primer trimestre.',
     },
     statsPanel: {
       title: 'Atributos',

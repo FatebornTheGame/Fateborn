@@ -94,7 +94,7 @@ export function LifestylePanel({
                 width:        '100%',
                 textAlign:    'left',
                 padding:      '14px 20px',
-                background:   active ? `${colors.gold}08` : 'transparent',
+                background:   active ? '#C9A84C0f' : 'transparent',
                 borderTop:    'none',
                 borderRight:  'none',
                 borderBottom: 'none',
@@ -105,8 +105,8 @@ export function LifestylePanel({
               onMouseEnter={e => {
                 if (!active) {
                   const btn = e.currentTarget as HTMLButtonElement
-                  btn.style.background = colors.bg.tertiary
-                  btn.style.borderLeft = `3px solid ${colors.border.default}`
+                  btn.style.background = '#1c1915'
+                  btn.style.borderLeft = '3px solid #3a3020'
                 }
               }}
               onMouseLeave={e => {
@@ -131,8 +131,8 @@ export function LifestylePanel({
                 display:    'block',
                 fontFamily: fonts.body,
                 fontStyle:  'italic',
-                fontSize:   '0.55rem',
-                color:      active ? colors.text.muted : '#5a4830',
+                fontSize:   '0.6rem',
+                color:      active ? '#8a7050' : '#5a4828',
                 marginTop:  4,
               }}>
                 {ls.description}
@@ -178,9 +178,9 @@ export function LifestylePanel({
           <div style={{ padding: '8px 20px', textAlign: 'center' }}>
             <span style={{
               fontFamily:    fonts.display,
-              fontSize:      '0.5rem',
+              fontSize:      '0.55rem',
               letterSpacing: '0.1em',
-              color:         colors.text.faint,
+              color:         '#6b5535',
               textTransform: 'uppercase',
             }}>
               {t('game.lifestyle.choose')}
@@ -198,11 +198,11 @@ export function LifestylePanel({
             letterSpacing: '0.25em',
             fontWeight:    700,
             textTransform: 'uppercase',
-            border:        'none',
+            border:        isDisabled ? '1px solid #3a3228' : 'none',
             cursor:        isDisabled ? 'not-allowed' : 'pointer',
-            background:    isDisabled ? colors.border.warm : colors.gold,
-            color:         isDisabled ? colors.text.muted : colors.bg.primary,
-            opacity:       isDisabled ? 0.3 : 1,
+            background:    isDisabled ? '#1c1915' : colors.gold,
+            color:         isDisabled ? '#6b5535' : colors.bg.primary,
+            opacity:       1,
             transition:    `background ${transitions.fast}`,
           }}
           onMouseEnter={e => {

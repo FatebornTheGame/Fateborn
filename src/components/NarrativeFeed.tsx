@@ -43,6 +43,16 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
 
       {/* Feed */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 24px', display: 'flex', flexDirection: 'column' }}>
+
+        {/* Empty state — antes del primer trimestre */}
+        {groups.length === 0 && !pendingEvent && (
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0', opacity: 0.4 }}>
+            <p style={{ fontFamily: fonts.body, fontStyle: 'italic', fontSize: '0.85rem', color: colors.text.muted, textAlign: 'center', lineHeight: 1.8, margin: 0 }}>
+              {t('game.feed.empty')}
+            </p>
+          </div>
+        )}
+
         {groups.map(group => (
           <section key={group.age} className="animate-fade-in">
             {/* Age label */}
