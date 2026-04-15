@@ -51,8 +51,11 @@ export function StatsRadarChart({ stats, size, compareStats }: Props) {
 
   const gridLevels = [0.2, 0.4, 0.6, 0.8, 1.0]
 
+  // Padding exterior para que los labels no queden cortados en los bordes del SVG
+  const pad = 44
+
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+    <svg width={size} height={size} viewBox={`${-pad} ${-pad} ${size + pad * 2} ${size + pad * 2}`}>
       {/* Grid rings */}
       {gridLevels.map(level => (
         <polygon
@@ -106,42 +109,37 @@ export function StatsRadarChart({ stats, size, compareStats }: Props) {
         style={{ transition: 'stroke-dashoffset 0.8s ease', filter: `drop-shadow(0 0 8px ${colors.gold}33)` }}
       />
 
-      {/* Labels + values */}
+      {/* Labels + values — dos líneas separadas con dy="14" para evitar solapamiento */}
       {STAT_KEYS.map((key, i) => {
         const angle = (i / count) * 2 * Math.PI - Math.PI / 2
-        const lr    = r * 1.2
+        const lr    = r * 1.22
         const x     = cx + lr * Math.cos(angle)
         const y     = cy + lr * Math.sin(angle)
         const value = stats[key]
 
         return (
-          <g key={key}>
-            <text
+          <text key={key} textAnchor="middle" fontFamily={fonts.display}>
+            {/* Línea 1: abreviatura */}
+            <tspan
               x={x.toFixed(2)}
-              y={(y - 5).toFixed(2)}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fill={colors.text.secondary}
-              fontSize={11}
-              fontFamily={fonts.display}
+              y={(y - 4).toFixed(2)}
+              fill="#6b6045"
+              fontSize={10}
               letterSpacing="1"
             >
               {t(`statAbbr.${key}`)}
-            </text>
-            <text
+            </tspan>
+            {/* Línea 2: valor numérico */}
+            <tspan
               x={x.toFixed(2)}
-              y={(y + 7).toFixed(2)}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fill={colors.gold}
-              fillOpacity={0.9}
-              fontSize={size * 0.06}
-              fontFamily={fonts.display}
-              fontWeight="600"
+              dy="14"
+              fill="#C9A84C"
+              fontSize={11}
+              fontWeight="bold"
             >
               {value.toFixed(1)}
-            </text>
-          </g>
+            </tspan>
+          </text>
         )
       })}
     </svg>
