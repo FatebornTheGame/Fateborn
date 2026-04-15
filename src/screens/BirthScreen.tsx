@@ -138,7 +138,7 @@ export function BirthScreen() {
         {(['hombre', 'mujer'] as const).map(g => {
           const isActive    = gender === g
           const accentColor = g === 'hombre' ? colors.gold : colors.crimson
-          const inactiveColor = g === 'mujer' ? '#6b5535' : colors.border.warm
+          const inactiveColor = '#6b5535'
           const symbol      = g === 'hombre' ? '♂' : '♀'
           const gLabel      = g === 'hombre' ? t('birth.male') : t('birth.female')
           return (

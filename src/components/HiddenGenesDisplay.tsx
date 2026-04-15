@@ -46,9 +46,10 @@ export function HiddenGenesDisplay({ hiddenGenes }: Props) {
             }}>
               {t(`statLabels.${key}`, key)}
             </span>
+            {/* fonts.body (Georgia) para que el punto decimal sea visible a tamaños pequeños */}
             <span style={{
-              fontFamily: fonts.display,
-              fontSize:   '0.7rem',
+              fontFamily: fonts.body,
+              fontSize:   '0.75rem',
               color:      '#a08050',
               opacity:    0.6,
             }}>

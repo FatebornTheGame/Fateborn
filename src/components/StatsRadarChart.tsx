@@ -118,23 +118,25 @@ export function StatsRadarChart({ stats, size, compareStats }: Props) {
         const value = stats[key]
 
         return (
-          <text key={key} textAnchor="middle" fontFamily={fonts.display}>
-            {/* Línea 1: abreviatura */}
+          <text key={key} textAnchor="middle">
+            {/* Línea 1: abreviatura — Cinzel para labels */}
             <tspan
               x={x.toFixed(2)}
               y={(y - 4).toFixed(2)}
               fill="#6b6045"
               fontSize={10}
+              fontFamily={fonts.display}
               letterSpacing="1"
             >
               {t(`statAbbr.${key}`)}
             </tspan>
-            {/* Línea 2: valor numérico */}
+            {/* Línea 2: valor numérico — Georgia para que el decimal sea legible */}
             <tspan
               x={x.toFixed(2)}
               dy="14"
               fill="#C9A84C"
               fontSize={11}
+              fontFamily={fonts.body}
               fontWeight="bold"
             >
               {value.toFixed(1)}
