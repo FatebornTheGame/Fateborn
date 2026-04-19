@@ -645,3 +645,10 @@ Paywall emocional (no cruel): el jugador ya está invertido cuando llega al muro
 7. Sistema económico jugable (inversiones, hipoteca)
 8. Profesiones con mecánica propia
 9. Modo Dynastía
+
+---
+
+## 29. CONTENIDO NARRATIVO DETALLADO
+
+- Toda la narrativa (eventos, opciones, consecuencias, memorias, epitafio) está escrita en inglés.
+- La UI (labels, botones, pantallas, mensajes de sistema) se muestra en el idioma del jugador.
