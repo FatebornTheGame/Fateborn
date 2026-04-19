@@ -652,3 +652,35 @@ Paywall emocional (no cruel): el jugador ya está invertido cuando llega al muro
 
 - Toda la narrativa (eventos, opciones, consecuencias, memorias, epitafio) está escrita en inglés.
 - La UI (labels, botones, pantallas, mensajes de sistema) se muestra en el idioma del jugador.
+
+---
+
+## 30. PANEL "PERSONAS EN TU VIDA" (DISEÑADO, NO IMPLEMENTADO)
+
+Ubicación: panel izquierdo de GameScreen, debajo del LifestylePanel.
+Cards pequeñas por cada NPC conocido: nombre, relación, edad actual, estado (vivo / distanciado / cercano).
+Cuando un NPC muere: card en gris con icono de vela.
+Estado de relación actualizado por flags narrativos y consecuencias diferidas.
+
+---
+
+## 31. GRÁFICA DE EVOLUCIÓN DE STATS (DISEÑADO, NO IMPLEMENTADO)
+
+SVG pequeño en panel izquierdo de GameScreen.
+Muestra la evolución de los 3 stats principales del personaje en los últimos 8 trimestres.
+Los 3 stats mostrados son los de mayor valor en el GameState actual.
+Líneas coloreadas por grupo: cognitivo (azul), social (dorado), vital (granate).
+
+---
+
+## 48. IDIOMAS SOPORTADOS
+
+| Tier | Idiomas |
+|------|---------|
+| Tier 1 — Lanzamiento | ES (español, fuente de verdad), EN (inglés), FR (francés), DE (alemán), PT-BR (portugués Brasil) |
+| Tier 2 — Post-lanzamiento | RU (ruso), PL (polaco), IT (italiano), TR (turco), ZH (chino simplificado) |
+
+**Arquitectura:**
+- `react-i18next` instalado. Archivos en `src/i18n/locales/`.
+- Todos los strings en componentes deben usar `t('clave')`, nunca hardcodeados.
+- Comentarios en el código en inglés. UI en el idioma del jugador.
