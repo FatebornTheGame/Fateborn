@@ -637,6 +637,9 @@ Paywall emocional (no cruel): el jugador ya está invertido cuando llega al muro
 10. Código auditable por developers senior — si no es obvio, comentar el porqué
 11. Todos los strings de UI en i18n — nunca hardcodeados en componentes
 12. Comentarios en el código en inglés
+13. **REGLA DE DESPLIEGUE:** Al final de cada prompt ejecutar siempre:
+    `git add . && git commit -m '[descripción del cambio]' && git push`
+    Vercel despliega automáticamente desde main. No se necesita ninguna acción adicional en Vercel.
 
 ---
 
