@@ -43,7 +43,7 @@ const en = {
     tabs: { initiative: 'INITIATIVE', feed: 'HISTORY' },
     stats: { fis: 'PHY', emo: 'EMO', est: 'MEN' },
     status: { years: 'YEARS' },
-    stages: { infancia: 'Childhood', juventud: 'Youth', adulto: 'Adult', madurez: 'Maturity', ancianidad: 'Old Age' },
+    stages: { infancia: 'Childhood', adolescencia: 'Adolescence', juventud: 'Youth', adultez: 'Adulthood', adulto: 'Adult', madurez: 'Maturity', vejez: 'Old Age', ancianidad: 'Old Age' },
     lifestyle: {
       title:    'Initiative',
       decide:   'Make a decision',

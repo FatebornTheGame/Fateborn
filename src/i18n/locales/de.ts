@@ -26,7 +26,7 @@ const de = {
     tabs: { initiative: 'INITIATIVE', feed: 'GESCHICHTE' },
     stats: { fis: 'PHY', emo: 'EMO', est: 'GEI' },
     status: { years: 'JAHRE' },
-    stages: { infancia: 'Kindheit', juventud: 'Jugend', adulto: 'Erwachsen', madurez: 'Reife', ancianidad: 'Alter' },
+    stages: { infancia: 'Kindheit', adolescencia: 'Jugend', juventud: 'Junge Erwachsene', adultez: 'Erwachsenenalter', adulto: 'Erwachsen', madurez: 'Reife', vejez: 'Alter', ancianidad: 'Alter' },
     lifestyle: {
       title: 'Initiative', decide: 'Triff eine Entscheidung', choose: 'Wähle einen Lebensstil',
       advance: 'Quartal Vorankommen', quarters: 'Qu.',

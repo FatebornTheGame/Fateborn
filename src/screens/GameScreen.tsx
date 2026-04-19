@@ -12,6 +12,7 @@ import { StatsPanel }                 from '../components/StatsPanel'
 import { MuteButton }                 from '../components/MuteButton'
 import { AtmosphericBackground }      from '../styles/AtmosphericBackground'
 import { StatFlash }                  from '../components/StatFlash'
+import { StageProgressBar }           from '../components/StageProgressBar'
 import { colors }                     from '../styles/tokens'
 
 export function GameScreen() {
@@ -71,7 +72,8 @@ export function GameScreen() {
               onAdvance={advanceQuarter}
             />
           </div>
-          <div style={{ flex: 1, overflowY: 'auto', background: 'transparent' }}>
+          <div style={{ flex: 1, overflowY: 'auto', background: 'transparent', display: 'flex', flexDirection: 'column' }}>
+            <StageProgressBar age={gameState.ageYears} />
             <NarrativeFeed
               groups={grouped}
               pendingEvent={pendingEvent}
@@ -99,15 +101,18 @@ export function GameScreen() {
                 onAdvance={advanceQuarter}
               />
             ) : (
-              <NarrativeFeed
-                groups={grouped}
-                pendingEvent={pendingEvent}
-                pendingState={eventDisplayState}
-                onResolve={(id) => {
-                  resolveEvent(id)
-                  setActiveTab('feed')
-                }}
-              />
+              <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <StageProgressBar age={gameState.ageYears} />
+                <NarrativeFeed
+                  groups={grouped}
+                  pendingEvent={pendingEvent}
+                  pendingState={eventDisplayState}
+                  onResolve={(id) => {
+                    resolveEvent(id)
+                    setActiveTab('feed')
+                  }}
+                />
+              </div>
             )}
           </div>
         </div>

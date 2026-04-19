@@ -26,7 +26,7 @@ const ru = {
     tabs: { initiative: 'ИНИЦИАТИВА', feed: 'ИСТОРИЯ' },
     stats: { fis: 'ФИЗ', emo: 'ЭМО', est: 'УМ' },
     status: { years: 'ЛЕТ' },
-    stages: { infancia: 'Детство', juventud: 'Юность', adulto: 'Взрослый', madurez: 'Зрелость', ancianidad: 'Старость' },
+    stages: { infancia: 'Детство', adolescencia: 'Отрочество', juventud: 'Юность', adultez: 'Взрослость', adulto: 'Взрослый', madurez: 'Зрелость', vejez: 'Старость', ancianidad: 'Старость' },
     lifestyle: {
       title: 'Инициатива', decide: 'Прими решение', choose: 'Выбери образ жизни',
       advance: 'Следующий Квартал', quarters: 'кв.',

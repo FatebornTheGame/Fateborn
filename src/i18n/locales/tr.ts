@@ -26,7 +26,7 @@ const tr = {
     tabs: { initiative: 'GİRİŞİM', feed: 'HİKÂYE' },
     stats: { fis: 'FİZ', emo: 'EMO', est: 'ZİH' },
     status: { years: 'YAŞ' },
-    stages: { infancia: 'Çocukluk', juventud: 'Gençlik', adulto: 'Yetişkin', madurez: 'Olgunluk', ancianidad: 'Yaşlılık' },
+    stages: { infancia: 'Çocukluk', adolescencia: 'Ergenlik', juventud: 'Gençlik', adultez: 'Yetişkinlik', adulto: 'Yetişkin', madurez: 'Olgunluk', vejez: 'Yaşlılık', ancianidad: 'Yaşlılık' },
     lifestyle: {
       title: 'Girişim', decide: 'Bir karar ver', choose: 'Bir yaşam tarzı seç',
       advance: 'Çeyreği İlerlet', quarters: 'çyr.',

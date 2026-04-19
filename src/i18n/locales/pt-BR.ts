@@ -26,7 +26,7 @@ const ptBR = {
     tabs: { initiative: 'INICIATIVA', feed: 'HISTÓRIA' },
     stats: { fis: 'FÍS', emo: 'EMO', est: 'MEN' },
     status: { years: 'ANOS' },
-    stages: { infancia: 'Infância', juventud: 'Juventude', adulto: 'Adulto', madurez: 'Maturidade', ancianidad: 'Velhice' },
+    stages: { infancia: 'Infância', adolescencia: 'Adolescência', juventud: 'Juventude', adultez: 'Adulto', adulto: 'Adulto', madurez: 'Maturidade', vejez: 'Velhice', ancianidad: 'Velhice' },
     lifestyle: {
       title: 'Iniciativa', decide: 'Tome uma decisão', choose: 'Escolha um estilo de vida',
       advance: 'Avançar Trimestre', quarters: 'trim.',

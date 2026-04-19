@@ -26,7 +26,7 @@ const zh = {
     tabs: { initiative: '行动', feed: '故事' },
     stats: { fis: '体', emo: '情', est: '智' },
     status: { years: '岁' },
-    stages: { infancia: '童年', juventud: '青年', adulto: '成年', madurez: '成熟', ancianidad: '晚年' },
+    stages: { infancia: '童年', adolescencia: '青春期', juventud: '青年', adultez: '成年期', adulto: '成年', madurez: '成熟', vejez: '老年', ancianidad: '晚年' },
     lifestyle: {
       title: '行动', decide: '做出决定', choose: '选择生活方式',
       advance: '推进季度', quarters: '季.',
