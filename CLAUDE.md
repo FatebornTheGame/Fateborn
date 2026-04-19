@@ -25,19 +25,19 @@ Desarrollado por Dan (DJ en Barcelona/Sabadell, sin conocimientos de código).
 
 | Capa | Tecnología | Notas |
 |------|-----------|-------|
-| UI | React 19 | JSX con `react-jsx` |
-| Lenguaje | TypeScript 5.9 | Estricto, sin `any` |
-| Estado | Zustand 5 | Store central en `src/store/gameStore.ts` |
-| Estilos | Tailwind CSS v4 | Vía `@tailwindcss/vite`, config en `index.css` |
-| Build | Vite 8 | ESM, `"type": "module"` |
+| UI | React 19 | JSX con react-jsx |
+| Lenguaje | TypeScript 5.9 | Estricto, sin any |
+| Estado | Zustand 5 | Store central en src/store/gameStore.ts |
+| Estilos | Tailwind CSS v4 | Via @tailwindcss/vite, config en index.css |
+| Build | Vite 8 | ESM, "type": "module" |
 | Deploy | Vercel | fateborn.vercel.app |
 | Persistencia | Dexie.js | IndexedDB para saves locales (pendiente) |
 
-**`tsconfig.app.json` — restricciones críticas:**
-- `verbatimModuleSyntax: true` → todos los imports de tipo deben ser `import type`
-- `noUnusedLocals: true` y `noUnusedParameters: true` → sin variables sin usar
-- `strict: true` y `erasableSyntaxOnly: true`
-- `moduleResolution: "bundler"`
+tsconfig.app.json restricciones críticas:
+- verbatimModuleSyntax: true — todos los imports de tipo deben ser import type
+- noUnusedLocals: true y noUnusedParameters: true — sin variables sin usar
+- strict: true y erasableSyntaxOnly: true
+- moduleResolution: "bundler"
 
 ---
 
@@ -190,7 +190,7 @@ interface GameState {
   orientationRevealed: boolean
   language:            Language
   rival:               RivalState
-  moralCorruption:     number  // 0-100
+  moralCorruption:     number
 }
 
 ### StatDeltaResolver
@@ -233,14 +233,14 @@ processMultipleQuarters(state, allocation, count): GameState
 
 ### Flujo de un trimestre (en orden)
 
-1. totalQuarters + 1 → recalcular ageYears
+1. totalQuarters + 1 — recalcular ageYears
 2. Efectos de TimeAllocation sobre stats
 3. Procesar pendingConsequences
 4. Avanzar vidas paralelas de NPCs (advanceNPCLives)
 5. Avanzar vida paralela del rival (advanceRivalLife)
 6. Buscar evento elegible por triggerAge + flags + weight
-7. Si hay evento → QuarterPrep.pendingEvent, store espera input
-8. commitEventChoice → aplicar stats, flags, NPC, consecuencias, memoria, epitafio, moralCorruption
+7. Si hay evento — QuarterPrep.pendingEvent, store espera input
+8. commitEventChoice — aplicar stats, flags, NPC, consecuencias, memoria, epitafio, moralCorruption
 
 ### Validación del motor
 
@@ -257,7 +257,7 @@ type Language   = 'es' | 'en' | 'fr' | 'de' | 'pt-BR' | 'ru' | 'pl' | 'it' | 'tr
 
 Acciones principales:
 setScreen(screen)
-setDifficulty(difficulty)            // default: 'fateborn'
+setDifficulty(difficulty)
 selectAncestor(ancestor, slot 0-3)
 removeAncestor(slot)
 setCountry(country)
@@ -269,9 +269,9 @@ advanceQuarter()
 resolveEvent(optionId)
 
 ### Flujo de evento en UI
-1. advanceQuarter() → prepareQuarter() → pendingEvent + preEventState en store
+1. advanceQuarter() — prepareQuarter() — pendingEvent + preEventState en store
 2. NarrativeFeed muestra contexto + 3 opciones
-3. Jugador elige → resolveEvent(optionId) → commitEventChoice() → nuevo gameState
+3. Jugador elige — resolveEvent(optionId) — commitEventChoice() — nuevo gameState
 
 ---
 
@@ -279,7 +279,7 @@ resolveEvent(optionId)
 
 ### StartScreen
 - Logo fateborn_title.png + tagline animado letra a letra (Cinzel, dorado)
-- Secuencia: LINE_1 → pausa 1.5s → LINE_2 → botón NUEVA VIDA visible
+- Secuencia: LINE_1 — pausa 1.5s — LINE_2 — botón NUEVA VIDA visible
 - useTypingAnimation con onComplete callback (evita race condition stale isDone)
 - Fallback: botón visible a los 9s
 - Selector de dificultad con 4 cards — fateborn preseleccionado
@@ -313,7 +313,7 @@ resolveEvent(optionId)
 - Epitafio como lápida SVG
 - StatsRadarChart perfil final
 - Grid legado: años vividos, memorias, amigos, hitos
-- Nueva vida → setScreen('start')
+- Nueva vida — setScreen('start')
 
 ---
 
@@ -445,7 +445,6 @@ Cómo emerge el amor:
 - Tiempo en TRABAJO: compañero o compañera
 - Tiempo en OCIO: alguien en concierto o hobby compartido
 - Tiempo en ESTUDIOS: alguien en biblioteca o clase
-La orientación sexual determina quién puede aparecer.
 
 5 fases de evolución:
 1. Enamoramiento (0-2 años): todo perfecto, sin fricción
@@ -486,7 +485,7 @@ economy: {
   liquidez, ingresos, gastos, patrimonio
   cartera: [ETFs, acciones, bonos, oro, crypto, REITs]
   inmuebles: []
-  hipoteca: { tipo: 'fija'|'variable'|'mixta', euribor, cuota }
+  hipoteca: { tipo: fija|variable|mixta, euribor, cuota }
   negocio: BusinessState | null
 }
 
@@ -682,6 +681,91 @@ Si Lógica 7+: ajedrez (+0.6 Lógica +0.3 Disciplina), construir/maker (+0.5 Ló
 Si Creatividad 7+: dibujo (+0.6 Creatividad), música (+0.6 Creatividad +0.2 Emocional), escritura (+0.5 Creatividad +0.4 Emocional).
 Sin hobby a los 10: evento de vacío con consecuencia diferida a los 35-40.
 
+### Evento school_conflict (edad 10)
+Variante A (flag extrovertido_infancia o social_infancia): el jugador es testigo de bullying.
+  Opción A defiendes: +0.4 Carisma +0.3 Emocional, flag protector. Consecuencia diferida edad 16: alguien te recuerda y te ayuda.
+  Opción B observas sin actuar: +0.2 Estabilidad, flag observador_conflicto. Consecuencia diferida edad 25: culpa latente que emerge en crisis.
+  Opción C buscas un adulto: +0.3 Disciplina, flag institucional. Sin consecuencias negativas inmediatas.
+
+Variante B (flag introvertido_infancia): el jugador es la víctima.
+  Opción A respondes con humor: +0.3 Carisma, flag resiliente. La situación se desescala.
+  Opción B te aíslas: -0.2 Carisma +0.3 Lógica, flag introversion_reforzada. Consecuencia diferida edad 15: soledad adolescente.
+  Opción C explota: +0.2 Riesgo -0.2 Estabilidad, flag temperamento. Consecuencia diferida edad 18: dificultad gestión emocional.
+
+### Evento family_dynamic (edad 11)
+Variante A (economy alta, sin flags negativos): familia estable.
+  Opción A participas activamente: +0.3 Emocional +0.2 Estabilidad, flag familia_unida.
+  Opción B te distancias: +0.2 Lógica, flag independencia_temprana.
+  Opción C medias en conflictos pequeños: +0.4 Emocional, flag mediador_familiar.
+
+Variante B (economy baja o flag tension_economica): tensión económica.
+  Opción A ignoras y sigues con tu vida: sin cambio de stats, flag desconexion_familiar.
+  Opción B intentas ayudar: +0.3 Emocional -0.2 Creatividad, flag responsabilidad_prematura. Consecuencia diferida edad 18: dificultad con emancipación.
+  Opción C preguntas directamente qué pasa: +0.3 Emocional +0.2 Carisma, flag comunicacion_directa.
+
+Variante C (flag divorcio o separacion): padres se separan.
+  Opción A te culpas: -0.3 Estabilidad, flag culpa_divorcio. Consecuencia diferida edad 25: dificultad en relaciones propias.
+  Opción B aceptas y te adaptas: +0.2 Estabilidad, flag adaptabilidad.
+  Opción C tomas partido: +0.2 Carisma -0.3 Emocional, flag lealtad_dividida. Consecuencia diferida edad 30: relación complicada con un progenitor.
+
+### Evento talent_discovered (edad 12)
+Detecta automáticamente el stat más alto y genera opción específica.
+  Si Físico dominante: un entrenador te nota en educación física.
+  Si Lógica dominante: un profesor te propone una olimpiada de matemáticas.
+  Si Creatividad dominante: un trabajo tuyo es seleccionado para una exposición.
+  Si Carisma dominante: te eligen para representar al colegio en un acto público.
+  Si Emocional dominante: un adulto te dice que tienes una madurez inusual.
+
+  Opción A aceptas y te comprometes: +0.3 al stat dominante +0.2 Disciplina, flag talento_reconocido.
+  Opción B aceptas pero sin convicción: +0.1 al stat dominante, sin flag.
+  Opción C rechazas por vergüenza o miedo: +0.2 Estabilidad, flag talento_suprimido. Consecuencia diferida edad 35: redescubres ese talento.
+
+### Evento first_love (edad 13)
+Coherente con sexualOrientation. Si hay NPC generado previamente puede ser esa persona.
+  Heterosexual: aparece persona del sexo opuesto en el entorno más frecuentado.
+  Homosexual: aparece persona del mismo sexo. Si orientationRevealed es false, el evento la revela.
+  Bisexual: puede ser cualquier género, emerge del contexto.
+
+  Opción A te acercas directamente: +0.3 Carisma, flag primer_amor_activo.
+  Opción B lo observas desde lejos semanas: +0.2 Emocional, flag primer_amor_contemplativo. Consecuencia diferida edad 14: la persona conoce a alguien más.
+  Opción C lo ignoras activamente: +0.2 Estabilidad, flag primer_amor_suprimido. Consecuencia diferida edad 16: reaparece en tu círculo social.
+
+### Evento academic_decision (edad 14)
+Variante por país Tier S/A: tres opciones de bachillerato o equivalente.
+Variante por país Tier B: ciencias, humanidades, o formación profesional.
+Variante por país Tier D/E: continuar estudiando o empezar a trabajar.
+
+  Opción A ciencias/técnico: +0.3 Lógica +0.2 Disciplina, flag direccion_ciencias. Desbloquea universidad técnica y carreras STEM.
+  Opción B humanidades/social: +0.3 Creatividad +0.2 Emocional, flag direccion_humanidades. Desbloquea escritura, periodismo, psicología.
+  Opción C vocacional/trabajar: +0.3 Ambición +0.2 Físico, flag direccion_practica. Desbloquea primer_trabajo_temprano a los 16.
+
+### Evento pressure_moment (edad 15)
+Contexto: exámenes o competición según hobby y dirección académica.
+  Opción A todo al estudio/entrenamiento: +0.4 Disciplina -0.2 Emocional, flag sacrificio_adolescente. Consecuencia diferida edad 17: resultado superior a la media.
+  Opción B equilibrio consciente: +0.2 Disciplina +0.2 Emocional, flag equilibrio_adolescente.
+  Opción C priorizas vida social: +0.3 Carisma -0.2 Disciplina, flag social_adolescente. Consecuencia diferida edad 17: resultado por debajo del esperado.
+
+### Evento identity_reflection (edad 15, weight 0.6)
+Solo narrativa, sin opciones de decisión. Muestra stat dominante y el más bajo.
+Texto dinámico: "A los 15 años, [nombre] empieza a entender quién es."
+No modifica stats. Contribuye al epitafio con una seed de identidad adolescente.
+
+### Evento first_job_direction (edad 16)
+Solo disponible si flag direccion_practica o si Ambición > 7.
+  Opción A trabajo a tiempo parcial: +0.2 Ambición +0.2 Disciplina, flag trabajo_temprano. Ingresos 300-500 euros/mes.
+  Opción B prácticas no remuneradas: +0.3 en stat relacionado con dirección académica, flag practicas_tempranas.
+  Opción C seguir solo con estudios: +0.2 Lógica. Consecuencia diferida edad 22: mejor preparación académica pero sin experiencia.
+
+### Evento final_exam_pressure (edad 17, solo si flag ciencias o humanidades)
+  Opción A estudias toda la noche: +0.2 Lógica -0.3 Físico, flag noche_estudio. Probabilidad resultado alto: 70%.
+  Opción B te acuestas a hora normal: sin cambio. Probabilidad resultado medio-alto: 60%.
+  Opción C sales con amigos: +0.2 Carisma -0.2 Disciplina, flag noche_social. Probabilidad resultado bajo: 65%. Consecuencia diferida edad 18: decisión universitaria condicionada.
+
+### Evento adulthood_threshold (edad 18)
+  Opción A ambicioso: +0.4 Ambición +0.2 Riesgo, flag mentalidad_ambiciosa. Consecuencia diferida edad 25: primera oportunidad grande con riesgo alto.
+  Opción B cauto: +0.3 Estabilidad +0.2 Disciplina, flag mentalidad_cautelosa. Consecuencia diferida edad 30: base económica más sólida que la media.
+  Opción C libre: +0.3 Creatividad +0.2 Riesgo, flag mentalidad_libre. Consecuencia diferida edad 22: viaje o experiencia transformadora disponible.
+
 ---
 
 ## 30. PANEL PERSONAS EN TU VIDA (DISEÑADO, NO IMPLEMENTADO)
@@ -746,7 +830,7 @@ Ciudad media España: 550 euros/mes
 Pueblo/rural: 350 euros/mes
 
 ### Trade-off vivienda vs tiempo
-Vivir en Sabadell trabajando en Barcelona: -2h/día = -1 día efectivo/semana. Reduce productividad y afecta stats de forma pasiva.
+Vivir en Sabadell trabajando en Barcelona: -2h/día = -1 día efectivo/semana.
 
 ### Mercado dinámico
 Ciclo alcista (6-12 años): +5-15%/año. Ciclo bajista (2-5 años): -10-40%. Burbuja: rara, -50% al explotar. Newsletter avisa señales, no certezas.
@@ -761,119 +845,94 @@ Problemas reales: inquilino impago, derrama inesperada, averías, nueva ley de a
 
 ### Enfermedades por tipo
 Agudas: gripe (-2 semanas productividad), accidente (recuperación variable), operación inesperada (coste + tiempo + riesgo).
-Crónicas: diabetes tipo 2 (prevenible con estilo de vida), hipertensión (asesino silencioso), dolor crónico post-accidente.
-Terminales: cáncer estadios 1-4 con probabilidades reales, ELA progresión inevitable, Alzheimer perder quién eres gradualmente.
+Crónicas: diabetes tipo 2 (prevenible), hipertensión (asesino silencioso), dolor crónico post-accidente.
+Terminales: cáncer estadios 1-4 con probabilidades reales, ELA progresión inevitable, Alzheimer.
 
 ### Predisposición genética
-Heredada de genes ocultos de ancestros. Algunas se revelan a los 20, otras no hasta los 50. Sin chequeos: diagnósticos tardíos. Con chequeos: detección temprana.
+Heredada de genes ocultos. Algunas se revelan a los 20, otras a los 50. Sin chequeos: diagnósticos tardíos.
 
 ### Burnout
-No es estrés. Es vacío. Recuperación: meses, no semanas. Señales progresivas antes del evento de crisis. Mecánica específica para la profesión de médico.
+No es estrés. Es vacío. Recuperación meses, no semanas. Señales progresivas antes del evento de crisis.
 
 ---
 
 ## 35. SISTEMA DE ADICCIONES (DISEÑADO, NO IMPLEMENTADO)
 
-Tipos: alcohol, trabajo (la más común, sin estigma social), juego/casino (activada por Riesgo alto), drogas, pantallas/redes sociales.
+Tipos: alcohol, trabajo (sin estigma social), juego/casino (Riesgo alto), drogas, pantallas.
 
 ### Mecánica de progresión
-SIEMPRE oculta. El jugador no sabe que está dentro hasta que ya lo está. Señales sutiles en el feed primero. Sin alarmas explícitas. Solo en fase avanzada: evento de crisis.
+SIEMPRE oculta. Sin alarmas. Solo en fase avanzada: evento de crisis.
 
 ### Mecánica de recuperación
-No hay cura. Hay gestión. Recaídas estadísticamente reales. El sponsor como relación especial con arco narrativo propio. La recaída después de 5 años limpio: el evento más duro del arco.
+No hay cura, hay gestión. Recaídas reales. La recaída después de 5 años limpio: el evento más duro del arco.
 
 ---
 
 ## 36. PSICOLOGÍA PROFUNDA (DISEÑADO, NO IMPLEMENTADO)
 
 ### Miedos emergentes
-Miedo al abandono: si relación termina sin cierre. Miedo al fracaso: padres con expectativas altas. Miedo a la soledad: tiempo sin conexión real acumulado. Miedo a la muerte: después de diagnóstico grave. Los miedos limitan opciones visiblemente en el panel de iniciativa.
+Miedo al abandono, al fracaso, a la soledad, a la muerte. Limitan opciones en el panel de iniciativa.
 
 ### Sistema de propósito
-Cuatro tipos: familia, legado profesional, impacto social, experiencia pura. Crisis de propósito a los 35-50 años. No tiene respuesta fácil. Puede destruir o transformar. La segunda vida que empieza después.
+Crisis de propósito a los 35-50 años. Cuatro tipos: familia, legado profesional, impacto social, experiencia pura.
 
 ### Corrupción moral gradual (0-100)
-Cada decisión oscura sube el contador. Sin alarma. Es gradual. El personaje no lo percibe como deterioro. Solo visible en el epitafio final. Almacenado en GameState.moralCorruption.
+Gradual, sin alarma. Solo visible en el epitafio final. Almacenado en GameState.moralCorruption.
 
 ---
 
 ## 37. MUNDO E HISTORIA (DISEÑADO, NO IMPLEMENTADO)
 
 ### Eventos históricos aleatorios
-Crisis económica global (cada 15-25 años en el juego). Pandemia (rara pero devastadora). Revolución tecnológica (cada 20-30 años). Guerra (según tier del país). Movimiento social global. Cambio climático visible en partidas largas.
+Crisis económica global (cada 15-25 años), pandemia (rara), revolución tecnológica (cada 20-30 años), guerra (según tier), movimiento social, cambio climático.
 
-### Cambio tecnológico como mecánica
-Internet (~1995 en el juego). Smartphones (2007+). IA (2020s+). Viajes espaciales comerciales (2040s+). Profesiones que desaparecen y aparecen con cada revolución.
+### Cambio tecnológico
+Internet (~1995), smartphones (2007+), IA (2020s+), viajes espaciales comerciales (2040s+). Profesiones que desaparecen y aparecen.
 
 ### El periódico del mundo
-Titulares generados dinámicamente por trimestre. Publicidad falsa de época. Sección de necrológicas donde aparecerá el personaje algún día.
+Titulares dinámicos por trimestre. Publicidad falsa de época. Necrológicas donde aparecerá el personaje.
 
 ---
 
 ## 38. SISTEMA DE FAMA (DISEÑADO, NO IMPLEMENTADO)
 
-### Niveles 0-100
-0-10: Anónimo, privacidad total.
-11-25: Reconocimiento local.
-26-50: Figura pública menor.
-51-75: Celebridad nacional.
-76-90: Fama internacional.
-91-100: Leyenda viva.
-
-### Mecánicas
-Equipo de PR: 5.000-50.000 euros/mes. Escándalo que puedes sobrevivir vs el que no. Cancelación como mecánica real. Rehabilitación: proceso largo.
-
-### La fama como trampa
-Quién te quiere a ti vs quién quiere tu fama. Soledad de los muy famosos. Imposibilidad de la normalidad a partir de nivel 70.
+Niveles: 0-10 anónimo, 11-25 local, 26-50 figura pública menor, 51-75 celebridad nacional, 76-90 internacional, 91-100 leyenda viva.
+Equipo de PR: 5.000-50.000 euros/mes. Cancelación como mecánica real. La fama como trampa: soledad, imposibilidad de normalidad a partir de nivel 70.
 
 ---
 
 ## 39. SECRETOS Y CHANTAJE (DISEÑADO, NO IMPLEMENTADO)
 
-Tipos: la aventura que nadie sabe, el origen del dinero inicial, el error ocultado, la identidad escondida.
-Peso emocional 1-10. Peso 8+: afecta Estabilidad crónicamente.
-
-Mecánica del chantaje: opciones son pagar, amenazar, confesar, eliminar evidencias, aceptar consecuencias. El chantajista tiene perfil e intenciones propias.
-
-En Modo Dynastía: el escándalo póstumo que descubre tu hijo en generación 2.
+Tipos con peso emocional 1-10. Peso 8+: afecta Estabilidad crónicamente.
+Opciones: pagar, amenazar, confesar, eliminar evidencias, aceptar consecuencias.
+En Modo Dynastía: el escándalo póstumo que descubre tu hijo.
 
 ---
 
 ## 40. OBJETOS, LUGARES Y MEMORIAS (DISEÑADO, NO IMPLEMENTADO)
 
-### Objetos con historia emocional
-El reloj del abuelo heredado. La guitarra del primer concierto. El coche del primer trabajo. Se transmiten en Modo Dynastía. Los más importantes aparecen en el epitafio final.
-
-### Lugares con peso emocional
-La casa de la infancia. El bar del primer amor. El lugar del peor momento. Volver genera memoria involuntaria automática en el feed. Lugares que desaparecen generan duelo real.
-
-### Memorias involuntarias en el feed
-Formato cursiva más tenue que la narrativa normal. Estímulos: olor a comida específica, canción en la radio, letra reconocida de alguien del pasado.
+Objetos con historia emocional se transmiten en Modo Dynastía y aparecen en el epitafio.
+Lugares con peso emocional generan memoria involuntaria al volver. Lugares que desaparecen generan duelo.
+Memorias involuntarias en feed: cursiva más tenue. Estímulos: olor, canción, letra reconocida.
 
 ---
 
 ## 41. SISTEMA EDUCATIVO DE HIJOS (DISEÑADO, NO IMPLEMENTADO)
 
-Guardería: quién para la carrera tiene impacto real en stats. Colegio: público, concertado, privado o internacional. El barrio donde vives determina el colegio que toca. Eventos: bullying, superdotado descubierto, quiere estudiar algo inútil. Universidad en el país o extranjero. La educación determina stats iniciales del descendiente en Modo Dynastía. Es la inversión más rentable del juego a largo plazo.
+El barrio determina el colegio. La educación determina stats iniciales del descendiente en Modo Dynastía. Es la inversión más rentable del juego a largo plazo.
 
 ---
 
 ## 42. HERENCIAS Y TESTAMENTOS (DISEÑADO, NO IMPLEMENTADO)
 
-### Recibir herencia
-Herencia positiva (dinero, piso) y negativa (deudas que heredas). Impuestos de sucesiones reales por país. Conflictos entre hermanos. La segunda familia que no sabías que existía.
-
-### Hacer testamento
-Sin testamento: el estado decide. La legítima: parte que no puedes eliminar. Fondos fiduciarios con condiciones temporales. Desheredar: emocionalmente satisfactorio, legalmente complejo.
-
-### Herencia emocional en Modo Dynastía
-Los traumas que transmites. Los valores que intentas transmitir. Los que transmites sin querer.
+Herencia positiva y negativa. Impuestos reales por país. La segunda familia que no sabías que existía.
+Sin testamento: el estado decide. Herencia emocional en Modo Dynastía: traumas y valores transmitidos sin querer.
 
 ---
 
-## 43. INGENIERÍA PSICOLÓGICA
+## 43. INGENIERÍA PSICOLÓGICA (PRINCIPIOS DE DISEÑO, NO IMPLEMENTACIÓN TÉCNICA)
 
-12 principios implementados conscientemente en cada pantalla:
+Estos 12 principios deben guiar cada decisión de diseño de UI y narrativa. No son sistemas de código sino criterios de evaluación: antes de añadir cualquier elemento nuevo, verificar que cumple al menos uno.
 
 1. Efecto IKEA: nunca mostrar la decisión correcta. El jugador construye su historia.
 2. Variable Ratio Reinforcement: resultados variables. No siempre la misma recompensa.
@@ -892,66 +951,62 @@ Los traumas que transmites. Los valores que intentas transmitir. Los que transmi
 
 ## 44. EPITAFIO VIVO DETALLADO
 
-Visible en cualquier momento durante la partida (panel colapsable en GameScreen). Cambia desde el primer evento. A los 10 años ya existe versión inicial. Los objetos más importantes del personaje aparecen en él. La corrupción moral solo visible aquí.
+Visible en cualquier momento (panel colapsable en GameScreen). Cambia desde el primer evento. Los objetos más importantes aparecen en él. La corrupción moral solo visible aquí.
 
-### Pantalla de muerte
-15 segundos de preparación antes de mostrarlo. "Llevas X años. Tomaste X decisiones. X personas te recordarán." La última línea siempre es la más poderosa. Renderizado como lápida SVG con textura de piedra en CSS. Animación sutil al actualizarse tras decisión importante.
+Pantalla de muerte: 15 segundos de preparación. "Llevas X años. Tomaste X decisiones. X personas te recordarán." La última línea siempre es la más poderosa. Lápida SVG con textura de piedra en CSS.
 
 ---
 
 ## 45. FEEDBACK UX PENDIENTE DE IMPLEMENTAR
 
-Por orden de prioridad:
-
 1. Scroll al inicio automático al cambiar de pantalla
-2. Tutorial/onboarding para jugador nuevo (3 pasos, una sola vez, guardado en localStorage)
+2. Tutorial/onboarding (3 pasos, una sola vez, localStorage)
 3. Flash visual de stats: +0.3 verde / -0.5 rojo, fadeOut 1.5s
-4. Barra de progreso de etapa: INFANCIA 8/12 años con hitos marcados
-5. Fondo atmosférico cambia con etapa vital (tint diferente por etapa)
-6. Transición cinematográfica entre etapas (pantalla negra + nombre + frase + música)
-7. Cards de NPCs vivos en panel izquierdo GameScreen
-8. Gráfica de evolución de stats (SVG últimos 8 trimestres)
-9. Newsletter trimestral con diseño de periódico de época
+4. Barra de progreso de etapa: INFANCIA 8/12 años con hitos
+5. Fondo atmosférico cambia con etapa vital
+6. Transición cinematográfica entre etapas
+7. Cards de NPCs vivos en panel izquierdo
+8. Gráfica de evolución de stats (SVG 8 trimestres)
+9. Newsletter trimestral con diseño de periódico
 10. Epitafio como lápida SVG en panel colapsable
-11. Analizar antes de decidir muestra información real útil
-12. Tiempo invertido en algo genera eventos coherentes con esa inversión
+11. Analizar antes de decidir muestra información real
+12. Tiempo invertido genera eventos coherentes
 
 ---
 
 ## 46. TRANSPORTE COTIDIANO (DISEÑADO, NO IMPLEMENTADO)
 
-Sin vehículo en ciudad con metro: 80 euros/mes abono, tiempo limitado. Sin vehículo en ciudad sin metro: trabajo limitado por distancia a pie. Trabajo en polígono industrial: coche obligatorio. Vivir en pueblo y trabajar en ciudad: 2h/día = -1 día efectivo/semana. Carné de conducir: 800-1.500 euros, 2-3 meses. Requisito previo obligatorio para cualquier vehículo.
+Sin vehículo en ciudad con metro: 80 euros/mes. Sin metro: trabajo limitado. Polígono: coche obligatorio. Pueblo + ciudad: 2h/día = -1 día efectivo/semana. Carné: 800-1.500 euros, 2-3 meses, requisito previo.
 
 ---
 
 ## 47. SISTEMAS DE ADICCIÓN Y RETENCIÓN
 
 ### El Rival
-Generado al nacer con los mismos ancestros pero diferente país, orientación y suerte. Vive en paralelo durante toda la partida. Aparece en la newsletter trimestral: "Mientras tú estudiabas, Miguel montó su primera empresa." Crea tensión comparativa constante sin ser intrusivo. RivalState ya existe en GameState. Expandir con vida paralela similar a npcLifeSystem.
+Mismos ancestros, diferente país, orientación y suerte. Vive en paralelo. Aparece en newsletter: "Mientras tú estudiabas, Miguel montó su primera empresa." RivalState ya existe en GameState.
 
 ### Newsletter Trimestral Expandida
-Aparece cada 4 trimestres como modal con diseño de periódico de época.
-Tres secciones obligatorias:
-- MUNDO: evento histórico ficticio que afecta a tu país y época.
-- TU ENTORNO: algo que afecta a tus NPCs o rival directamente.
-- ECONOMÍA: ciclo económico, Euribor, mercados.
-No usar años reales para evitar meta-gaming. Diseño: tipografía de época, columnas, titular grande.
+Cada 4 trimestres como modal estilo periódico de época.
+- MUNDO: evento histórico ficticio de tu país y época.
+- TU ENTORNO: algo sobre tus NPCs o rival.
+- ECONOMÍA: ciclos, Euribor, mercados.
+Sin años reales para evitar meta-gaming.
 
 ### Fondo atmosférico por etapa vital
-| Etapa | Tint | Hex |
-|-------|------|-----|
-| Infancia | Cálido dorado | #221608 |
-| Adolescencia | Azul frío | #0a0d14 |
-| Juventud | Ámbar | #1a1408 |
-| Adultez | Marrón oscuro | #100d08 |
-| Madurez | Gris cálido | #0f0e0d |
-| Vejez | Casi negro | #080807 |
+| Etapa | Hex |
+|-------|-----|
+| Infancia | #221608 |
+| Adolescencia | #0a0d14 |
+| Juventud | #1a1408 |
+| Adultez | #100d08 |
+| Madurez | #0f0e0d |
+| Vejez | #080807 |
 
 ### Transición cinematográfica entre etapas
-Pantalla negra + nombre de etapa apareciendo letra a letra + edad + frase del GDD + música nueva. Duración 4 segundos, skip con cualquier tecla. Es el momento memorable que los jugadores compartirán.
+Pantalla negra + nombre de etapa letra a letra + edad + frase del GDD + música nueva. 4 segundos, skip con cualquier tecla.
 
 ### Mascotas
-Vínculo emocional 0-10, no solo gasto mensual. La muerte de la mascota es uno de los eventos más impactantes del juego. El duelo dura semanas. Razas con personalidades: Border Collie (necesita trabajo mental), Golden Retriever (familiar, ideal con niños), Rottweiler (requiere entrenamiento), Chihuahua (ciudad, alta demanda emocional). Eventos únicos: operación cara inesperada (3.200 euros), perro que detecta el infarto, decisión de eutanasia, hijo que desarrolla alergia, ex que quiere quedarse con el perro. En Modo Dynastía: la tortuga que tiene 40 años en generación 3.
+Vínculo emocional 0-10. La muerte es uno de los eventos más impactantes. El duelo dura semanas. Razas: Border Collie, Golden Retriever, Rottweiler, Chihuahua. Eventos: operación cara (3.200 euros), perro que detecta el infarto, eutanasia, alergia del hijo, ex que quiere el perro. En Modo Dynastía: la tortuga que tiene 40 años en generación 3.
 
 ---
 
@@ -959,7 +1014,7 @@ Vínculo emocional 0-10, no solo gasto mensual. La muerte de la mascota es uno d
 
 | Tier | Idiomas |
 |------|---------|
-| Tier 1 — Lanzamiento | ES (español, fuente de verdad), EN (inglés), FR (francés), DE (alemán), PT-BR (portugués Brasil) |
-| Tier 2 — Post-lanzamiento | RU (ruso), PL (polaco), IT (italiano), TR (turco), ZH (chino simplificado) |
+| Tier 1 — Lanzamiento | ES (español, fuente de verdad), EN, FR, DE, PT-BR |
+| Tier 2 — Post-lanzamiento | RU, PL, IT, TR, ZH |
 
-Arquitectura: react-i18next instalado. Archivos en src/i18n/locales/. Todos los strings en componentes deben usar t('clave'), nunca hardcodeados. Comentarios en el código en inglés. UI en el idioma del jugador.
+Arquitectura: react-i18next. Archivos en src/i18n/locales/. Todos los strings via t('clave'). Comentarios en inglés. UI en el idioma del jugador.
