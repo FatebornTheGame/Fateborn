@@ -420,7 +420,7 @@ Suma siempre 13 semanas. Efectos pasivos por trimestre sobre stats según propor
 | Vejez tardía | 81-90 | 6% |
 | Centenario | 91+ | 15% |
 
-Edad máxima absoluta: 95 años.
+Edad máxima absoluta: 95 años (ampliable con sistema de longevidad extendida, sección 58).
 
 ---
 
@@ -522,7 +522,7 @@ Impuestos reales por país.
 | Chef | Restaurante, estrellas, reputación |
 | Streamer | Audiencia, plataformas, viralidad |
 
-Cada una: 10 niveles, mecánica única, obra maestra final, transiciones con sentido.
+Cada una: 10 niveles, mecánica única, obra maestra final, transiciones con sentido. Ver sección 56 para mecánicas detalladas de profesiones clave.
 
 ---
 
@@ -580,18 +580,19 @@ Paywall emocional (no cruel): el jugador ya está invertido cuando llega al muro
 ## 25. SISTEMAS ADICIONALES DISEÑADOS (pendientes de implementar)
 
 - Mascotas con vínculo emocional real y muerte natural
-- Sistema de viajes con impacto narrativo y cultural
+- Sistema de viajes con impacto narrativo y cultural (ver sección 57)
 - Sistema de idiomas (ventajas por país)
 - Seguros completos (vida, hogar, salud)
 - Sistema legal y judicial (demandas, herencias)
-- Sistema de pensiones y FIRE
+- Sistema de pensiones y FIRE (ver sección 61)
 - Reputación digital desde los 2000s
 - Fotos y álbum familiar
-- Legado cultural vivo (CulturalLegacy)
+- Legado cultural vivo (ver sección 59)
 - Clima y estaciones
-- Gastronomía como mecánica
-- Libros y cultura en psychology.creencias[]
+- Gastronomía como mecánica (ver sección 60)
+- Libros y cultura (ver sección 62)
 - Redes sociales desde los 2000s
+- Sueños (ver sección 63)
 
 ---
 
@@ -624,6 +625,7 @@ Paywall emocional (no cruel): el jugador ya está invertido cuando llega al muro
 - Tono siempre serio y realista, nunca absurdo ni casual
 - El mundo recuerda lo que hiciste — los flags nunca se borran sin razón narrativa
 - Mismo estilo visual en todas las pantallas — nunca romper la inmersión
+- Las opciones de eventos nunca tienen respuesta correcta — revelan carácter, no inteligencia
 
 ---
 
@@ -632,26 +634,29 @@ Paywall emocional (no cruel): el jugador ya está invertido cuando llega al muro
 ### Implementado y validado
 - Motor completo con simulación 25 años: npx tsx src/test/engineTest.ts
 - 12 eventos narrativos (infancia + adolescencia) con NPCs y consecuencias diferidas
-- 5 pantallas con navegación funcional
-- Sistema de estilos de vida (7 tipos)
-- Herencia genética + genes ocultos
+- 5 pantallas con navegación funcional y diseño visual consistente
+- Sistema de estilos de vida (7 tipos) con narrativa pasiva por trimestre
+- Herencia genética + genes ocultos con escala correcta (0-10, toFixed(1))
 - Epitafio dinámico con seeds acumuladas
 - Memorias con contextos cruzados
 - useTypingAnimation con onComplete callback
 - prepareQuarter / commitEventChoice para flujo UI correcto
 - Design system centralizado en src/styles/tokens.ts
-- i18n con react-i18next, 10 idiomas
-- Narrativa pasiva por trimestre (src/data/passiveNarrative.ts)
+- AtmosphericBackground.tsx como componente reutilizable
+- i18n con react-i18next, 10 idiomas, archivos en src/i18n/locales/
+- Narrativa pasiva por trimestre con sistema anti-repetición (src/data/passiveNarrative.ts)
 - MuteButton en todas las pantallas
-- Género femenino correcto en AncestralNarrative (nameFeminine)
+- Género femenino correcto en AncestralNarrative (nameFeminine por slot)
+- AncestorSelection con slots sticky, 8 arquetipos, arquetipos repetibles
+- BirthScreen layout dos columnas desktop
 
 ### Próximos pasos por prioridad
 1. Flash visual de stats al resolver eventos (+0.3 verde / -0.5 rojo, fadeOut 1.5s)
-2. Fondo atmosférico cambia con etapa vital (tint diferente por etapa)
+2. Fondo atmosférico cambia con etapa vital (tints sección 47)
 3. Cards de NPCs vivos en panel izquierdo GameScreen
 4. Barra de progreso de etapa: INFANCIA 8/12 años con hitos
 5. Transición cinematográfica entre etapas
-6. Eventos de Juventud (ages 19-30)
+6. Eventos de Juventud (ages 19-30) con lógica laboral y relaciones
 7. Sistema de carrera y economía conectado al motor
 8. Sistema de pareja emergente
 9. Newsletter trimestral con diseño de periódico
@@ -715,7 +720,6 @@ Detecta automáticamente el stat más alto y genera opción específica.
   Si Creatividad dominante: un trabajo tuyo es seleccionado para una exposición.
   Si Carisma dominante: te eligen para representar al colegio en un acto público.
   Si Emocional dominante: un adulto te dice que tienes una madurez inusual.
-
   Opción A aceptas y te comprometes: +0.3 al stat dominante +0.2 Disciplina, flag talento_reconocido.
   Opción B aceptas pero sin convicción: +0.1 al stat dominante, sin flag.
   Opción C rechazas por vergüenza o miedo: +0.2 Estabilidad, flag talento_suprimido. Consecuencia diferida edad 35: redescubres ese talento.
@@ -725,7 +729,6 @@ Coherente con sexualOrientation. Si hay NPC generado previamente puede ser esa p
   Heterosexual: aparece persona del sexo opuesto en el entorno más frecuentado.
   Homosexual: aparece persona del mismo sexo. Si orientationRevealed es false, el evento la revela.
   Bisexual: puede ser cualquier género, emerge del contexto.
-
   Opción A te acercas directamente: +0.3 Carisma, flag primer_amor_activo.
   Opción B lo observas desde lejos semanas: +0.2 Emocional, flag primer_amor_contemplativo. Consecuencia diferida edad 14: la persona conoce a alguien más.
   Opción C lo ignoras activamente: +0.2 Estabilidad, flag primer_amor_suprimido. Consecuencia diferida edad 16: reaparece en tu círculo social.
@@ -734,177 +737,116 @@ Coherente con sexualOrientation. Si hay NPC generado previamente puede ser esa p
 Variante por país Tier S/A: tres opciones de bachillerato o equivalente.
 Variante por país Tier B: ciencias, humanidades, o formación profesional.
 Variante por país Tier D/E: continuar estudiando o empezar a trabajar.
-
-  Opción A ciencias/técnico: +0.3 Lógica +0.2 Disciplina, flag direccion_ciencias. Desbloquea universidad técnica y carreras STEM.
-  Opción B humanidades/social: +0.3 Creatividad +0.2 Emocional, flag direccion_humanidades. Desbloquea escritura, periodismo, psicología.
-  Opción C vocacional/trabajar: +0.3 Ambición +0.2 Físico, flag direccion_practica. Desbloquea primer_trabajo_temprano a los 16.
+  Opción A ciencias/técnico: +0.3 Lógica +0.2 Disciplina, flag direccion_ciencias.
+  Opción B humanidades/social: +0.3 Creatividad +0.2 Emocional, flag direccion_humanidades.
+  Opción C vocacional/trabajar: +0.3 Ambición +0.2 Físico, flag direccion_practica.
 
 ### Evento pressure_moment (edad 15)
-Contexto: exámenes o competición según hobby y dirección académica.
-  Opción A todo al estudio/entrenamiento: +0.4 Disciplina -0.2 Emocional, flag sacrificio_adolescente. Consecuencia diferida edad 17: resultado superior a la media.
-  Opción B equilibrio consciente: +0.2 Disciplina +0.2 Emocional, flag equilibrio_adolescente.
-  Opción C priorizas vida social: +0.3 Carisma -0.2 Disciplina, flag social_adolescente. Consecuencia diferida edad 17: resultado por debajo del esperado.
+  Opción A todo al estudio: +0.4 Disciplina -0.2 Emocional, flag sacrificio_adolescente.
+  Opción B equilibrio: +0.2 Disciplina +0.2 Emocional, flag equilibrio_adolescente.
+  Opción C vida social: +0.3 Carisma -0.2 Disciplina, flag social_adolescente.
 
 ### Evento identity_reflection (edad 15, weight 0.6)
-Solo narrativa, sin opciones de decisión. Muestra stat dominante y el más bajo.
-Texto dinámico: "A los 15 años, [nombre] empieza a entender quién es."
-No modifica stats. Contribuye al epitafio con una seed de identidad adolescente.
+Solo narrativa. Muestra stat dominante y el más bajo. No modifica stats. Seed al epitafio.
 
 ### Evento first_job_direction (edad 16)
-Solo disponible si flag direccion_practica o si Ambición > 7.
-  Opción A trabajo a tiempo parcial: +0.2 Ambición +0.2 Disciplina, flag trabajo_temprano. Ingresos 300-500 euros/mes.
-  Opción B prácticas no remuneradas: +0.3 en stat relacionado con dirección académica, flag practicas_tempranas.
-  Opción C seguir solo con estudios: +0.2 Lógica. Consecuencia diferida edad 22: mejor preparación académica pero sin experiencia.
+Solo si flag direccion_practica o Ambición > 7.
+  Opción A trabajo a tiempo parcial: +0.2 Ambición +0.2 Disciplina, flag trabajo_temprano.
+  Opción B prácticas no remuneradas: +0.3 en stat de dirección académica, flag practicas_tempranas.
+  Opción C solo estudios: +0.2 Lógica. Consecuencia diferida edad 22: sin experiencia laboral.
 
 ### Evento final_exam_pressure (edad 17, solo si flag ciencias o humanidades)
-  Opción A estudias toda la noche: +0.2 Lógica -0.3 Físico, flag noche_estudio. Probabilidad resultado alto: 70%.
-  Opción B te acuestas a hora normal: sin cambio. Probabilidad resultado medio-alto: 60%.
-  Opción C sales con amigos: +0.2 Carisma -0.2 Disciplina, flag noche_social. Probabilidad resultado bajo: 65%. Consecuencia diferida edad 18: decisión universitaria condicionada.
+  Opción A estudias toda la noche: +0.2 Lógica -0.3 Físico. Resultado alto: 70%.
+  Opción B hora normal: sin cambio. Resultado medio-alto: 60%.
+  Opción C sales con amigos: +0.2 Carisma -0.2 Disciplina. Resultado bajo: 65%.
 
 ### Evento adulthood_threshold (edad 18)
-  Opción A ambicioso: +0.4 Ambición +0.2 Riesgo, flag mentalidad_ambiciosa. Consecuencia diferida edad 25: primera oportunidad grande con riesgo alto.
-  Opción B cauto: +0.3 Estabilidad +0.2 Disciplina, flag mentalidad_cautelosa. Consecuencia diferida edad 30: base económica más sólida que la media.
-  Opción C libre: +0.3 Creatividad +0.2 Riesgo, flag mentalidad_libre. Consecuencia diferida edad 22: viaje o experiencia transformadora disponible.
+  Opción A ambicioso: +0.4 Ambición +0.2 Riesgo, flag mentalidad_ambiciosa.
+  Opción B cauto: +0.3 Estabilidad +0.2 Disciplina, flag mentalidad_cautelosa.
+  Opción C libre: +0.3 Creatividad +0.2 Riesgo, flag mentalidad_libre.
 
 ---
 
 ## 30. PANEL PERSONAS EN TU VIDA (DISEÑADO, NO IMPLEMENTADO)
 
 Ubicación: panel izquierdo de GameScreen, debajo del LifestylePanel.
-Cards pequeñas por cada NPC conocido: nombre, relación, edad actual, estado (vivo / distanciado / cercano).
+Cards pequeñas: nombre, relación, edad actual, estado (vivo / distanciado / cercano).
 Cuando un NPC muere: card en gris con icono de vela.
-Estado de relación actualizado por flags narrativos y consecuencias diferidas.
 
 ---
 
 ## 31. GRÁFICA DE EVOLUCIÓN DE STATS (DISEÑADO, NO IMPLEMENTADO)
 
-SVG pequeño en panel izquierdo de GameScreen.
-Muestra evolución de los 3 stats principales en los últimos 8 trimestres.
-Los 3 stats mostrados son los de mayor valor en el GameState actual.
-Líneas coloreadas por grupo: cognitivo (azul), social (dorado), vital (granate).
+SVG pequeño en panel izquierdo. Evolución de los 3 stats principales en los últimos 8 trimestres.
+Líneas coloreadas: cognitivo (azul), social (dorado), vital (granate).
 
 ---
 
 ## 32. VEHÍCULOS COMPLETO (DISEÑADO, NO IMPLEMENTADO)
 
-### Marcas ficticias confirmadas
-Económico: Auros (Dacia/Seat), Civeo (Toyota/Honda), Nordian (VW/Skoda)
-Premium: Meridian (BMW), Stellan (Mercedes), Vanto (Audi)
-Deportivo: Ferrano (Ferrari), Veloce (Lamborghini), Weybridge (Bentley/Rolls), Strato (Porsche)
-Americano: Bison (Ford/Chevrolet), Luminar (Rivian)
-Eléctrico: Voltex (Tesla)
-Off-road: Terrain (Land Rover)
+### Marcas ficticias
+Económico: Auros, Civeo, Nordian. Premium: Meridian, Stellan, Vanto.
+Deportivo: Ferrano, Veloce, Weybridge, Strato. Americano: Bison, Luminar.
+Eléctrico: Voltex. Off-road: Terrain.
 
-### Categorías completas
-Coches: utilitario (8-20k), compacto familiar (15-35k), SUV (30-60k), berlina lujo (60-200k), superdeportivo (150-500k), hypercar (500k-5M), clásico coleccionable (revalorizable).
-Motos: scooter (1.5-5k), estándar (5-15k), deportiva (10-30k), custom (15-80k).
-Náutica: lancha (15-80k), velero (20-200k), yate (200k-5M), superyate (5M-200M), submarino privado (500k-20M).
-Aviación: ultraligero (30-80k), helicóptero privado (200k-2M), jet ligero (1.5M-5M), jet grande (5M-50M), 747 ejecutivo (50M+).
-
-### Sistema de costes
-Calculado automáticamente: seguro + ITV + gasolina + parking + mantenimiento.
-Compra vs leasing vs renting disponibles.
-Carné de conducir obligatorio antes de primer vehículo (800-1.500 euros, 2-3 meses).
+### Categorías
+Coches: utilitario (8-20k) → hypercar (500k-5M) → clásico coleccionable.
+Motos: scooter (1.5-5k) → custom (15-80k).
+Náutica: lancha (15-80k) → submarino privado (500k-20M).
+Aviación: ultraligero (30-80k) → 747 ejecutivo (50M+).
+Costes calculados automáticamente. Carné obligatorio (800-1.500 euros, 2-3 meses).
 
 ---
 
 ## 33. VIVIENDA Y MERCADO INMOBILIARIO (DISEÑADO, NO IMPLEMENTADO)
 
-### 8 tipos de vivienda
-Estudio (25-45m2): 80-280k euros
-Piso pequeño (45-70m2): 120-450k euros
-Piso familiar (80-120m2): 200-700k euros
-Casa con jardín: 250k-1.2M euros
-Ático/Penthouse: 500k-3M euros
-Villa/Finca: 800k-10M euros
-Mansión: 5M-50M euros
-Isla privada: 20M-200M euros (hito imposible)
-
-### Precios alquiler por ciudad
-Londres/París/Zürich: 2.200 euros/mes
-Madrid/Barcelona centro: 1.400 euros/mes
-Bilbao/Valencia: 900 euros/mes
-Sabadell/Terrassa: 650 euros/mes
-Ciudad media España: 550 euros/mes
-Pueblo/rural: 350 euros/mes
-
-### Trade-off vivienda vs tiempo
-Vivir en Sabadell trabajando en Barcelona: -2h/día = -1 día efectivo/semana.
-
-### Mercado dinámico
-Ciclo alcista (6-12 años): +5-15%/año. Ciclo bajista (2-5 años): -10-40%. Burbuja: rara, -50% al explotar. Newsletter avisa señales, no certezas.
-
-### Inversión inmobiliaria
-Piso de alquiler, local comercial, oficinas, nave industrial, edificio completo, hotel/apartamentos turísticos.
-Problemas reales: inquilino impago, derrama inesperada, averías, nueva ley de alquileres.
+8 tipos: Estudio → Isla privada (hito imposible).
+Precios alquiler: Londres/París 2.200/mes → Pueblo 350/mes.
+Mercado dinámico con ciclos alcistas y bajistas. Newsletter avisa señales, no certezas.
+Inversión inmobiliaria disponible. Problemas reales del alquiler.
 
 ---
 
 ## 34. SISTEMA DE SALUD COMPLETO (DISEÑADO, NO IMPLEMENTADO)
 
-### Enfermedades por tipo
-Agudas: gripe (-2 semanas productividad), accidente (recuperación variable), operación inesperada (coste + tiempo + riesgo).
-Crónicas: diabetes tipo 2 (prevenible), hipertensión (asesino silencioso), dolor crónico post-accidente.
-Terminales: cáncer estadios 1-4 con probabilidades reales, ELA progresión inevitable, Alzheimer.
-
-### Predisposición genética
-Heredada de genes ocultos. Algunas se revelan a los 20, otras a los 50. Sin chequeos: diagnósticos tardíos.
-
-### Burnout
-No es estrés. Es vacío. Recuperación meses, no semanas. Señales progresivas antes del evento de crisis.
+Agudas, crónicas y terminales. Predisposición genética desde genes ocultos.
+Burnout: no es estrés, es vacío. Recuperación meses, no semanas.
 
 ---
 
 ## 35. SISTEMA DE ADICCIONES (DISEÑADO, NO IMPLEMENTADO)
 
-Tipos: alcohol, trabajo (sin estigma social), juego/casino (Riesgo alto), drogas, pantallas.
-
-### Mecánica de progresión
-SIEMPRE oculta. Sin alarmas. Solo en fase avanzada: evento de crisis.
-
-### Mecánica de recuperación
-No hay cura, hay gestión. Recaídas reales. La recaída después de 5 años limpio: el evento más duro del arco.
+Progresión SIEMPRE oculta. Sin alarmas. Señales sutiles primero.
+No hay cura, hay gestión. Recaídas reales. El sponsor con arco narrativo propio.
 
 ---
 
 ## 36. PSICOLOGÍA PROFUNDA (DISEÑADO, NO IMPLEMENTADO)
 
-### Miedos emergentes
-Miedo al abandono, al fracaso, a la soledad, a la muerte. Limitan opciones en el panel de iniciativa.
-
-### Sistema de propósito
-Crisis de propósito a los 35-50 años. Cuatro tipos: familia, legado profesional, impacto social, experiencia pura.
-
-### Corrupción moral gradual (0-100)
-Gradual, sin alarma. Solo visible en el epitafio final. Almacenado en GameState.moralCorruption.
+Miedos emergentes que limitan opciones visiblemente.
+Crisis de propósito a los 35-50. Corrupción moral gradual (0-100) solo visible en epitafio.
+Almacenado en GameState.moralCorruption.
 
 ---
 
 ## 37. MUNDO E HISTORIA (DISEÑADO, NO IMPLEMENTADO)
 
-### Eventos históricos aleatorios
-Crisis económica global (cada 15-25 años), pandemia (rara), revolución tecnológica (cada 20-30 años), guerra (según tier), movimiento social, cambio climático.
-
-### Cambio tecnológico
-Internet (~1995), smartphones (2007+), IA (2020s+), viajes espaciales comerciales (2040s+). Profesiones que desaparecen y aparecen.
-
-### El periódico del mundo
-Titulares dinámicos por trimestre. Publicidad falsa de época. Necrológicas donde aparecerá el personaje.
+Eventos históricos aleatorios: crisis, pandemia, revolución tecnológica, guerra.
+Cambio tecnológico: Internet (~1995), smartphones (2007+), IA (2020s+).
+El periódico del mundo: titulares dinámicos, publicidad de época, necrológicas.
 
 ---
 
 ## 38. SISTEMA DE FAMA (DISEÑADO, NO IMPLEMENTADO)
 
-Niveles: 0-10 anónimo, 11-25 local, 26-50 figura pública menor, 51-75 celebridad nacional, 76-90 internacional, 91-100 leyenda viva.
-Equipo de PR: 5.000-50.000 euros/mes. Cancelación como mecánica real. La fama como trampa: soledad, imposibilidad de normalidad a partir de nivel 70.
+Niveles 0-100. La fama como trampa: soledad, imposibilidad de normalidad a partir de nivel 70.
+Cancelación como mecánica real. Rehabilitación: proceso largo.
 
 ---
 
 ## 39. SECRETOS Y CHANTAJE (DISEÑADO, NO IMPLEMENTADO)
 
-Tipos con peso emocional 1-10. Peso 8+: afecta Estabilidad crónicamente.
-Opciones: pagar, amenazar, confesar, eliminar evidencias, aceptar consecuencias.
+Peso emocional 1-10. Peso 8+: afecta Estabilidad crónicamente.
 En Modo Dynastía: el escándalo póstumo que descubre tu hijo.
 
 ---
@@ -912,21 +854,21 @@ En Modo Dynastía: el escándalo póstumo que descubre tu hijo.
 ## 40. OBJETOS, LUGARES Y MEMORIAS (DISEÑADO, NO IMPLEMENTADO)
 
 Objetos con historia emocional se transmiten en Modo Dynastía y aparecen en el epitafio.
-Lugares con peso emocional generan memoria involuntaria al volver. Lugares que desaparecen generan duelo.
-Memorias involuntarias en feed: cursiva más tenue. Estímulos: olor, canción, letra reconocida.
+Lugares que desaparecen generan duelo. Memorias involuntarias: cursiva más tenue en el feed.
 
 ---
 
 ## 41. SISTEMA EDUCATIVO DE HIJOS (DISEÑADO, NO IMPLEMENTADO)
 
-El barrio determina el colegio. La educación determina stats iniciales del descendiente en Modo Dynastía. Es la inversión más rentable del juego a largo plazo.
+El barrio determina el colegio. La educación determina stats del descendiente en Modo Dynastía.
+Es la inversión más rentable del juego a largo plazo.
 
 ---
 
 ## 42. HERENCIAS Y TESTAMENTOS (DISEÑADO, NO IMPLEMENTADO)
 
-Herencia positiva y negativa. Impuestos reales por país. La segunda familia que no sabías que existía.
-Sin testamento: el estado decide. Herencia emocional en Modo Dynastía: traumas y valores transmitidos sin querer.
+Herencia positiva y negativa. La segunda familia que no sabías que existía.
+Herencia emocional en Modo Dynastía: traumas y valores transmitidos sin querer.
 
 ---
 
@@ -951,9 +893,9 @@ Estos 12 principios deben guiar cada decisión de diseño de UI y narrativa. No 
 
 ## 44. EPITAFIO VIVO DETALLADO
 
-Visible en cualquier momento (panel colapsable en GameScreen). Cambia desde el primer evento. Los objetos más importantes aparecen en él. La corrupción moral solo visible aquí.
-
-Pantalla de muerte: 15 segundos de preparación. "Llevas X años. Tomaste X decisiones. X personas te recordarán." La última línea siempre es la más poderosa. Lápida SVG con textura de piedra en CSS.
+Visible en cualquier momento (panel colapsable en GameScreen). Cambia desde el primer evento.
+Los objetos más importantes aparecen en él. La corrupción moral solo visible aquí.
+Pantalla de muerte: 15 segundos de preparación. Lápida SVG con textura de piedra en CSS.
 
 ---
 
@@ -976,21 +918,21 @@ Pantalla de muerte: 15 segundos de preparación. "Llevas X años. Tomaste X deci
 
 ## 46. TRANSPORTE COTIDIANO (DISEÑADO, NO IMPLEMENTADO)
 
-Sin vehículo en ciudad con metro: 80 euros/mes. Sin metro: trabajo limitado. Polígono: coche obligatorio. Pueblo + ciudad: 2h/día = -1 día efectivo/semana. Carné: 800-1.500 euros, 2-3 meses, requisito previo.
+Sin metro: trabajo limitado. Polígono: coche obligatorio.
+Pueblo + ciudad: 2h/día = -1 día efectivo/semana. Carné: requisito previo.
 
 ---
 
 ## 47. SISTEMAS DE ADICCIÓN Y RETENCIÓN
 
 ### El Rival
-Mismos ancestros, diferente país, orientación y suerte. Vive en paralelo. Aparece en newsletter: "Mientras tú estudiabas, Miguel montó su primera empresa." RivalState ya existe en GameState.
+Mismos ancestros, diferente país, orientación y suerte. Vive en paralelo.
+Aparece en newsletter: "Mientras tú estudiabas, Miguel montó su primera empresa."
+RivalState ya existe en GameState.
 
 ### Newsletter Trimestral Expandida
-Cada 4 trimestres como modal estilo periódico de época.
-- MUNDO: evento histórico ficticio de tu país y época.
-- TU ENTORNO: algo sobre tus NPCs o rival.
-- ECONOMÍA: ciclos, Euribor, mercados.
-Sin años reales para evitar meta-gaming.
+Cada 4 trimestres. Tres secciones: MUNDO, TU ENTORNO, ECONOMÍA.
+Sin años reales para evitar meta-gaming. Diseño de periódico de época.
 
 ### Fondo atmosférico por etapa vital
 | Etapa | Hex |
@@ -1006,7 +948,10 @@ Sin años reales para evitar meta-gaming.
 Pantalla negra + nombre de etapa letra a letra + edad + frase del GDD + música nueva. 4 segundos, skip con cualquier tecla.
 
 ### Mascotas
-Vínculo emocional 0-10. La muerte es uno de los eventos más impactantes. El duelo dura semanas. Razas: Border Collie, Golden Retriever, Rottweiler, Chihuahua. Eventos: operación cara (3.200 euros), perro que detecta el infarto, eutanasia, alergia del hijo, ex que quiere el perro. En Modo Dynastía: la tortuga que tiene 40 años en generación 3.
+Vínculo emocional 0-10. La muerte es uno de los eventos más impactantes. El duelo dura semanas.
+Razas: Border Collie, Golden Retriever, Rottweiler, Chihuahua.
+Eventos: operación cara (3.200 euros), perro detecta infarto, eutanasia, alergia del hijo, ex quiere el perro.
+En Modo Dynastía: la tortuga que tiene 40 años en generación 3.
 
 ---
 
@@ -1018,3 +963,227 @@ Vínculo emocional 0-10. La muerte es uno de los eventos más impactantes. El du
 | Tier 2 — Post-lanzamiento | RU, PL, IT, TR, ZH |
 
 Arquitectura: react-i18next. Archivos en src/i18n/locales/. Todos los strings via t('clave'). Comentarios en inglés. UI en el idioma del jugador.
+
+---
+
+## 49. LOS 80 ARQUETIPOS LEGENDARIOS (DISEÑADO, NO IMPLEMENTADO)
+
+No son skins. Son condiciones de partida especiales con herencia genética inspirada en la figura, país y época relevante, y el arco narrativo de su vida real como posibilidad, no como obligación. El jugador puede desviarse.
+
+AVISO LEGAL: Las figuras vivas requieren nombres ficcionalizados o licencia antes del lanzamiento comercial. Las figuras históricas fallecidas son de dominio público.
+
+10 categorías x 8 figuras:
+Ciencia: Einstein, Curie, Tesla, Hawking, Sagan, Armstrong, Gagarin, Darwin
+Tecnología: Jobs, Gates, Buffett, Rockefeller, Carnegie, Jack Ma (figuras vivas: ficcionalizar)
+Deporte: Jordan, Ali, Pelé, Senna, Bolt, Federer (figuras vivas: ficcionalizar)
+Arte: Picasso, Mozart, Bowie, Frida Kahlo, Beethoven, Bob Dylan, Miyazaki, Banksy
+Poder: Napoleon, Mandela, Churchill, Gandhi, Lincoln, Castro, Thatcher, Julio César
+Crimen: Escobar, Capone, El Chapo, Jesse James, Griselda Blanco, Frank Lucas, D.B. Cooper, Victor Lustig
+Exploradores: Colón, Shackleton, Amelia Earhart, Hillary, Messner, Cousteau, Marco Polo, Amundsen
+Filosofía: Buda, Sócrates, Confucio, MLK, Marco Aurelio, Simón Bolívar, Osho, Hubbard
+
+---
+
+## 50. SISTEMA DE MOMENTOS IRREPETIBLES (DISEÑADO, NO IMPLEMENTADO)
+
+Algunos momentos solo ocurren una vez. Sin aviso previo. Sin preparación posible.
+
+Ejemplos:
+- La primera vez que tu hijo dice papá/mamá
+- El día que tu padre te pide perdón
+- La última conversación antes de que alguien muriera sin saber que era la última
+- El momento en que decides que ya no amas a tu pareja
+- El instante en que ves el resultado de 30 años de trabajo
+
+Aparecen en el feed sin previo aviso. El jugador solo elige cómo responder.
+Aparecen en el epitafio si son suficientemente importantes.
+La memoria selectiva: el personaje recuerda los momentos más cargados emocionalmente, no los más importantes estratégicamente.
+
+---
+
+## 51. LA DECISIÓN ARREPENTIDA (DISEÑADO, NO IMPLEMENTADO)
+
+Una vez por partida: el jugador puede ver qué habría pasado con la decisión que no tomó.
+No puede cambiarla. Solo verla.
+La respuesta no siempre es obvia. A veces el camino no tomado era peor. A veces era mejor.
+La ambigüedad es intencional.
+
+---
+
+## 52. ENVEJECIMIENTO FÍSICO POR DÉCADAS (DISEÑADO, NO IMPLEMENTADO)
+
+20s: Físico en su pico. Recuperación rápida. Sensación de invulnerabilidad (trampa).
+30s: Primer declive. El metabolismo ya no perdona. Las lesiones tardan más.
+40s: El cuerpo empieza a hablar. Las decisiones de salud de los 30 dan sus frutos.
+50s: Los resultados de décadas de decisiones.
+60s-70s: La autonomía como recurso que se agota.
+
+El cuerpo como narrador — descripciones narrativas en el feed:
+Físico 9 a los 16: "Tu cuerpo responde antes de que pienses."
+Físico 4 a los 45 sin actividad: "Hay una pereza física que se ha instalado. No es enfermedad. Es abandono gradual."
+Físico 9 a los 45 con abandono desde los 25: "El cuerpo que tuviste a los 20 es un recuerdo que duele un poco cada mañana al levantarte."
+
+---
+
+## 53. EL TIEMPO COMO PERSONAJE (DISEÑADO, NO IMPLEMENTADO)
+
+Marcadores relacionales en lugar de fechas absolutas:
+No: "Semana 43 · Año 2003"
+Sino: "Han pasado 3 años desde que decidiste no defender a Carlos."
+
+Aceleración temporal narrativa en períodos sin eventos:
+"Los siguientes dos años son la versión abreviada de crecer. El colegio. Los amigos. La rutina que parece eterna y que un día termina."
+
+Ralentización en momentos críticos:
+El primer sueldo: "280 euros. Lo miras varias veces antes de creer que es tuyo. No es mucho. Pero es tuyo. Completamente tuyo."
+
+---
+
+## 54. CARTAS Y MENSAJES GUARDADOS (DISEÑADO, NO IMPLEMENTADO)
+
+Las palabras que decidiste no decir. Y las que llegaron demasiado tarde.
+
+Tipos: cartas escritas, emails, mensajes, voicemails guardados.
+El mensaje de voz de tu padre guardado aunque su teléfono lleva 10 años sin existir.
+La carta que escribiste y nunca enviaste. El número que sigues sin borrar.
+
+Mecánica: el jugador elige enviar ahora, guardar, o no enviar.
+Las cartas no enviadas pesan como carga emocional.
+La carta final antes de morir: si la escribe, aparece en el Modo Dynastía.
+El descendiente la encuentra y la lee.
+
+---
+
+## 55. REPUTACIÓN LOCAL (DISEÑADO, NO IMPLEMENTADO)
+
+Diferente de la reputación global (sección 38). Es la memoria específica de cada entorno.
+Cada colegio, barrio y empresa tiene su propia memoria de lo que hiciste ahí.
+
+Si defendiste a Carlos en el patio: en el instituto se sabe. A los 25 en una entrevista el entrevistador fue al mismo colegio y te reconoce.
+Si ganaste el concurso literario a los 12: a los 20 alguien del barrio te pregunta si eras tú el que escribía.
+Si fuiste el agresor: eso también se sabe. Puede aparecer en el momento más inoportuno.
+
+---
+
+## 56. MECÁNICAS DETALLADAS DE PROFESIONES (DISEÑADO, NO IMPLEMENTADO)
+
+### Científico
+Sistema de proyectos con financiación y fecha límite. El dilema: publicar antes de estar seguro vs esperar.
+Si estás equivocado: retractación pública. Si estás bien: eres el primero.
+El colega que te roba la idea. La empresa que pone condiciones. El descubrimiento accidental.
+
+### Médico
+Sistema de pacientes activos con historia propia. Burnout médico con señales progresivas.
+El protocolo vs el juicio clínico. El error que cometiste y nadie sabe.
+Especialidades: cirugía, psiquiatría, urgencias, médico de familia. Cada una con mecánica diferente.
+
+### Político
+Capital político como recurso principal (0-100).
+La corrupción gradual en fases numeradas:
+  Nivel 1: el sobre en el desayuno.
+  Nivel 5: la ley que modificas a cambio de financiación.
+  Nivel 9: ya no recuerdas cuándo dejaste de ser quien eras.
+El escándalo que puedes tapar o dejar salir.
+
+### Futbolista
+Sistema de vestuario con 22 jugadores y dinámicas. El veterano que te enseña y luego compite contigo.
+Post-carrera obligatorio: depresión post-retirada (estadísticamente real), pérdida de estructura diaria, decisión de qué ser ahora.
+
+### Criminal
+Sistema de exposición 0-100 siempre visible. 81-99: te están cerrando el cerco. 100: arrestado.
+Blanqueo de dinero: empresa fantasma, inmuebles, casino, arte, crypto.
+Especialidades: estafador, traficante, crimen organizado.
+
+### Empresario
+4 fases: validar vs lanzar, primer empleado, supervivencia (70% muere aquí), crecimiento, madurez.
+La fase 2 puede matar igual que la fase 1. La fase 4: qué haces cuando ya funciona solo.
+
+---
+
+## 57. VIAJES CON MECÁNICAS ÚNICAS (DISEÑADO, NO IMPLEMENTADO)
+
+Tipos: escapada fin de semana (200-800 euros), vacaciones anuales (800-5.000 euros), mochilero 3-6 meses, viaje de trabajo, vuelta al mundo (20-50k euros, 1 año).
+
+Destinos con mecánicas específicas:
+Japón: +Disciplina 0.5 permanente.
+Silicon Valley (solo con perfil tecnológico): red de contactos que puede cambiar la carrera.
+Dubai: oportunidades de negocio específicas.
+Zona de conflicto (periodista/cooperante): riesgo real de no volver.
+
+Viaje espacial (disponible desde 2040s en el juego):
+Coste 500k-5M euros según era tecnológica. El overview effect: cambio filosófico permanente.
++Perspectiva, +Emocional, +Estabilidad. Aparece en el epitafio de forma única.
+
+---
+
+## 58. LONGEVIDAD EXTENDIDA (DISEÑADO, NO IMPLEMENTADO)
+
+Era actual: esperanza de vida 80 años.
+Era intervención (2030-2050): terapias que extienden 10-15 años. Solo para ricos (500k euros+). La brecha de longevidad como mecánica social.
+Era extensión (2050+): esperanza 110-120 años para clase media alta. Nuevos problemas: jubilación, relaciones de 80 años, múltiples carreras.
+Era especulativa (2080+): mortalidad casi vencida para los más ricos. El personaje que elige morir cuando siente que su historia terminó: el acto más libre del juego.
+
+---
+
+## 59. LEGADO CULTURAL VIVO (DISEÑADO, NO IMPLEMENTADO)
+
+Lo que creas existe en el mundo del juego y el mundo lo recuerda o lo olvida.
+
+Músico: tus álbumes en la narrativa del mundo. En Modo Dynastía tu nieto escucha tu música.
+Escritor: tus libros en las bibliotecas. Otros personajes pueden leerlos y cambiar su trayectoria.
+Arquitecto: los edificios siguen en pie. El descendiente pasa por delante. "El nombre en la placa es el tuyo."
+Político: las leyes que promulgaste siguen vigentes o han sido derogadas.
+
+El legado olvidado (80% de las personas):
+"Vivió. Amó. Fue olvidado. Como casi todos. Eso no hace su vida menos real."
+El epitafio lo reconoce sin juicio.
+
+---
+
+## 60. GASTRONOMÍA DETALLADA (DISEÑADO, NO IMPLEMENTADO)
+
+La receta de tu madre/abuela: cuando la cocinas genera memoria involuntaria. Si el familiar muere solo tú sabes hacerla. Si la pierdes se pierde para siempre. En Modo Dynastía aparece generaciones después.
+
+Hábitos alimentarios como mecánica:
+Cocinar en casa: 250-400 euros/mes, -tiempo, +salud.
+Comer fuera: 600-1.500 euros/mes, +social.
+Delivery sistemático: síntoma de desconexión.
+Diferencia acumulada en 20 años: 120.000 euros.
+
+---
+
+## 61. SISTEMA DE PENSIONES Y FIRE (DISEÑADO, NO IMPLEMENTADO)
+
+FIRE (Financial Independence, Retire Early): la regla del 4%.
+Con 2.000 euros/mes de gastos: necesitas 600.000 euros invertidos.
+Con 5.000 euros/mes: necesitas 1.500.000 euros.
+
+El jugador que lo consigue a los 40: qué hace con el resto de su vida.
+La libertad que esperabas puede sentirse vacía. O puede ser la vida que siempre quisiste.
+El sistema público puede no existir cuando llegues (evento histórico posible).
+
+---
+
+## 62. LIBROS Y CULTURA DETALLADO (DISEÑADO, NO IMPLEMENTADO)
+
+"El libro correcto en el momento correcto": puede ser el evento que salva o transforma al personaje.
+Un libro de estoicismo durante una crisis. Una autobiografía de empresario a los 20 como detonante vocacional.
+
+El libro de tu abuelo con sus notas marginales: en Modo Dynastía el descendiente lo encuentra.
+"Alguien había subrayado esta frase: 'La libertad no se regala. Se construye.'"
+Ese momento puede cambiar al descendiente más que cualquier herencia económica.
+
+La conexión entre libros leídos y decisiones tomadas es visible en retrospectiva, no en el momento.
+
+---
+
+## 63. SUEÑOS DETALLADOS (DISEÑADO, NO IMPLEMENTADO)
+
+Tipos: procesamiento (después de evento importante), recurrentes (relacionados con el miedo central), pesadillas (carga vital alta + traumas), lúcidos (raros, respuestas simbólicas ambiguas).
+
+Formato en feed: cursiva más tenue, fondo diferente.
+Los sueños recurrentes están relacionados con el miedo central del personaje.
+Si el miedo se trabaja con terapia: el sueño cambia.
+Si no: se vuelve pesadilla progresivamente.
+
+La pesadilla recurrente que desaparece el día que resuelves lo que la provocó: uno de los momentos de catarsis más poderosos del juego.
