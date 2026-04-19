@@ -673,6 +673,103 @@ Líneas coloreadas por grupo: cognitivo (azul), social (dorado), vital (granate)
 
 ---
 
+## 32. VEHÍCULOS COMPLETO (DISEÑADO, NO IMPLEMENTADO)
+
+Marcas ficticias confirmadas:
+- **Económico:** Auros (Dacia/Seat), Civeo (Toyota/Honda), Nordian (VW/Skoda)
+- **Premium:** Meridian (BMW), Stellan (Mercedes/Audi)
+- *(resto de marcas pendiente de completar)*
+
+---
+
+## 33. [PENDIENTE DE CONTENIDO]
+
+---
+
+## 34. [PENDIENTE DE CONTENIDO]
+
+---
+
+## 35. [PENDIENTE DE CONTENIDO]
+
+---
+
+## 36. PSICOLOGÍA PROFUNDA (DISEÑADO, NO IMPLEMENTADO)
+
+Miedos emergentes:
+- Miedo al abandono (relación sin cierre)
+- Miedo al fracaso (padres con expectativas)
+- Miedo a la soledad (sin conexión... *(contenido pendiente de completar)*)
+
+---
+
+## 37. [PENDIENTE DE CONTENIDO]
+
+---
+
+## 38. [PENDIENTE DE CONTENIDO]
+
+---
+
+## 39. [PENDIENTE DE CONTENIDO]
+
+---
+
+## 40. OBJETOS, LUGARES Y MEMORIAS (DISEÑADO, NO IMPLEMENTADO)
+
+**Objetos con historia emocional:** reloj del abuelo, guitarra del primer concierto, coche del primer trabajo. Se transmiten en Modo Dynastía. Los más importantes aparecen en el epitafio.
+
+**Lugares con peso emocional:** casa de la infancia, bar del primer amor, lugar del peor momento. Volver genera memoria involuntaria automática. Lugares que desaparecen generan duelo real.
+
+**Memorias involuntarias en feed:** formato cursiva más tenue. Estímulos: olor a comida, canción en radio, letra reconocida de alguien del pasado.
+
+---
+
+## 41. SISTEMA EDUCATIVO DE HIJOS (DISEÑADO, NO IMPLEMENTADO)
+
+- Guardería: quién cuida al hijo impacta en sus stats tempranos.
+- Colegio: público, concertado, privado o internacional.
+- El barrio donde crece el hijo tiene impacto real en sus estadísticas. *(contenido pendiente de completar)*
+
+---
+
+## 42. [PENDIENTE DE CONTENIDO]
+
+---
+
+## 43. [PENDIENTE DE CONTENIDO]
+
+---
+
+## 44. [PENDIENTE DE CONTENIDO]
+
+---
+
+## 45. [PENDIENTE DE CONTENIDO]
+
+---
+
+## 46. [PENDIENTE DE CONTENIDO]
+
+---
+
+## 47. TRANSICIONES CINEMATOGRÁFICAS Y ATMÓSFERA VISUAL (DISEÑADO, NO IMPLEMENTADO)
+
+**Fondo atmosférico por etapa vital:**
+
+| Etapa | Tint | Hex |
+|-------|------|-----|
+| Infancia | Cálido dorado | `#221608` |
+| Adolescencia | Azul frío | `#0a0d14` |
+| Juventud | Ámbar | `#1a1408` |
+| Adultez | Marrón oscuro | `#100d08` |
+| Madurez | Gris cálido | `#0f0e0d` |
+| Vejez | Casi negro | `#080807` |
+
+**Transición cinematográfica entre etapas:** pantalla negra + nombre de etapa letra a letra + edad + frase del GDD + música nueva. Duración 4 segundos, skip con cualquier tecla. Es el momento memorable que los jugadores compartirán.
+
+---
+
 ## 48. IDIOMAS SOPORTADOS
 
 | Tier | Idiomas |
