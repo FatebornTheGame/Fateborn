@@ -1,12 +1,23 @@
-import { colors } from './tokens'
+import { useGameStore } from '../store/gameStore'
+import { colors }       from './tokens'
 
 interface Props {
-  /** 'death' uses a darker, redder top gradient */
   variant?: 'default' | 'death'
 }
 
+function stageTint(age: number): string {
+  if (age < 13) return '#221608'  // infancia    — dorado cálido
+  if (age < 19) return '#0a0d14'  // adolescencia — azul frío
+  if (age < 31) return '#1a1408'  // juventud     — ámbar
+  if (age < 51) return '#100d08'  // adultez      — marrón oscuro
+  if (age < 71) return '#0f0e0d'  // madurez      — gris cálido
+  return '#080807'                 // vejez        — casi negro
+}
+
 export function AtmosphericBackground({ variant = 'default' }: Props) {
-  const topColor = variant === 'death' ? '#100a08' : '#221608'
+  const age      = useGameStore(s => s.gameState?.ageYears ?? 6)
+  const topColor = variant === 'death' ? '#100a08' : stageTint(age)
+
   return (
     <>
       <div style={{
@@ -15,6 +26,7 @@ export function AtmosphericBackground({ variant = 'default' }: Props) {
         zIndex:         0,
         pointerEvents:  'none',
         background:     `radial-gradient(ellipse 80% 60% at 50% 0%, ${topColor} 0%, ${colors.bg.primary} 60%, #080604 100%)`,
+        transition:     'background 3s ease',
       }} />
       <div style={{
         position:        'fixed',
