@@ -75,7 +75,7 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
                       fontStyle:   'italic',
                       fontSize:    '0.8rem',
                       lineHeight:  1.8,
-                      color:       '#7a6040',
+                      color:       colors.text.passive,
                       margin:      '0 0 8px 0',
                       paddingLeft: 0,
                     } : {
@@ -85,7 +85,7 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
                       lineHeight:  1.8,
                       color:       colors.text.narrative,
                       opacity:     IMPORTANCE_OPACITY[entry.importance] ?? 0.72,
-                      borderLeft:  `2px solid ${colors.bg.tertiary}`,
+                      borderLeft:  `2px solid ${colors.border.default}`,
                       paddingLeft: 12,
                       margin:      '0 0 6px 0',
                     }}
@@ -143,26 +143,25 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
                     fontSize:      '0.7rem',
                     letterSpacing: '0.1em',
                     lineHeight:    1.5,
-                    background:    '#141210',
-                    border:        '1px solid #2e2418',
+                    background:    colors.bg.tertiary,
+                    border:        `1px solid ${colors.border.event}`,
+                    borderLeft:    `3px solid ${colors.gold}`,
                     borderRadius:  2,
-                    color:         '#8a7060',
+                    color:         colors.text.narrative,
                     cursor:        'pointer',
                     transition:    `all ${transitions.fast}`,
                     minHeight:     44,
                   }}
                   onMouseEnter={e => {
                     const btn = e.currentTarget as HTMLButtonElement
-                    btn.style.borderColor = colors.gold
+                    btn.style.background  = colors.bg.hover
                     btn.style.color       = colors.gold
-                    btn.style.background  = '#C9A84C08'
                     btn.style.transform   = 'translateX(4px)'
                   }}
                   onMouseLeave={e => {
                     const btn = e.currentTarget as HTMLButtonElement
-                    btn.style.borderColor = '#2e2418'
-                    btn.style.color       = '#8a7060'
-                    btn.style.background  = '#141210'
+                    btn.style.background  = colors.bg.tertiary
+                    btn.style.color       = colors.text.narrative
                     btn.style.transform   = 'translateX(0)'
                   }}
                 >

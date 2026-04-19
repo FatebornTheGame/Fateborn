@@ -4,6 +4,8 @@ export const colors = {
     secondary: '#141210',
     tertiary:  '#1c1915',
     card:      '#0f0d0a',
+    disabled:  '#3a2e1e',
+    hover:     '#2a2218',
   },
   gold:    '#C9A84C',
   crimson: '#8B1A2A',
@@ -13,11 +15,19 @@ export const colors = {
     muted:     '#6b6045',
     faint:     '#4a3a20',
     narrative: '#b09060',
+    passive:   '#7a6040',
+    dim:       '#5a4828',
   },
   border: {
     default: '#2a2620',
     warm:    '#3a3228',
     active:  '#C9A84C',
+    event:   '#2e2418',
+  },
+  stats: {
+    cognitive: '#4a7fb5',
+    social:    '#C9A84C',
+    vital:     '#8B1A2A',
   },
 } as const
 

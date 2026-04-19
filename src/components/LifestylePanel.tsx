@@ -39,8 +39,8 @@ function AllocationBar({ label, value, max = 6 }: { label: string; value: number
       }}>
         {label}
       </span>
-      <div style={{ flex: 1, height: 2, background: colors.bg.tertiary, borderRadius: 1 }}>
-        <div style={{ height: '100%', width: `${pct}%`, background: `${colors.gold}66`, borderRadius: 1 }} />
+      <div style={{ flex: 1, height: 8, background: colors.bg.tertiary, borderRadius: 4 }}>
+        <div style={{ height: '100%', width: `${pct}%`, background: `${colors.gold}66`, borderRadius: 4 }} />
       </div>
     </div>
   )
@@ -94,7 +94,7 @@ export function LifestylePanel({
                 width:        '100%',
                 textAlign:    'left',
                 padding:      '14px 20px',
-                background:   active ? '#C9A84C0f' : 'transparent',
+                background:   active ? `${colors.gold}0f` : 'transparent',
                 borderTop:    'none',
                 borderRight:  'none',
                 borderBottom: 'none',
@@ -105,8 +105,8 @@ export function LifestylePanel({
               onMouseEnter={e => {
                 if (!active) {
                   const btn = e.currentTarget as HTMLButtonElement
-                  btn.style.background = '#1c1915'
-                  btn.style.borderLeft = '3px solid #3a3020'
+                  btn.style.background = colors.bg.tertiary
+                  btn.style.borderLeft = `3px solid ${colors.border.warm}`
                 }
               }}
               onMouseLeave={e => {
@@ -121,7 +121,7 @@ export function LifestylePanel({
                 display:       'block',
                 fontFamily:    fonts.display,
                 fontSize:      '0.7rem',
-                color:         active ? colors.gold : '#7a6040',
+                color:         active ? colors.gold : colors.text.passive,
                 fontWeight:    active ? 600 : 400,
                 letterSpacing: '0.1em',
               }}>
@@ -132,7 +132,7 @@ export function LifestylePanel({
                 fontFamily: fonts.body,
                 fontStyle:  'italic',
                 fontSize:   '0.6rem',
-                color:      active ? '#8a7050' : '#5a4828',
+                color:      active ? colors.text.secondary : colors.text.dim,
                 marginTop:  4,
               }}>
                 {ls.description}
@@ -166,7 +166,7 @@ export function LifestylePanel({
               fontFamily:    fonts.display,
               fontSize:      '0.55rem',
               letterSpacing: '0.15em',
-              color:         '#8a7050',
+              color:         colors.text.secondary,
               opacity:       0.8,
               textTransform: 'uppercase',
             }}>
@@ -180,7 +180,7 @@ export function LifestylePanel({
               fontFamily:    fonts.display,
               fontSize:      '0.55rem',
               letterSpacing: '0.1em',
-              color:         '#6b5535',
+              color:         colors.text.muted,
               textTransform: 'uppercase',
             }}>
               {t('game.lifestyle.choose')}
@@ -198,11 +198,12 @@ export function LifestylePanel({
             letterSpacing: '0.25em',
             fontWeight:    700,
             textTransform: 'uppercase',
-            border:        isDisabled ? '1px solid #3a3228' : 'none',
+            border:        isDisabled ? `1px solid ${colors.border.warm}` : 'none',
             cursor:        isDisabled ? 'not-allowed' : 'pointer',
-            background:    isDisabled ? '#1c1915' : colors.gold,
-            color:         isDisabled ? '#6b5535' : colors.bg.primary,
-            opacity:       1,
+            background:    isDisabled ? colors.bg.disabled : colors.gold,
+            color:         isDisabled ? colors.text.muted : colors.bg.primary,
+            opacity:       isDisabled ? 0.45 : 1,
+            minHeight:     44,
             transition:    `background ${transitions.fast}`,
           }}
           onMouseEnter={e => {

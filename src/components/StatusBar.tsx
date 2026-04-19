@@ -16,10 +16,10 @@ const VITAL_STATS: { key: VitalKey; tKey: string }[] = [
   { key: 'estabilidad', tKey: 'game.stats.est' },
 ]
 
-function barColor(value: number): string {
-  if (value >= 6) return colors.gold
-  if (value >= 4) return '#8B6914'
-  return colors.crimson
+const VITAL_STAT_COLOR: Record<VitalKey, string> = {
+  fisico:      colors.stats.vital,
+  emocional:   colors.stats.social,
+  estabilidad: colors.stats.vital,
 }
 
 function stageKey(age: number): string {
@@ -56,7 +56,7 @@ export function StatusBar({ character, stats, ageYears }: Props) {
         fontFamily:   fonts.body,
         fontSize:     '0.85rem',
         fontWeight:   600,
-        color:        '#b09060',
+        color:        colors.text.narrative,
         whiteSpace:   'nowrap',
         overflow:     'hidden',
         textOverflow: 'ellipsis',
@@ -95,18 +95,17 @@ export function StatusBar({ character, stats, ageYears }: Props) {
       <div style={{ marginLeft: 'auto', display: 'flex', gap: 12, alignItems: 'center' }}>
         {VITAL_STATS.map(({ key, tKey }) => {
           const value = stats[key]
-          const color = barColor(value)
           return (
             <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-start' }}>
               <span style={{ fontFamily: fonts.display, fontSize: '0.45rem', color: colors.text.muted, letterSpacing: '0.05em' }}>
                 {t(tKey)}
               </span>
-              <div style={{ width: 60, height: 3, background: colors.border.default, borderRadius: 2 }}>
+              <div style={{ width: 60, height: 8, background: colors.border.default, borderRadius: 4 }}>
                 <div style={{
                   height:       '100%',
                   width:        `${(value / 10) * 100}%`,
-                  background:   color,
-                  borderRadius: 2,
+                  background:   VITAL_STAT_COLOR[key],
+                  borderRadius: 4,
                   transition:   'width 0.4s ease',
                 }} />
               </div>
