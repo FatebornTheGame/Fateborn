@@ -51,7 +51,11 @@
       "Bash(cmd:*)",
       "Bash(powershell:*)",
       "Bash(sed -i \"s/subtitle:        'What runs in your blood',/subtitle:        'What runs in your blood',\\\\n    context:         'Your heritage is not chosen. It is carried, endured, and with luck, transformed.',/\" src/i18n/locales/en.ts)",
-      "Bash(sed -i \"s/subtitle:       'Choose up to four ancestors who will forge your heritage',/subtitle:       'Choose up to four ancestors who will forge your heritage',\\\\n    context:        'Each ancestor passes on their strengths and their shadows. Choose with intention.',/\" src/i18n/locales/en.ts)"
+      "Bash(sed -i \"s/subtitle:       'Choose up to four ancestors who will forge your heritage',/subtitle:       'Choose up to four ancestors who will forge your heritage',\\\\n    context:        'Each ancestor passes on their strengths and their shadows. Choose with intention.',/\" src/i18n/locales/en.ts)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git commit *)"
     ]
   }
 }
