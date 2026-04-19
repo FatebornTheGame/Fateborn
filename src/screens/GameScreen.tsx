@@ -11,6 +11,7 @@ import { TabBar }                     from '../components/TabBar'
 import { StatsPanel }                 from '../components/StatsPanel'
 import { MuteButton }                 from '../components/MuteButton'
 import { AtmosphericBackground }      from '../styles/AtmosphericBackground'
+import { StatFlash }                  from '../components/StatFlash'
 import { colors }                     from '../styles/tokens'
 
 export function GameScreen() {
@@ -46,6 +47,7 @@ export function GameScreen() {
           stats={gameState.stats}
           ageYears={gameState.ageYears}
         />
+        <StatFlash />
 
         {/* Desktop layout (md+) */}
         <div
