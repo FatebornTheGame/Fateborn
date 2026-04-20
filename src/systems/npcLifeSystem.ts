@@ -40,12 +40,14 @@ export function advanceNPCLives(state: GameState): GameState {
       // Push narrative to feed if player-visible
       if (step.narrativeToPlayer) {
         const text = interpolate(step.narrativeToPlayer, friend.name)
+        const isHighImpact = step.triggerAge >= 60
         const entry: NarrativeEntry = {
-          id:         `npc_${friend.id}_arc_${i}`,
+          id:              `npc_${friend.id}_arc_${i}`,
           age,
           text,
-          importance: step.triggerAge >= 60 ? 'alta' : 'normal',
-          type:       'npc',
+          importance:      isHighImpact ? 'alta' : 'normal',
+          type:            'npc',
+          emotionalWeight: isHighImpact ? 9 : undefined,
         }
         feed.push(entry)
       }

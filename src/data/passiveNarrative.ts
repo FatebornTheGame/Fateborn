@@ -1,11 +1,12 @@
 import type { GameState } from '../types/game.types'
 
 export interface PassiveNarrativeDef {
-  id:           string
-  minAge:       number
-  maxAge:       number
-  text:         (state: GameState) => string
+  id:            string
+  minAge:        number
+  maxAge:        number
+  text:          (state: GameState) => string
   excludeFlags?: string[]
+  requireFlags?: string[]  // all must be present for this entry to be eligible
 }
 
 // ─── Infancia (6–12) ─────────────────────────────────────────────────────────
@@ -174,6 +175,40 @@ const ADULTEZ: PassiveNarrativeDef[] = [
   },
 ]
 
+// ─── Adultez con mentalidad_ambiciosa ────────────────────────────────────────
+const ADULTEZ_AMBICION: PassiveNarrativeDef[] = [
+  {
+    id:           'adu_amb_precio_exito',
+    minAge:       31, maxAge: 55,
+    requireFlags: ['mentalidad_ambiciosa'],
+    text: s => `${s.character.name} consigue lo que se propone. El precio viene siempre después, cuando ya no se puede devolver.`,
+  },
+  {
+    id:           'adu_amb_escalon',
+    minAge:       31, maxAge: 50,
+    requireFlags: ['mentalidad_ambiciosa'],
+    text: s => `Cada éxito de ${s.character.name} es un escalón que lo aleja un poco más de donde empezó.`,
+  },
+  {
+    id:           'adu_amb_no_es_suficiente',
+    minAge:       33, maxAge: 55,
+    requireFlags: ['mentalidad_ambiciosa'],
+    text: s => `Lo que ayer parecía suficiente hoy ya no lo es. ${s.character.name} conoce ese ciclo. Sigue igual.`,
+  },
+  {
+    id:           'adu_amb_soledad_cima',
+    minAge:       38, maxAge: 55,
+    requireFlags: ['mentalidad_ambiciosa'],
+    text: s => `Hay una soledad específica en la cima. ${s.character.name} la reconoce sin nombrarla.`,
+  },
+  {
+    id:           'adu_amb_cuerpo_deuda',
+    minAge:       40, maxAge: 55,
+    requireFlags: ['mentalidad_ambiciosa'],
+    text: s => `El cuerpo de ${s.character.name} lleva la cuenta de todo lo que la ambición tomó prestado.`,
+  },
+]
+
 // ─── Madurez (51–70) ─────────────────────────────────────────────────────────
 const MADUREZ: PassiveNarrativeDef[] = [
   {
@@ -248,16 +283,29 @@ export const PASSIVE_NARRATIVES: PassiveNarrativeDef[] = [
   ...ADOLESCENCIA,
   ...JUVENTUD,
   ...ADULTEZ,
+  ...ADULTEZ_AMBICION,
   ...MADUREZ,
   ...VEJEZ,
 ]
 
+function capitalize(str: string): string {
+  if (!str) return str
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
 /**
  * Devuelve un texto pasivo elegible para la edad actual.
  * Evita repetir los últimos 3 IDs disparados si es posible.
+ * El nombre del personaje aparece siempre con primera letra en mayúscula.
  */
 export function getPassiveNarrative(state: GameState): string | null {
   const age = state.ageYears
+
+  // Always capitalize the character name in narrative
+  const stateWithCapName: GameState = {
+    ...state,
+    character: { ...state.character, name: capitalize(state.character.name) },
+  }
 
   // IDs de pasivas ya disparadas en el feed
   const recentPassiveIds = state.feed
@@ -265,20 +313,22 @@ export function getPassiveNarrative(state: GameState): string | null {
     .slice(-3)
     .map(e => e.id.replace('passive_', '').replace(/_\d+$/, ''))
 
-  const eligible = PASSIVE_NARRATIVES.filter(p =>
-    age >= p.minAge &&
-    age <= p.maxAge &&
-    !recentPassiveIds.includes(p.id) &&
-    (!p.excludeFlags || !p.excludeFlags.some(f => state.flags.includes(f))),
-  )
+  const isEligible = (p: PassiveNarrativeDef): boolean => {
+    if (age < p.minAge || age > p.maxAge) return false
+    if (p.excludeFlags?.some(f => state.flags.includes(f))) return false
+    if (p.requireFlags?.some(f => !state.flags.includes(f))) return false
+    return true
+  }
 
-  // Si todos están recientes, usar cualquiera elegible por edad
+  const eligible = PASSIVE_NARRATIVES.filter(p => isEligible(p) && !recentPassiveIds.includes(p.id))
+
+  // Si todos están recientes, usar cualquiera elegible por edad/flags
   const pool = eligible.length > 0
     ? eligible
-    : PASSIVE_NARRATIVES.filter(p => age >= p.minAge && age <= p.maxAge)
+    : PASSIVE_NARRATIVES.filter(isEligible)
 
   if (pool.length === 0) return null
 
   const chosen = pool[Math.floor(Math.random() * pool.length)]
-  return chosen.text(state)
+  return chosen.text(stateWithCapName)
 }

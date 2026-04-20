@@ -96,11 +96,12 @@ function processPendingConsequences(state: GameState): {
       delivered.push(narrative)
 
       const entry: NarrativeEntry = {
-        id:         `consequence_${pc.id}`,
+        id:              `consequence_${pc.id}`,
         age,
-        text:       narrative,
-        importance: 'alta',
-        type:       pc.entryType ?? 'consequence',
+        text:            narrative,
+        importance:      'alta',
+        type:            pc.entryType ?? 'consequence',
+        emotionalWeight: 9,
       }
       s = { ...s, feed: [...s.feed, entry] }
 
@@ -362,6 +363,9 @@ export function prepareQuarter(state: GameState, allocation: TimeAllocation): Qu
 
   s = applyAllocationEffects(s, allocation)
 
+  // Snapshot feed length before consequences/NPC arcs to detect high-weight entries this quarter
+  const feedLengthBeforeEvents = s.feed.length
+
   const { state: afterConsequences, delivered } = processPendingConsequences(s)
   s = afterConsequences
 
@@ -372,8 +376,12 @@ export function prepareQuarter(state: GameState, allocation: TimeAllocation): Qu
     ? eligible.reduce((best, ev) => ev.weight > best.weight ? ev : best, eligible[0])
     : null
 
-  // Si no hay evento de decisión, añadir narrativa pasiva para que el tiempo siempre tenga textura
-  if (!pendingEvent) {
+  // Skip passive narrative if the quarter already carries a high-weight entry (NPC death, major consequence)
+  const quarterHasHeavyEntry = s.feed
+    .slice(feedLengthBeforeEvents)
+    .some(e => (e.emotionalWeight ?? 0) > 7)
+
+  if (!pendingEvent && !quarterHasHeavyEntry) {
     const passiveText = getPassiveNarrative(s)
     if (passiveText) {
       const passiveEntry: NarrativeEntry = {

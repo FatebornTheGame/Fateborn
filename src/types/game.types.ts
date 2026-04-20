@@ -162,11 +162,12 @@ export interface Memory {
 
 // ─── Narrative entry ──────────────────────────────────────────────────────────
 export interface NarrativeEntry {
-  id:         string
-  age:        number
-  text:       string
-  importance: 'normal' | 'alta' | 'critica'
-  type:       'event' | 'consequence' | 'npc' | 'memory' | 'reflection' | 'npc_reaction'
+  id:              string
+  age:             number
+  text:            string
+  importance:      'normal' | 'alta' | 'critica'
+  type:            'event' | 'consequence' | 'npc' | 'memory' | 'reflection' | 'npc_reaction'
+  emotionalWeight?: number  // 0–10; entries > 7 suppress passive narrative that quarter
 }
 
 // ─── Economy / Career ─────────────────────────────────────────────────────────
