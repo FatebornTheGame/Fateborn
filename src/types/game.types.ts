@@ -120,6 +120,7 @@ export interface EventOption {
     flags:        string[]
     removeFlags?: string[]
     generateNPC?: NPCTemplate
+    career?:      Career
   }
   delayed:      DelayedConsequence[]
   npcReaction?:  NpcReaction

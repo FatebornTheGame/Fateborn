@@ -149,6 +149,11 @@ function applyOption(state: GameState, ev: GameEventTemplate, option: EventOptio
     s = removeFlags(s, option.immediate.removeFlags)
   }
 
+  // Career assignment
+  if (option.immediate.career) {
+    s = { ...s, career: option.immediate.career }
+  }
+
   // Generate NPC
   if (option.immediate.generateNPC) {
     const tpl  = option.immediate.generateNPC
