@@ -48,6 +48,8 @@ const en = {
       title:    'Initiative',
       decide:   'Make a decision',
       choose:   'Choose a lifestyle',
+      vivir:    'Live',
+      living:   'Living...',
       advance:  'Advance Quarter',
       change:   'Change',
       confirm:  'Confirm Style',

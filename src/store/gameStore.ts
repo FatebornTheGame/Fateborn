@@ -16,6 +16,9 @@ import {
   ORIENTATION_HOMOSEXUAL_CHANCE,
 } from '../constants/game.constants'
 
+// Module-level flag: controls the living loop without triggering re-renders
+let _livingLoopActive = false
+
 // ─── Screen routing ───────────────────────────────────────────────────────────
 export type Screen = 'start' | 'ancestors' | 'birth' | 'game' | 'death'
 export type Difficulty = 'historia' | 'fateborn' | 'ironman' | 'legado'
@@ -99,10 +102,12 @@ interface GameStore {
   preEventState:    GameState | null
   activeTab:        'initiative' | 'feed'
   lastStatChanges:  Partial<Record<keyof Stats, StatFlash>>
+  isLiving:         boolean
 
   startNewGame:   (name: string, gender: 'hombre' | 'mujer') => void
   setLifestyle:   (lifestyle: LifestyleType) => void
-  advanceQuarter: () => void
+  startLiving:    () => void
+  stopLiving:     () => void
   resolveEvent:   (optionId: string) => void
   setActiveTab:   (tab: 'initiative' | 'feed') => void
 }
@@ -148,6 +153,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   preEventState:    null,
   activeTab:        'feed',
   lastStatChanges:  {},
+  isLiving:         false,
 
   startNewGame: (name, gender) => {
     const { inheritedStats, selectedCountry } = get()
@@ -181,24 +187,45 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   setLifestyle: (lifestyle) => set({ lifestyle }),
 
-  advanceQuarter: () => {
+  startLiving: async () => {
+    if (_livingLoopActive) return
     const { gameState, lifestyle, pendingEvent } = get()
-    // Don't advance if there's an unresolved event
-    if (!gameState || pendingEvent) return
-    if (!lifestyle) return
+    if (!gameState || !lifestyle || pendingEvent) return
 
-    const allocation = getLifestyleAllocation(lifestyle)
-    const prep       = prepareQuarter(gameState, allocation)
+    _livingLoopActive = true
+    set({ isLiving: true })
 
-    if (prep.pendingEvent) {
-      set({
-        gameState:     prep.intermediateState,
-        pendingEvent:  prep.pendingEvent,
-        preEventState: prep.intermediateState,
-      })
-    } else {
-      set({ gameState: prep.intermediateState })
+    try {
+      while (_livingLoopActive) {
+        const { gameState: gs, lifestyle: ls, pendingEvent: pe } = get()
+        if (!gs || !ls || pe) break
+
+        const allocation = getLifestyleAllocation(ls)
+        const prep       = prepareQuarter(gs, allocation)
+
+        if (prep.pendingEvent) {
+          set({
+            gameState:     prep.intermediateState,
+            pendingEvent:  prep.pendingEvent,
+            preEventState: prep.intermediateState,
+          })
+          break
+        }
+
+        set({ gameState: prep.intermediateState })
+
+        // Pause between quarters so the feed feels alive
+        await new Promise<void>(resolve => setTimeout(resolve, 600))
+      }
+    } finally {
+      _livingLoopActive = false
+      set({ isLiving: false })
     }
+  },
+
+  stopLiving: () => {
+    _livingLoopActive = false
+    // isLiving is cleared by the loop's finally block
   },
 
   resolveEvent: (optionId) => {

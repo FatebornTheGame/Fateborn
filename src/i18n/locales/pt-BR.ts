@@ -29,7 +29,7 @@ const ptBR = {
     stages: { infancia: 'Infância', adolescencia: 'Adolescência', juventud: 'Juventude', adultez: 'Adulto', adulto: 'Adulto', madurez: 'Maturidade', vejez: 'Velhice', ancianidad: 'Velhice' },
     lifestyle: {
       title: 'Iniciativa', decide: 'Tome uma decisão', choose: 'Escolha um estilo de vida',
-      advance: 'Avançar Trimestre', change: 'Mudar', confirm: 'Confirmar Estilo', quarters: 'trim.',
+      vivir: 'Viver', living: 'Vivendo...', advance: 'Avançar Trimestre', change: 'Mudar', confirm: 'Confirmar Estilo', quarters: 'trim.',
       alloc: { trabajo: 'Trabalho', estudios: 'Estudos', familia: 'Família', social: 'Social', salud: 'Saúde', ocio: 'Lazer' },
     },
     feed: { title: 'História', decision: 'Decisão', anos: 'anos' },

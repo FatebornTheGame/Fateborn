@@ -24,7 +24,7 @@ export function GameScreen() {
 
   const [showStats, setShowStats] = useState(false)
 
-  const { canAdvance, advanceQuarter, resolveEvent } = useGameEngine()
+  const { canStartLiving, isLiving, startLiving, resolveEvent } = useGameEngine()
   const { grouped, pendingEvent }                    = useNarrativeFeed()
   const { current, allLifestyles, setLifestyle }     = useLifestyle()
 
@@ -67,10 +67,11 @@ export function GameScreen() {
               gameState={gameState}
               lifestyle={current}
               allLifestyles={allLifestyles}
-              canAdvance={canAdvance}
+              canStartLiving={canStartLiving}
+              isLiving={isLiving}
               hasPending={!!pendingEvent}
               onSetLifestyle={setLifestyle}
-              onAdvance={advanceQuarter}
+              onStartLiving={startLiving}
             />
           </div>
           <div style={{ flex: 1, overflowY: 'auto', background: 'transparent', display: 'flex', flexDirection: 'column' }}>
@@ -95,10 +96,11 @@ export function GameScreen() {
                 gameState={gameState}
                 lifestyle={current}
                 allLifestyles={allLifestyles}
-                canAdvance={canAdvance}
+                canStartLiving={canStartLiving}
+                isLiving={isLiving}
                 hasPending={!!pendingEvent}
                 onSetLifestyle={setLifestyle}
-                onAdvance={advanceQuarter}
+                onStartLiving={startLiving}
               />
             ) : (
               <NarrativeFeed

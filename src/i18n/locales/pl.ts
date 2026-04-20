@@ -29,7 +29,7 @@ const pl = {
     stages: { infancia: 'Dzieciństwo', adolescencia: 'Adolescencja', juventud: 'Młodość', adultez: 'Dorosłość', adulto: 'Dorosły', madurez: 'Dojrzałość', vejez: 'Starość', ancianidad: 'Starość' },
     lifestyle: {
       title: 'Inicjatywa', decide: 'Podejmij decyzję', choose: 'Wybierz styl życia',
-      advance: 'Przejdź Kwartał', change: 'Zmień', confirm: 'Potwierdź Styl', quarters: 'kw.',
+      vivir: 'Żyć', living: 'Żyjąc...', advance: 'Przejdź Kwartał', change: 'Zmień', confirm: 'Potwierdź Styl', quarters: 'kw.',
       alloc: { trabajo: 'Praca', estudios: 'Nauka', familia: 'Rodzina', social: 'Życie społeczne', salud: 'Zdrowie', ocio: 'Czas wolny' },
     },
     feed: { title: 'Historia', decision: 'Decyzja', anos: 'lat' },

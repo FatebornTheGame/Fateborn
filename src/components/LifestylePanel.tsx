@@ -5,13 +5,14 @@ import type { GameState }               from '../types/game.types'
 import { colors, fonts, transitions }   from '../styles/tokens'
 
 interface Props {
-  gameState:      GameState
-  lifestyle:      Lifestyle | null
-  allLifestyles:  Lifestyle[]
-  canAdvance:     boolean
-  hasPending:     boolean
-  onSetLifestyle: (type: LifestyleType) => void
-  onAdvance:      () => void
+  gameState:        GameState
+  lifestyle:        Lifestyle | null
+  allLifestyles:    Lifestyle[]
+  canStartLiving:   boolean
+  isLiving:         boolean
+  hasPending:       boolean
+  onSetLifestyle:   (type: LifestyleType) => void
+  onStartLiving:    () => void
 }
 
 const ALLOC_KEYS = ['trabajo', 'estudios', 'familia', 'social', 'salud', 'ocio'] as const
@@ -43,16 +44,17 @@ export function LifestylePanel({
   gameState,
   lifestyle,
   allLifestyles,
-  canAdvance,
+  canStartLiving,
+  isLiving,
   hasPending,
   onSetLifestyle,
-  onAdvance,
+  onStartLiving,
 }: Props) {
   const { t } = useTranslation()
   const [isExpanded, setIsExpanded]   = useState(false)
   const [pendingType, setPendingType] = useState<LifestyleType | null>(null)
 
-  const isDisabled = !canAdvance || !lifestyle
+  const isDisabled = !canStartLiving
 
   const topAllocs = lifestyle
     ? ALLOC_KEYS
@@ -71,9 +73,9 @@ export function LifestylePanel({
     setIsExpanded(false)
   }
 
-  function handleAdvance() {
+  function handleStartLiving() {
     setIsExpanded(false)
-    onAdvance()
+    onStartLiving()
   }
 
   // ── EXPANDED ────────────────────────────────────────────────────────────────
@@ -302,35 +304,37 @@ export function LifestylePanel({
         </div>
       )}
 
-      {/* Advance button */}
-      <button
-        onClick={isDisabled ? undefined : handleAdvance}
-        disabled={isDisabled}
-        style={{
-          width:         '100%',
-          padding:       16,
-          fontFamily:    fonts.display,
-          fontSize:      '0.7rem',
-          letterSpacing: '0.25em',
-          fontWeight:    700,
-          textTransform: 'uppercase',
-          border:        isDisabled ? `1px solid ${colors.border.warm}` : 'none',
-          cursor:        isDisabled ? 'not-allowed' : 'pointer',
-          background:    isDisabled ? colors.bg.disabled : colors.gold,
-          color:         isDisabled ? colors.text.muted : colors.bg.primary,
-          opacity:       isDisabled ? 0.45 : 1,
-          minHeight:     44,
-          transition:    `background ${transitions.fast}`,
-        }}
-        onMouseEnter={e => {
-          if (!isDisabled) (e.currentTarget as HTMLButtonElement).style.background = '#d4b05a'
-        }}
-        onMouseLeave={e => {
-          if (!isDisabled) (e.currentTarget as HTMLButtonElement).style.background = colors.gold
-        }}
-      >
-        {t('game.lifestyle.advance')}
-      </button>
+      {/* VIVIR / VIVIENDO button — hidden when there's a pending event */}
+      {!hasPending && (
+        <button
+          onClick={isDisabled ? undefined : handleStartLiving}
+          disabled={isDisabled}
+          style={{
+            width:         '100%',
+            padding:       16,
+            fontFamily:    fonts.display,
+            fontSize:      '0.7rem',
+            letterSpacing: '0.25em',
+            fontWeight:    700,
+            textTransform: 'uppercase',
+            border:        isDisabled ? `1px solid ${colors.border.warm}` : 'none',
+            cursor:        isDisabled ? 'not-allowed' : 'pointer',
+            background:    isDisabled ? colors.bg.disabled : colors.gold,
+            color:         isDisabled ? colors.text.muted : colors.bg.primary,
+            opacity:       isDisabled ? 0.45 : 1,
+            minHeight:     44,
+            transition:    `background ${transitions.fast}`,
+          }}
+          onMouseEnter={e => {
+            if (!isDisabled) (e.currentTarget as HTMLButtonElement).style.background = '#d4b05a'
+          }}
+          onMouseLeave={e => {
+            if (!isDisabled) (e.currentTarget as HTMLButtonElement).style.background = colors.gold
+          }}
+        >
+          {isLiving ? t('game.lifestyle.living') : t('game.lifestyle.vivir')}
+        </button>
+      )}
     </div>
   )
 }

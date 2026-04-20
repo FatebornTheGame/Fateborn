@@ -69,6 +69,8 @@ const es = {
       title:    'Iniciativa',
       decide:   'Toma una decisión',
       choose:   'Elige un estilo de vida',
+      vivir:    'Vivir',
+      living:   'Viviendo...',
       advance:  'Avanzar Trimestre',
       change:   'Cambiar',
       confirm:  'Confirmar Estilo',
