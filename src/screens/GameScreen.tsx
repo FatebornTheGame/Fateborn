@@ -25,8 +25,24 @@ export function GameScreen() {
   const setActiveTab    = useGameStore(s => s.setActiveTab)
   const lastStatChanges = useGameStore(s => s.lastStatChanges)
 
-  const [showStats, setShowStats]         = useState(false)
-  const [onboardingDone, setOnboardingDone] = useState(() => localStorage.getItem(ONBOARDING_KEY) === '1')
+  const [showStats, setShowStats]               = useState(false)
+  const [onboardingDone, setOnboardingDone]     = useState(() => localStorage.getItem(ONBOARDING_KEY) === '1')
+  const [panelConfirmedOnce, setPanelConfirmedOnce] = useState(false)
+  const [showVivirHint, setShowVivirHint]       = useState(false)
+
+  // True only on the very first visit, until the user confirms a lifestyle in the panel
+  const isFirstVisit = !onboardingDone && !panelConfirmedOnce
+
+  function handlePanelFirstConfirm() {
+    setPanelConfirmedOnce(true)
+    setShowVivirHint(true)
+  }
+
+  function handleOnboardingDone() {
+    localStorage.setItem(ONBOARDING_KEY, '1')
+    setShowVivirHint(false)
+    setOnboardingDone(true)
+  }
 
   const { canStartLiving, isLiving, startLiving, resolveEvent } = useGameEngine()
   const { grouped, pendingEvent }                    = useNarrativeFeed()
@@ -74,8 +90,10 @@ export function GameScreen() {
               canStartLiving={canStartLiving}
               isLiving={isLiving}
               hasPending={!!pendingEvent}
+              isFirstVisit={isFirstVisit}
               onSetLifestyle={setLifestyle}
               onStartLiving={startLiving}
+              onFirstConfirm={handlePanelFirstConfirm}
             />
           </div>
           <div style={{ flex: 1, overflowY: 'auto', background: 'transparent', display: 'flex', flexDirection: 'column' }}>
@@ -103,8 +121,10 @@ export function GameScreen() {
                 canStartLiving={canStartLiving}
                 isLiving={isLiving}
                 hasPending={!!pendingEvent}
+                isFirstVisit={isFirstVisit}
                 onSetLifestyle={setLifestyle}
                 onStartLiving={startLiving}
+                onFirstConfirm={handlePanelFirstConfirm}
               />
             ) : (
               <NarrativeFeed
@@ -127,9 +147,9 @@ export function GameScreen() {
         />
       </div>
 
-      {/* Onboarding */}
-      {!onboardingDone && (
-        <OnboardingOverlay onDone={() => setOnboardingDone(true)} />
+      {/* Onboarding step 2: VIVIR hint — shown after first lifestyle confirm */}
+      {showVivirHint && (
+        <OnboardingOverlay onDone={handleOnboardingDone} />
       )}
 
       {/* Overlays */}

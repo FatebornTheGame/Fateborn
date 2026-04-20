@@ -1,12 +1,9 @@
-import { useState }       from 'react'
 import { useTranslation } from 'react-i18next'
 import { colors, fonts }  from '../styles/tokens'
 
-const STORAGE_KEY = 'fateborn_onboarding_done'
-
 interface Props { onDone: () => void }
 
-// Arrow pointing right in SVG space; rotated by parent to face the target UI element.
+// Arrow pointing right in SVG space; rotated by parent wrapper to face target UI.
 function PulseArrow({ deg }: { deg: number }) {
   return (
     <div style={{
@@ -33,20 +30,10 @@ function PulseArrow({ deg }: { deg: number }) {
   )
 }
 
+// Only shown for step 2 — pointing toward the VIVIR button (bottom-left).
+// Step 1 is now handled by the expanded LifestylePanel on first visit.
 export function OnboardingOverlay({ onDone }: Props) {
-  const { t }               = useTranslation()
-  const [step, setStep]     = useState<1 | 2>(1)
-  const isStep1             = step === 1
-
-  // Step 1: arrow points left  → LifestylePanel is on the left
-  // Step 2: arrow points down  → VIVIR button is in the bottom of the left panel
-  const arrowDeg = isStep1 ? 180 : 135
-
-  function advance() {
-    if (isStep1) { setStep(2); return }
-    localStorage.setItem(STORAGE_KEY, '1')
-    onDone()
-  }
+  const { t } = useTranslation()
 
   return (
     <div
@@ -76,7 +63,8 @@ export function OnboardingOverlay({ onDone }: Props) {
         border:     `1px solid ${colors.border.warm}`,
         textAlign:  'center',
       }}>
-        <PulseArrow deg={arrowDeg} />
+        {/* Arrow points down-left toward the VIVIR button */}
+        <PulseArrow deg={135} />
 
         <p style={{
           fontFamily:    fonts.display,
@@ -87,7 +75,7 @@ export function OnboardingOverlay({ onDone }: Props) {
           textTransform: 'uppercase',
           margin:        '0 0 12px',
         }}>
-          {t(isStep1 ? 'game.onboarding.step1.title' : 'game.onboarding.step2.title')}
+          {t('game.onboarding.step2.title')}
         </p>
 
         <p style={{
@@ -98,11 +86,11 @@ export function OnboardingOverlay({ onDone }: Props) {
           lineHeight: 1.6,
           margin:     '0 0 24px',
         }}>
-          {t(isStep1 ? 'game.onboarding.step1.sub' : 'game.onboarding.step2.sub')}
+          {t('game.onboarding.step2.sub')}
         </p>
 
         <button
-          onClick={advance}
+          onClick={onDone}
           style={{
             width:         '100%',
             minHeight:     44,
@@ -117,7 +105,7 @@ export function OnboardingOverlay({ onDone }: Props) {
             cursor:        'pointer',
           }}
         >
-          {t(isStep1 ? 'game.onboarding.step1.cta' : 'game.onboarding.step2.cta')}
+          {t('game.onboarding.step2.cta')}
         </button>
       </div>
     </div>

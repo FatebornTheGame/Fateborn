@@ -30,6 +30,7 @@ const ru = {
     lifestyle: {
       title: 'Инициатива', decide: 'Прими решение', choose: 'Выбери образ жизни',
       vivir: 'Жить', living: 'Живёт...', advance: 'Следующий Квартал', change: 'Изменить', confirm: 'Подтвердить Стиль', quarters: 'кв.',
+      confirmFirst: 'ВЫБРАТЬ И НАЧАТЬ', firstTitle: 'ВЫБЕРИ ОБРАЗ ЖИЗНИ', firstSub: 'Определи, куда будешь вкладывать время каждый квартал',
       alloc: { trabajo: 'Работа', estudios: 'Учёба', familia: 'Семья', social: 'Общение', salud: 'Здоровье', ocio: 'Досуг' },
     },
     feed: { title: 'История', decision: 'Решение', anos: 'лет' },

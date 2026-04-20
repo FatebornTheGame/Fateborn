@@ -1,4 +1,4 @@
-import { useState }                      from 'react'
+import { useState, useEffect }            from 'react'
 import { useTranslation }                from 'react-i18next'
 import type { Lifestyle, LifestyleType } from '../systems/lifestyleSystem'
 import type { GameState }               from '../types/game.types'
@@ -11,8 +11,10 @@ interface Props {
   canStartLiving:   boolean
   isLiving:         boolean
   hasPending:       boolean
+  isFirstVisit?:    boolean
   onSetLifestyle:   (type: LifestyleType) => void
   onStartLiving:    () => void
+  onFirstConfirm?:  () => void
 }
 
 const ALLOC_KEYS = ['trabajo', 'estudios', 'familia', 'social', 'salud', 'ocio'] as const
@@ -47,12 +49,19 @@ export function LifestylePanel({
   canStartLiving,
   isLiving,
   hasPending,
+  isFirstVisit,
   onSetLifestyle,
   onStartLiving,
+  onFirstConfirm,
 }: Props) {
   const { t } = useTranslation()
-  const [isExpanded, setIsExpanded]   = useState(false)
+  const [isExpanded, setIsExpanded]   = useState(isFirstVisit ?? false)
   const [pendingType, setPendingType] = useState<LifestyleType | null>(null)
+
+  // Collapse when parent marks first-visit as done (e.g. desktop panel confirmed while mobile is hidden)
+  useEffect(() => {
+    if (!isFirstVisit) setIsExpanded(false)
+  }, [isFirstVisit])
 
   const isDisabled = !canStartLiving
 
@@ -71,6 +80,7 @@ export function LifestylePanel({
   function handleConfirm() {
     if (pendingType) onSetLifestyle(pendingType)
     setIsExpanded(false)
+    if (isFirstVisit) onFirstConfirm?.()
   }
 
   function handleStartLiving() {
@@ -81,7 +91,49 @@ export function LifestylePanel({
   // ── EXPANDED ────────────────────────────────────────────────────────────────
   if (isExpanded) {
     return (
-      <div style={{ fontFamily: fonts.display }}>
+      <div style={{
+        fontFamily: fonts.display,
+        ...(isFirstVisit ? { animation: 'lp-first-pulse 1.5s ease-in-out infinite' } : {}),
+      }}>
+        {isFirstVisit && (
+          <style>{`
+            @keyframes lp-first-pulse {
+              0%, 100% { box-shadow: 0 0 0 2px rgba(201,168,76,0.25); }
+              50%       { box-shadow: 0 0 0 2px rgba(201,168,76,0.9); }
+            }
+          `}</style>
+        )}
+
+        {/* First-visit header */}
+        {isFirstVisit && (
+          <div style={{
+            padding:      '14px 20px 12px',
+            textAlign:    'center',
+            borderBottom: `1px solid ${colors.bg.tertiary}`,
+          }}>
+            <p style={{
+              fontFamily:    fonts.display,
+              fontSize:      '0.65rem',
+              letterSpacing: '0.2em',
+              fontWeight:    700,
+              color:         colors.gold,
+              textTransform: 'uppercase',
+              margin:        0,
+            }}>
+              {t('game.lifestyle.firstTitle')}
+            </p>
+            <p style={{
+              fontFamily: fonts.body,
+              fontStyle:  'italic',
+              fontSize:   '0.72rem',
+              color:      colors.text.narrative,
+              margin:     '5px 0 0',
+            }}>
+              {t('game.lifestyle.firstSub')}
+            </p>
+          </div>
+        )}
+
         {allLifestyles.map(ls => {
           const selected = (pendingType ?? lifestyle?.type) === ls.type
           return (
@@ -168,9 +220,10 @@ export function LifestylePanel({
           disabled={!pendingType}
           style={{
             width:         '100%',
-            padding:       14,
+            height:        isFirstVisit ? 52 : undefined,
+            padding:       isFirstVisit ? 0 : 14,
             fontFamily:    fonts.display,
-            fontSize:      '0.65rem',
+            fontSize:      isFirstVisit ? '0.6rem' : '0.65rem',
             letterSpacing: '0.25em',
             fontWeight:    700,
             textTransform: 'uppercase',
@@ -189,7 +242,7 @@ export function LifestylePanel({
             if (pendingType) (e.currentTarget as HTMLButtonElement).style.background = colors.gold
           }}
         >
-          {t('game.lifestyle.confirm')}
+          {isFirstVisit ? t('game.lifestyle.confirmFirst') : t('game.lifestyle.confirm')}
         </button>
       </div>
     )

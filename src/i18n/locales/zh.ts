@@ -30,6 +30,7 @@ const zh = {
     lifestyle: {
       title: '行动', decide: '做出决定', choose: '选择生活方式',
       vivir: '生活', living: '生活中...', advance: '推进季度', change: '更改', confirm: '确认风格', quarters: '季.',
+      confirmFirst: '选择并开始', firstTitle: '选择你的生活方式', firstSub: '决定你每季度将把时间投入到哪里',
       alloc: { trabajo: '工作', estudios: '学习', familia: '家庭', social: '社交', salud: '健康', ocio: '休闲' },
     },
     feed: { title: '故事', decision: '决定', anos: '岁' },

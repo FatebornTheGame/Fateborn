@@ -30,6 +30,7 @@ const tr = {
     lifestyle: {
       title: 'Girişim', decide: 'Bir karar ver', choose: 'Bir yaşam tarzı seç',
       vivir: 'Yaşa', living: 'Yaşıyor...', advance: 'Çeyreği İlerlet', change: 'Değiştir', confirm: 'Stili Onayla', quarters: 'çyr.',
+      confirmFirst: 'SEÇ VE BAŞLA', firstTitle: 'YAŞAM TARZINI SEÇ', firstSub: 'Her çeyrekte zamanını nereye yatıracağını belirle',
       alloc: { trabajo: 'İş', estudios: 'Eğitim', familia: 'Aile', social: 'Sosyal', salud: 'Sağlık', ocio: 'Boş Zaman' },
     },
     feed: { title: 'Hikâye', decision: 'Karar', anos: 'yaş' },

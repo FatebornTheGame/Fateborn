@@ -30,6 +30,7 @@ const it = {
     lifestyle: {
       title: 'Iniziativa', decide: 'Prendi una decisione', choose: 'Scegli uno stile di vita',
       vivir: 'Vivere', living: 'Vivendo...', advance: 'Avanza Trimestre', change: 'Cambia', confirm: 'Conferma Stile', quarters: 'trim.',
+      confirmFirst: 'SCEGLI E INIZIA', firstTitle: 'SCEGLI IL TUO STILE DI VITA', firstSub: 'Decidi dove investirai il tuo tempo ogni trimestre',
       alloc: { trabajo: 'Lavoro', estudios: 'Studi', familia: 'Famiglia', social: 'Sociale', salud: 'Salute', ocio: 'Svago' },
     },
     feed: { title: 'Storia', decision: 'Decisione', anos: 'anni' },

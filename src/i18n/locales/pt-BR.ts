@@ -30,6 +30,7 @@ const ptBR = {
     lifestyle: {
       title: 'Iniciativa', decide: 'Tome uma decisão', choose: 'Escolha um estilo de vida',
       vivir: 'Viver', living: 'Vivendo...', advance: 'Avançar Trimestre', change: 'Mudar', confirm: 'Confirmar Estilo', quarters: 'trim.',
+      confirmFirst: 'ESCOLHER E COMEÇAR', firstTitle: 'ESCOLHA SEU ESTILO DE VIDA', firstSub: 'Defina onde investirá seu tempo a cada trimestre',
       alloc: { trabajo: 'Trabalho', estudios: 'Estudos', familia: 'Família', social: 'Social', salud: 'Saúde', ocio: 'Lazer' },
     },
     feed: { title: 'História', decision: 'Decisão', anos: 'anos' },
