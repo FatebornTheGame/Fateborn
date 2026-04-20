@@ -1,0 +1,131 @@
+import { useState }       from 'react'
+import { useTranslation } from 'react-i18next'
+import { colors, fonts }  from '../styles/tokens'
+
+const STORAGE_KEY = 'fateborn_onboarding_done'
+
+interface Props { onComplete: () => void }
+
+// Arrow pointing right in SVG space; parent rotates it toward the target.
+function PulseArrow({ deg }: { deg: number }) {
+  return (
+    <div style={{
+      display:         'flex',
+      justifyContent:  'center',
+      marginBottom:    20,
+      transform:       `rotate(${deg}deg)`,
+      transformOrigin: 'center',
+    }}>
+      <svg
+        width="38" height="38" viewBox="0 0 38 38"
+        style={{ animation: 'ob-arrow-pulse 1.5s ease-in-out infinite' }}
+        aria-hidden="true"
+      >
+        <path
+          d="M6 19 L28 19 M21 11 L29 19 L21 27"
+          stroke={colors.gold}
+          strokeWidth="2.5"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
+  )
+}
+
+export function Onboarding({ onComplete }: Props) {
+  const { t }           = useTranslation()
+  const [step, setStep] = useState<1 | 2>(1)
+
+  function handleCta() {
+    if (step === 1) {
+      setStep(2)
+      return
+    }
+    localStorage.setItem(STORAGE_KEY, 'true')
+    onComplete()
+  }
+
+  return (
+    // Rendered outside any overflow:hidden container — position:fixed covers full viewport
+    <div
+      style={{
+        position:       'fixed',
+        top:            0,
+        left:           0,
+        right:          0,
+        bottom:         0,
+        zIndex:         9999,
+        background:     'rgba(13, 11, 8, 0.88)',
+        display:        'flex',
+        alignItems:     'center',
+        justifyContent: 'center',
+      }}
+    >
+      <style>{`
+        @keyframes ob-arrow-pulse {
+          0%, 100% { opacity: 1;   transform: scale(1);   }
+          50%       { opacity: 0.4; transform: scale(1.3); }
+        }
+      `}</style>
+
+      <div style={{
+        maxWidth:   300,
+        width:      '88vw',
+        padding:    '32px 28px',
+        background: colors.bg.secondary,
+        border:     `1px solid ${colors.border.warm}`,
+        textAlign:  'center',
+      }}>
+        {/* Step 1: arrow pointing down toward the lifestyle panel */}
+        {step === 1 && <PulseArrow deg={90} />}
+
+        {/* Step 2: arrow pointing down-left toward the VIVIR button */}
+        {step === 2 && <PulseArrow deg={135} />}
+
+        <p style={{
+          fontFamily:    fonts.display,
+          fontSize:      '1rem',
+          letterSpacing: '0.15em',
+          fontWeight:    700,
+          color:         colors.gold,
+          textTransform: 'uppercase',
+          margin:        '0 0 12px',
+        }}>
+          {t(step === 1 ? 'game.onboarding.step1.title' : 'game.onboarding.step2.title')}
+        </p>
+
+        <p style={{
+          fontFamily: fonts.body,
+          fontStyle:  'italic',
+          fontSize:   '0.85rem',
+          color:      colors.text.narrative,
+          lineHeight: 1.6,
+          margin:     '0 0 24px',
+        }}>
+          {t(step === 1 ? 'game.onboarding.step1.sub' : 'game.onboarding.step2.sub')}
+        </p>
+
+        <button
+          onClick={handleCta}
+          style={{
+            width:         '100%',
+            height:        44,
+            fontFamily:    fonts.display,
+            fontSize:      '0.65rem',
+            letterSpacing: '0.2em',
+            fontWeight:    700,
+            textTransform: 'uppercase',
+            background:    colors.gold,
+            color:         colors.bg.primary,
+            border:        'none',
+            cursor:        'pointer',
+          }}
+        >
+          {t(step === 1 ? 'game.onboarding.step1.cta' : 'game.onboarding.step2.cta')}
+        </button>
+      </div>
+    </div>
+  )
+}

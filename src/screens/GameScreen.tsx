@@ -13,7 +13,7 @@ import { MuteButton }                 from '../components/MuteButton'
 import { AtmosphericBackground }      from '../styles/AtmosphericBackground'
 import { StatFlash }                  from '../components/StatFlash'
 import { StageProgressBar }           from '../components/StageProgressBar'
-import { OnboardingOverlay }          from '../components/OnboardingOverlay'
+import { Onboarding }                  from '../components/Onboarding'
 import { colors }                     from '../styles/tokens'
 
 const ONBOARDING_KEY = 'fateborn_onboarding_done'
@@ -25,11 +25,13 @@ export function GameScreen() {
   const setActiveTab    = useGameStore(s => s.setActiveTab)
   const lastStatChanges = useGameStore(s => s.lastStatChanges)
 
-  const [showStats, setShowStats]           = useState(false)
-  const [onboardingDone, setOnboardingDone] = useState(() => localStorage.getItem(ONBOARDING_KEY) === '1')
+  const [showStats, setShowStats]       = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(
+    () => localStorage.getItem(ONBOARDING_KEY) !== 'true'
+  )
 
-  // Panel starts expanded on first visit; overlay handles the step 1/2 flow
-  const isFirstVisit = !onboardingDone
+  // Panel starts expanded while onboarding hasn't been completed
+  const isFirstVisit = showOnboarding
 
   const { canStartLiving, isLiving, startLiving, resolveEvent } = useGameEngine()
   const { grouped, pendingEvent }                    = useNarrativeFeed()
@@ -44,6 +46,7 @@ export function GameScreen() {
   const eventDisplayState = preEventState ?? gameState
 
   return (
+    <>
     <div style={{ position: 'relative', height: '100vh', overflow: 'hidden', background: colors.bg.primary }}>
       <MuteButton />
       <AtmosphericBackground />
@@ -133,11 +136,6 @@ export function GameScreen() {
         />
       </div>
 
-      {/* Onboarding: two-step overlay, shown on first visit */}
-      {!onboardingDone && (
-        <OnboardingOverlay onDone={() => setOnboardingDone(true)} />
-      )}
-
       {/* Overlays */}
       {showStats && (
         <StatsPanel
@@ -162,5 +160,9 @@ export function GameScreen() {
         </button>
       </div>
     </div>
+
+    {/* Onboarding: outside overflow:hidden container so position:fixed covers full viewport */}
+    {showOnboarding && <Onboarding onComplete={() => setShowOnboarding(false)} />}
+    </>
   )
 }

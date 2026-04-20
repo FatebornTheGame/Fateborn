@@ -66,8 +66,8 @@ const en = {
     },
     timeline: { stages: { infancia: 'Childhood', juventud: 'Youth', adulto: 'Adult', madurez: 'Maturity', ancianidad: 'Old Age' } },
     onboarding: {
-      step1: { title: 'CHOOSE HOW YOU WANT TO LIVE', sub: 'Define where you invest your time each quarter', cta: 'GOT IT' },
-      step2: { title: 'PRESS LIVE', sub: 'Time advances on its own until something important happens', cta: 'START' },
+      step1: { title: 'CHOOSE HOW YOU WANT TO LIVE', sub: 'Each lifestyle defines where you invest your time', cta: 'GOT IT' },
+      step2: { title: 'PRESS LIVE TO START', sub: 'Time advances on its own until something important happens', cta: 'START' },
     },
   },
   death: {

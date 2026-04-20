@@ -110,8 +110,8 @@ const es = {
       },
     },
     onboarding: {
-      step1: { title: 'ELIGE CÓMO QUIERES VIVIR', sub: 'Define dónde inviertes tu tiempo cada trimestre', cta: 'ENTENDIDO' },
-      step2: { title: 'PULSA VIVIR', sub: 'El tiempo avanzará solo hasta que algo importante ocurra', cta: 'EMPEZAR' },
+      step1: { title: 'ELIGE CÓMO QUIERES VIVIR', sub: 'Cada estilo de vida define dónde invierte su tiempo', cta: 'ENTENDIDO' },
+      step2: { title: 'PULSA VIVIR PARA EMPEZAR', sub: 'El tiempo avanzará solo hasta que algo importante ocurra', cta: 'EMPEZAR' },
     },
   },
   death: {
