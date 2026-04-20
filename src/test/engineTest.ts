@@ -2,6 +2,7 @@ import type { GameState, TimeAllocation, GameEventTemplate, EventOption } from '
 import { defaultStats, hasFlag } from '../types/game.types'
 import { initialEpitaph } from '../systems/epitaphSystem'
 import { processGameTurn } from '../systems/engineCore'
+import { initEconomy } from '../systems/economySystem'
 
 // ─── Create initial state ─────────────────────────────────────────────────────
 function createTestState(): GameState {
@@ -33,7 +34,7 @@ function createTestState(): GameState {
     epitaph:             initialEpitaph(),
     firedEvents:         [],
     feed:                [],
-    economy:             { liquidez: 0, ingresosMensual: 0, gastosMensual: 0 },
+    economy:             initEconomy('B'),  // España = tier B
     career:              null,
     vitalLoad:           10,
     legacyScore:         0,
@@ -186,6 +187,12 @@ function main(): void {
   console.log(`  Consecuencias pendientes: ${state.pendingConsequences.length}`)
   console.log(`\n  Stats finales:`)
   console.log(`  ${statsLine(state)}`)
+
+  console.log(`\n  Economía:`)
+  console.log(`  Liquidez: ${state.economy.liquidez}€`)
+  console.log(`  Ingresos: ${state.economy.ingresosMensual}€/mes | Gastos: ${state.economy.gastosMensual}€/mes`)
+  console.log(`  Gastos: ali=${state.economy.gastos.alimentacion} tra=${state.economy.gastos.transporte} tel=${state.economy.gastos.telefono} viv=${state.economy.gastos.vivienda}`)
+  console.log(`  Historial (${state.economy.historialLiquidez.length} trim.): ${state.economy.historialLiquidez.slice(0, 8).join(' → ')}${state.economy.historialLiquidez.length > 8 ? ' ...' : ''}`)
 
   if (state.epitaph.seeds.length > 0) {
     console.log(`\n  Epitafio actual:`)

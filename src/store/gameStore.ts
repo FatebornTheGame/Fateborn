@@ -9,7 +9,8 @@ import type { LifestyleType } from '../systems/lifestyleSystem'
 import { getLifestyleAllocation } from '../systems/lifestyleSystem'
 import { initialEpitaph } from '../systems/epitaphSystem'
 import { prepareQuarter, commitEventChoice } from '../systems/engineCore'
-import { getCountryBirthYear } from '../data/countries'
+import { getCountryBirthYear, getCountryTier } from '../data/countries'
+import { initEconomy } from '../systems/economySystem'
 import {
   MUTATION_RANGE,
   ORIENTATION_HETEROSEXUAL_CHANCE,
@@ -174,7 +175,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       epitaph:             initialEpitaph(),
       firedEvents:         [],
       feed:                [],
-      economy:             { liquidez: 0, ingresosMensual: 0, gastosMensual: 0 },
+      economy:             initEconomy(getCountryTier(selectedCountry)),
       career:              null,
       vitalLoad:           10,
       legacyScore:         0,

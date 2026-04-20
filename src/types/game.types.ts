@@ -171,10 +171,21 @@ export interface NarrativeEntry {
 }
 
 // ─── Economy / Career ─────────────────────────────────────────────────────────
+export interface GastosDetallados {
+  alimentacion: number
+  transporte:   number
+  telefono:     number
+  vivienda:     number
+  ocio:         number
+  otros:        number
+}
+
 export interface Economy {
-  liquidez:        number
-  ingresosMensual: number
-  gastosMensual:   number
+  liquidez:          number
+  ingresosMensual:   number
+  gastosMensual:     number
+  gastos:            GastosDetallados
+  historialLiquidez: number[]   // last 20 quarterly snapshots
 }
 
 export interface Career {

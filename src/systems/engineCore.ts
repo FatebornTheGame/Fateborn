@@ -18,6 +18,7 @@ import {
 import { checkMemoryTriggers, addMemory, markMemoriesRecalled } from './memorySystem'
 import { updateEpitaph } from './epitaphSystem'
 import { advanceNPCLives } from './npcLifeSystem'
+import { processQuarterlyEconomy } from './economySystem'
 import { NAME_POOLS, BEST_FRIEND_PARALLEL_ARC } from '../data/npcs/npcProfiles'
 import { CHILDHOOD_EVENTS } from '../data/events/childhoodEvents'
 import { ADOLESCENCE_EVENTS } from '../data/events/adolescenceEvents'
@@ -295,6 +296,21 @@ export function processGameTurn(
   // 4. Advance NPC arcs
   s = advanceNPCLives(s)
 
+  // 4b. Economy tick — warn only when crossing from positive to negative (once per debt cycle)
+  const liquidezBeforeEconomy = s.economy.liquidez
+  s = processQuarterlyEconomy(s)
+  if (liquidezBeforeEconomy >= 0 && s.economy.liquidez < 0 && s.ageYears >= 18) {
+    const warnEntry: NarrativeEntry = {
+      id:              `economy_warn_${s.totalQuarters}`,
+      age:             s.ageYears,
+      text:            `El dinero no llega a fin de mes. ${s.character.name} lo sabe aunque no lo diga.`,
+      importance:      'alta',
+      type:            'reflection',
+      emotionalWeight: 8,
+    }
+    s = { ...s, feed: [...s.feed, warnEntry] }
+  }
+
   // 5. Check memory triggers before event
   let memoriesRecalled: string[] = []
 
@@ -370,6 +386,21 @@ export function prepareQuarter(state: GameState, allocation: TimeAllocation): Qu
   s = afterConsequences
 
   s = advanceNPCLives(s)
+
+  // Economy tick — warn only when crossing from positive to negative (once per debt cycle)
+  const liquidezBeforeTick = s.economy.liquidez
+  s = processQuarterlyEconomy(s)
+  if (liquidezBeforeTick >= 0 && s.economy.liquidez < 0 && s.ageYears >= 18) {
+    const warnEntry: NarrativeEntry = {
+      id:              `economy_warn_${s.totalQuarters}`,
+      age:             s.ageYears,
+      text:            `El dinero no llega a fin de mes. ${s.character.name} lo sabe aunque no lo diga.`,
+      importance:      'alta',
+      type:            'reflection',
+      emotionalWeight: 8,
+    }
+    s = { ...s, feed: [...s.feed, warnEntry] }
+  }
 
   const eligible    = getEligibleEvents(s)
   const pendingEvent = eligible.length > 0
