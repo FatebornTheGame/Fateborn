@@ -1,11 +1,22 @@
 import { useTranslation }              from 'react-i18next'
-import type { Character, Stats }        from '../types/game.types'
+import type { Character, Stats, Economy } from '../types/game.types'
 import { colors, fonts }               from '../styles/tokens'
 
 interface Props {
   character: Character
   stats:     Stats
   ageYears:  number
+  economy:   Economy
+}
+
+function liquidezColor(n: number): string {
+  if (n > 500)  return '#5a9c5a'
+  if (n >= 0)   return colors.gold
+  return '#c44444'
+}
+
+function formatLiquidez(n: number): string {
+  return Math.abs(n).toLocaleString('es-ES') + '€'
 }
 
 type VitalKey = 'fisico' | 'emocional' | 'estabilidad'
@@ -30,7 +41,7 @@ function stageKey(age: number): string {
   return 'game.stages.ancianidad'
 }
 
-export function StatusBar({ character, stats, ageYears }: Props) {
+export function StatusBar({ character, stats, ageYears, economy }: Props) {
   const { t } = useTranslation()
 
   return (
@@ -91,8 +102,34 @@ export function StatusBar({ character, stats, ageYears }: Props) {
 
       <div className="hidden sm:block" style={{ width: 1, height: 20, background: colors.border.default, flexShrink: 0 }} />
 
+      {/* Economy: liquidez indicator */}
+      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'baseline', gap: 2, flexShrink: 0 }}>
+        <span style={{
+          fontFamily:    fonts.display,
+          fontSize:      '0.5rem',
+          color:         liquidezColor(economy.liquidez),
+          letterSpacing: '0.05em',
+          fontWeight:    700,
+          lineHeight:    1,
+        }}>
+          {economy.liquidez < 0 ? '−' : ''}€
+        </span>
+        <span style={{
+          fontFamily:    fonts.display,
+          fontSize:      '0.72rem',
+          fontWeight:    700,
+          color:         liquidezColor(economy.liquidez),
+          letterSpacing: '0.02em',
+          lineHeight:    1,
+        }}>
+          {formatLiquidez(economy.liquidez)}
+        </span>
+      </div>
+
+      <div className="hidden sm:block" style={{ width: 1, height: 20, background: colors.border.default, flexShrink: 0 }} />
+
       {/* Vital stat bars */}
-      <div style={{ marginLeft: 'auto', display: 'flex', gap: 12, alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
         {VITAL_STATS.map(({ key, tKey }) => {
           const value = stats[key]
           return (

@@ -1,5 +1,8 @@
-import { useTranslation } from 'react-i18next'
-import { colors, fonts }  from '../styles/tokens'
+import { useState }        from 'react'
+import { useTranslation }  from 'react-i18next'
+import { colors, fonts }   from '../styles/tokens'
+
+const STORAGE_KEY = 'fateborn_onboarding_done'
 
 interface Props { onDone: () => void }
 
@@ -30,10 +33,15 @@ function PulseArrow({ deg }: { deg: number }) {
   )
 }
 
-// Only shown for step 2 — pointing toward the VIVIR button (bottom-left).
-// Step 1 is now handled by the expanded LifestylePanel on first visit.
 export function OnboardingOverlay({ onDone }: Props) {
-  const { t } = useTranslation()
+  const { t }           = useTranslation()
+  const [step, setStep] = useState<1 | 2>(1)
+
+  function advance() {
+    if (step === 1) { setStep(2); return }
+    localStorage.setItem(STORAGE_KEY, '1')
+    onDone()
+  }
 
   return (
     <div
@@ -63,8 +71,8 @@ export function OnboardingOverlay({ onDone }: Props) {
         border:     `1px solid ${colors.border.warm}`,
         textAlign:  'center',
       }}>
-        {/* Arrow points down-left toward the VIVIR button */}
-        <PulseArrow deg={135} />
+        {/* Step 2 only: arrow pointing down-left toward the VIVIR button */}
+        {step === 2 && <PulseArrow deg={135} />}
 
         <p style={{
           fontFamily:    fonts.display,
@@ -75,7 +83,7 @@ export function OnboardingOverlay({ onDone }: Props) {
           textTransform: 'uppercase',
           margin:        '0 0 12px',
         }}>
-          {t('game.onboarding.step2.title')}
+          {t(step === 1 ? 'game.onboarding.step1.title' : 'game.onboarding.step2.title')}
         </p>
 
         <p style={{
@@ -86,11 +94,11 @@ export function OnboardingOverlay({ onDone }: Props) {
           lineHeight: 1.6,
           margin:     '0 0 24px',
         }}>
-          {t('game.onboarding.step2.sub')}
+          {t(step === 1 ? 'game.onboarding.step1.sub' : 'game.onboarding.step2.sub')}
         </p>
 
         <button
-          onClick={onDone}
+          onClick={advance}
           style={{
             width:         '100%',
             minHeight:     44,
@@ -105,7 +113,7 @@ export function OnboardingOverlay({ onDone }: Props) {
             cursor:        'pointer',
           }}
         >
-          {t('game.onboarding.step2.cta')}
+          {t(step === 1 ? 'game.onboarding.step1.cta' : 'game.onboarding.step2.cta')}
         </button>
       </div>
     </div>

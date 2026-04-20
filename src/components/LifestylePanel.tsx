@@ -1,4 +1,4 @@
-import { useState, useEffect }            from 'react'
+import { useState }                        from 'react'
 import { useTranslation }                from 'react-i18next'
 import type { Lifestyle, LifestyleType } from '../systems/lifestyleSystem'
 import type { GameState }               from '../types/game.types'
@@ -14,7 +14,6 @@ interface Props {
   isFirstVisit?:    boolean
   onSetLifestyle:   (type: LifestyleType) => void
   onStartLiving:    () => void
-  onFirstConfirm?:  () => void
 }
 
 const ALLOC_KEYS = ['trabajo', 'estudios', 'familia', 'social', 'salud', 'ocio'] as const
@@ -52,16 +51,10 @@ export function LifestylePanel({
   isFirstVisit,
   onSetLifestyle,
   onStartLiving,
-  onFirstConfirm,
 }: Props) {
   const { t } = useTranslation()
   const [isExpanded, setIsExpanded]   = useState(isFirstVisit ?? false)
   const [pendingType, setPendingType] = useState<LifestyleType | null>(null)
-
-  // Collapse when parent marks first-visit as done (e.g. desktop panel confirmed while mobile is hidden)
-  useEffect(() => {
-    if (!isFirstVisit) setIsExpanded(false)
-  }, [isFirstVisit])
 
   const isDisabled = !canStartLiving
 
@@ -80,7 +73,6 @@ export function LifestylePanel({
   function handleConfirm() {
     if (pendingType) onSetLifestyle(pendingType)
     setIsExpanded(false)
-    if (isFirstVisit) onFirstConfirm?.()
   }
 
   function handleStartLiving() {
