@@ -1,3 +1,4 @@
+import { useState }                      from 'react'
 import { useTranslation }                from 'react-i18next'
 import type { Lifestyle, LifestyleType } from '../systems/lifestyleSystem'
 import type { GameState }               from '../types/game.types'
@@ -15,14 +16,6 @@ interface Props {
 
 const ALLOC_KEYS = ['trabajo', 'estudios', 'familia', 'social', 'salud', 'ocio'] as const
 type AllocKey = typeof ALLOC_KEYS[number]
-
-function stageKey(age: number): string {
-  if (age < 13) return 'game.stages.infancia'
-  if (age < 31) return 'game.stages.juventud'
-  if (age < 51) return 'game.stages.adulto'
-  if (age < 71) return 'game.stages.madurez'
-  return 'game.stages.ancianidad'
-}
 
 function AllocationBar({ label, value, max = 6 }: { label: string; value: number; max?: number }) {
   const pct = Math.min(1, value / max) * 100
@@ -55,8 +48,11 @@ export function LifestylePanel({
   onSetLifestyle,
   onAdvance,
 }: Props) {
-  const { t }        = useTranslation()
-  const isDisabled   = !canAdvance || !lifestyle
+  const { t } = useTranslation()
+  const [isExpanded, setIsExpanded]   = useState(false)
+  const [pendingType, setPendingType] = useState<LifestyleType | null>(null)
+
+  const isDisabled = !canAdvance || !lifestyle
 
   const topAllocs = lifestyle
     ? ALLOC_KEYS
@@ -65,52 +61,52 @@ export function LifestylePanel({
         .slice(0, 3)
     : []
 
-  return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', fontFamily: fonts.display }}>
+  function handleExpand() {
+    setPendingType(lifestyle?.type ?? null)
+    setIsExpanded(true)
+  }
 
-      {/* Header */}
-      <div style={{ padding: '16px 20px', borderBottom: `1px solid ${colors.border.default}`, flexShrink: 0 }}>
-        <span style={{ fontSize: '0.55rem', letterSpacing: '0.25em', color: colors.text.muted, textTransform: 'uppercase' }}>
-          {t('game.lifestyle.title')}
-        </span>
-      </div>
+  function handleConfirm() {
+    if (pendingType) onSetLifestyle(pendingType)
+    setIsExpanded(false)
+  }
 
-      {/* Current stage */}
-      <div style={{ padding: '8px 20px', borderBottom: `1px solid ${colors.bg.tertiary}`, flexShrink: 0 }}>
-        <span style={{ fontSize: '0.6rem', color: colors.text.faint, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-          {t(stageKey(gameState.ageYears))} · {gameState.totalQuarters} {t('game.lifestyle.quarters')}
-        </span>
-      </div>
+  function handleAdvance() {
+    setIsExpanded(false)
+    onAdvance()
+  }
 
-      {/* Lifestyle list */}
-      <div style={{ flex: 1, overflowY: 'auto' }}>
+  // ── EXPANDED ────────────────────────────────────────────────────────────────
+  if (isExpanded) {
+    return (
+      <div style={{ fontFamily: fonts.display }}>
         {allLifestyles.map(ls => {
-          const active = lifestyle?.type === ls.type
+          const selected = (pendingType ?? lifestyle?.type) === ls.type
           return (
             <button
               key={ls.type}
-              onClick={() => onSetLifestyle(ls.type)}
+              onClick={() => setPendingType(ls.type)}
               style={{
                 width:        '100%',
                 textAlign:    'left',
                 padding:      '14px 20px',
-                background:   active ? `${colors.gold}0f` : 'transparent',
+                background:   selected ? `${colors.gold}0f` : 'transparent',
                 borderTop:    'none',
                 borderRight:  'none',
                 borderBottom: 'none',
-                borderLeft:   active ? `3px solid ${colors.gold}` : '3px solid transparent',
+                borderLeft:   selected ? `3px solid ${colors.gold}` : '3px solid transparent',
                 cursor:       'pointer',
                 transition:   `all ${transitions.fast}`,
               }}
               onMouseEnter={e => {
-                if (!active) {
+                if (!selected) {
                   const btn = e.currentTarget as HTMLButtonElement
-                  btn.style.background = colors.bg.tertiary
-                  btn.style.borderLeft = `3px solid ${colors.border.warm}`
+                  btn.style.background  = colors.bg.tertiary
+                  btn.style.borderLeft  = `3px solid ${colors.border.warm}`
                 }
               }}
               onMouseLeave={e => {
-                if (!active) {
+                if (!selected) {
                   const btn = e.currentTarget as HTMLButtonElement
                   btn.style.background = 'transparent'
                   btn.style.borderLeft = '3px solid transparent'
@@ -121,8 +117,8 @@ export function LifestylePanel({
                 display:       'block',
                 fontFamily:    fonts.display,
                 fontSize:      '0.7rem',
-                color:         active ? colors.gold : colors.text.passive,
-                fontWeight:    active ? 600 : 400,
+                color:         selected ? colors.gold : colors.text.passive,
+                fontWeight:    selected ? 600 : 400,
                 letterSpacing: '0.1em',
               }}>
                 {ls.label}
@@ -132,7 +128,7 @@ export function LifestylePanel({
                 fontFamily: fonts.body,
                 fontStyle:  'italic',
                 fontSize:   '0.6rem',
-                color:      active ? colors.text.secondary : colors.text.dim,
+                color:      selected ? colors.text.secondary : colors.text.dim,
                 marginTop:  4,
               }}>
                 {ls.description}
@@ -141,81 +137,200 @@ export function LifestylePanel({
           )
         })}
 
-        {/* Top 3 allocation bars */}
-        {lifestyle && topAllocs.length > 0 && (
-          <div style={{
-            padding:       '12px 20px',
-            borderTop:     `1px solid ${colors.bg.tertiary}`,
-            borderBottom:  `1px solid ${colors.bg.tertiary}`,
-            display:       'flex',
-            flexDirection: 'column',
-            gap:           8,
-          }}>
-            {topAllocs.map(({ key, value }) => (
-              <AllocationBar key={key} label={t(`game.lifestyle.alloc.${key as AllocKey}`)} value={value} />
-            ))}
-          </div>
-        )}
-      </div>
+        {/* Allocation bars for pending selection */}
+        {pendingType && (() => {
+          const pending = allLifestyles.find(ls => ls.type === pendingType)
+          const bars = pending
+            ? ALLOC_KEYS
+                .map(k => ({ key: k, value: pending.allocation[k] }))
+                .sort((a, b) => b.value - a.value)
+                .slice(0, 3)
+            : []
+          return bars.length > 0 ? (
+            <div style={{
+              padding:       '10px 20px',
+              borderTop:     `1px solid ${colors.bg.tertiary}`,
+              display:       'flex',
+              flexDirection: 'column',
+              gap:           7,
+            }}>
+              {bars.map(({ key, value }) => (
+                <AllocationBar key={key} label={t(`game.lifestyle.alloc.${key as AllocKey}`)} value={value} />
+              ))}
+            </div>
+          ) : null
+        })()}
 
-      {/* Bottom: hint + advance button */}
-      <div style={{ flexShrink: 0 }}>
-        {hasPending && (
-          <div style={{ padding: '8px 20px', textAlign: 'center' }}>
-            <span style={{
-              fontFamily:    fonts.display,
-              fontSize:      '0.55rem',
-              letterSpacing: '0.15em',
-              color:         colors.text.secondary,
-              opacity:       0.8,
-              textTransform: 'uppercase',
-            }}>
-              {t('game.lifestyle.decide')}
-            </span>
-          </div>
-        )}
-        {!hasPending && !lifestyle && (
-          <div style={{ padding: '8px 20px', textAlign: 'center' }}>
-            <span style={{
-              fontFamily:    fonts.display,
-              fontSize:      '0.55rem',
-              letterSpacing: '0.1em',
-              color:         colors.text.muted,
-              textTransform: 'uppercase',
-            }}>
-              {t('game.lifestyle.choose')}
-            </span>
-          </div>
-        )}
         <button
-          onClick={isDisabled ? undefined : onAdvance}
-          disabled={isDisabled}
+          onClick={pendingType ? handleConfirm : undefined}
+          disabled={!pendingType}
           style={{
             width:         '100%',
-            padding:       16,
+            padding:       14,
             fontFamily:    fonts.display,
-            fontSize:      '0.7rem',
+            fontSize:      '0.65rem',
             letterSpacing: '0.25em',
             fontWeight:    700,
             textTransform: 'uppercase',
-            border:        isDisabled ? `1px solid ${colors.border.warm}` : 'none',
-            cursor:        isDisabled ? 'not-allowed' : 'pointer',
-            background:    isDisabled ? colors.bg.disabled : colors.gold,
-            color:         isDisabled ? colors.text.muted : colors.bg.primary,
-            opacity:       isDisabled ? 0.45 : 1,
+            border:        'none',
+            cursor:        pendingType ? 'pointer' : 'not-allowed',
+            background:    pendingType ? colors.gold : colors.bg.disabled,
+            color:         pendingType ? colors.bg.primary : colors.text.muted,
+            opacity:       pendingType ? 1 : 0.45,
             minHeight:     44,
             transition:    `background ${transitions.fast}`,
           }}
           onMouseEnter={e => {
-            if (!isDisabled) (e.currentTarget as HTMLButtonElement).style.background = '#d4b05a'
+            if (pendingType) (e.currentTarget as HTMLButtonElement).style.background = '#d4b05a'
           }}
           onMouseLeave={e => {
-            if (!isDisabled) (e.currentTarget as HTMLButtonElement).style.background = colors.gold
+            if (pendingType) (e.currentTarget as HTMLButtonElement).style.background = colors.gold
           }}
         >
-          {t('game.lifestyle.advance')}
+          {t('game.lifestyle.confirm')}
         </button>
       </div>
+    )
+  }
+
+  // ── COLLAPSED (default) ──────────────────────────────────────────────────────
+  return (
+    <div style={{ fontFamily: fonts.display }}>
+
+      {/* Active lifestyle chip row */}
+      <div style={{
+        display:      'flex',
+        alignItems:   'center',
+        gap:          10,
+        padding:      '0 16px',
+        height:       48,
+        borderBottom: `1px solid ${colors.border.default}`,
+      }}>
+        <span style={{
+          fontFamily:    fonts.display,
+          fontSize:      '0.6rem',
+          letterSpacing: '0.1em',
+          color:         colors.gold,
+          fontWeight:    600,
+          textTransform: 'uppercase',
+          whiteSpace:    'nowrap',
+        }}>
+          {lifestyle?.label ?? '—'}
+        </span>
+
+        <span style={{ color: colors.border.default, flexShrink: 0 }}>·</span>
+
+        {/* Top 3 alloc abbreviations + values */}
+        <div style={{ display: 'flex', gap: 8, flex: 1, overflow: 'hidden' }}>
+          {topAllocs.map(({ key, value }) => {
+            const abbr = t(`game.lifestyle.alloc.${key as AllocKey}`).substring(0, 3).toUpperCase()
+            return (
+              <span key={key} style={{
+                fontFamily:    fonts.display,
+                fontSize:      '0.42rem',
+                letterSpacing: '0.05em',
+                color:         colors.text.muted,
+                textTransform: 'uppercase',
+                whiteSpace:    'nowrap',
+              }}>
+                {abbr}<span style={{ color: colors.text.secondary, marginLeft: 2 }}>{value}</span>
+              </span>
+            )
+          })}
+        </div>
+
+        {/* CAMBIAR button */}
+        <button
+          onClick={handleExpand}
+          style={{
+            fontFamily:    fonts.display,
+            fontSize:      '0.42rem',
+            letterSpacing: '0.12em',
+            color:         colors.text.muted,
+            textTransform: 'uppercase',
+            background:    'transparent',
+            border:        `1px solid ${colors.border.default}`,
+            padding:       '3px 8px',
+            cursor:        'pointer',
+            whiteSpace:    'nowrap',
+            flexShrink:    0,
+            transition:    `all ${transitions.fast}`,
+          }}
+          onMouseEnter={e => {
+            const btn = e.currentTarget as HTMLButtonElement
+            btn.style.color        = colors.gold
+            btn.style.borderColor  = `${colors.gold}66`
+          }}
+          onMouseLeave={e => {
+            const btn = e.currentTarget as HTMLButtonElement
+            btn.style.color       = colors.text.muted
+            btn.style.borderColor = colors.border.default
+          }}
+        >
+          {t('game.lifestyle.change')}
+        </button>
+      </div>
+
+      {/* Pending decision hint */}
+      {hasPending && (
+        <div style={{ padding: '6px 16px', textAlign: 'center' }}>
+          <span style={{
+            fontFamily:    fonts.display,
+            fontSize:      '0.5rem',
+            letterSpacing: '0.15em',
+            color:         colors.text.secondary,
+            opacity:       0.8,
+            textTransform: 'uppercase',
+          }}>
+            {t('game.lifestyle.decide')}
+          </span>
+        </div>
+      )}
+
+      {/* No lifestyle chosen hint */}
+      {!hasPending && !lifestyle && (
+        <div style={{ padding: '6px 16px', textAlign: 'center' }}>
+          <span style={{
+            fontFamily:    fonts.display,
+            fontSize:      '0.5rem',
+            letterSpacing: '0.1em',
+            color:         colors.text.muted,
+            textTransform: 'uppercase',
+          }}>
+            {t('game.lifestyle.choose')}
+          </span>
+        </div>
+      )}
+
+      {/* Advance button */}
+      <button
+        onClick={isDisabled ? undefined : handleAdvance}
+        disabled={isDisabled}
+        style={{
+          width:         '100%',
+          padding:       16,
+          fontFamily:    fonts.display,
+          fontSize:      '0.7rem',
+          letterSpacing: '0.25em',
+          fontWeight:    700,
+          textTransform: 'uppercase',
+          border:        isDisabled ? `1px solid ${colors.border.warm}` : 'none',
+          cursor:        isDisabled ? 'not-allowed' : 'pointer',
+          background:    isDisabled ? colors.bg.disabled : colors.gold,
+          color:         isDisabled ? colors.text.muted : colors.bg.primary,
+          opacity:       isDisabled ? 0.45 : 1,
+          minHeight:     44,
+          transition:    `background ${transitions.fast}`,
+        }}
+        onMouseEnter={e => {
+          if (!isDisabled) (e.currentTarget as HTMLButtonElement).style.background = '#d4b05a'
+        }}
+        onMouseLeave={e => {
+          if (!isDisabled) (e.currentTarget as HTMLButtonElement).style.background = colors.gold
+        }}
+      >
+        {t('game.lifestyle.advance')}
+      </button>
     </div>
   )
 }

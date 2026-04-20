@@ -49,6 +49,8 @@ const en = {
       decide:   'Make a decision',
       choose:   'Choose a lifestyle',
       advance:  'Advance Quarter',
+      change:   'Change',
+      confirm:  'Confirm Style',
       quarters: 'qtr.',
       alloc: { trabajo: 'Work', estudios: 'Studies', familia: 'Family', social: 'Social', salud: 'Health', ocio: 'Leisure' },
     },

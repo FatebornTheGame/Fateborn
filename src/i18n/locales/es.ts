@@ -70,6 +70,8 @@ const es = {
       decide:   'Toma una decisión',
       choose:   'Elige un estilo de vida',
       advance:  'Avanzar Trimestre',
+      change:   'Cambiar',
+      confirm:  'Confirmar Estilo',
       quarters: 'trim.',
       alloc: {
         trabajo:  'Trabajo',

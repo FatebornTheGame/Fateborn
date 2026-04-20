@@ -29,7 +29,7 @@ const tr = {
     stages: { infancia: 'Çocukluk', adolescencia: 'Ergenlik', juventud: 'Gençlik', adultez: 'Yetişkinlik', adulto: 'Yetişkin', madurez: 'Olgunluk', vejez: 'Yaşlılık', ancianidad: 'Yaşlılık' },
     lifestyle: {
       title: 'Girişim', decide: 'Bir karar ver', choose: 'Bir yaşam tarzı seç',
-      advance: 'Çeyreği İlerlet', quarters: 'çyr.',
+      advance: 'Çeyreği İlerlet', change: 'Değiştir', confirm: 'Stili Onayla', quarters: 'çyr.',
       alloc: { trabajo: 'İş', estudios: 'Eğitim', familia: 'Aile', social: 'Sosyal', salud: 'Sağlık', ocio: 'Boş Zaman' },
     },
     feed: { title: 'Hikâye', decision: 'Karar', anos: 'yaş' },

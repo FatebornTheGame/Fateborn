@@ -29,7 +29,7 @@ const ru = {
     stages: { infancia: 'Детство', adolescencia: 'Отрочество', juventud: 'Юность', adultez: 'Взрослость', adulto: 'Взрослый', madurez: 'Зрелость', vejez: 'Старость', ancianidad: 'Старость' },
     lifestyle: {
       title: 'Инициатива', decide: 'Прими решение', choose: 'Выбери образ жизни',
-      advance: 'Следующий Квартал', quarters: 'кв.',
+      advance: 'Следующий Квартал', change: 'Изменить', confirm: 'Подтвердить Стиль', quarters: 'кв.',
       alloc: { trabajo: 'Работа', estudios: 'Учёба', familia: 'Семья', social: 'Общение', salud: 'Здоровье', ocio: 'Досуг' },
     },
     feed: { title: 'История', decision: 'Решение', anos: 'лет' },

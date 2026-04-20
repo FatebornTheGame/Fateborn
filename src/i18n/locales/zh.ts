@@ -29,7 +29,7 @@ const zh = {
     stages: { infancia: '童年', adolescencia: '青春期', juventud: '青年', adultez: '成年期', adulto: '成年', madurez: '成熟', vejez: '老年', ancianidad: '晚年' },
     lifestyle: {
       title: '行动', decide: '做出决定', choose: '选择生活方式',
-      advance: '推进季度', quarters: '季.',
+      advance: '推进季度', change: '更改', confirm: '确认风格', quarters: '季.',
       alloc: { trabajo: '工作', estudios: '学习', familia: '家庭', social: '社交', salud: '健康', ocio: '休闲' },
     },
     feed: { title: '故事', decision: '决定', anos: '岁' },
