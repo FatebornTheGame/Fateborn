@@ -35,6 +35,10 @@ const pl = {
     feed: { title: 'Historia', decision: 'Decyzja', anos: 'lat' },
     statsPanel: { title: 'Statystyki', groups: { cognitivo: 'Poznawcze', social: 'Społeczne', vital: 'Witalne' } },
     timeline: { stages: { infancia: 'Dzieciństwo', juventud: 'Młodość', adulto: 'Dorosły', madurez: 'Dojrzałość', ancianidad: 'Starość' } },
+    onboarding: {
+      step1: { title: 'WYBIERZ JAK CHCESZ ŻYĆ', sub: 'Określ, gdzie inwestujesz swój czas każdego kwartału', cta: 'ROZUMIEM' },
+      step2: { title: 'NACIŚNIJ ŻYĆ', sub: 'Czas będzie płynął sam, aż wydarzy się coś ważnego', cta: 'ZACZNIJ' },
+    },
   },
   death: {
     header: '✦ EPITAFIUM ✦', finalProfile: 'Profil końcowy',

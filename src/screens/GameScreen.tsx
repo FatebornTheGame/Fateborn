@@ -13,7 +13,10 @@ import { MuteButton }                 from '../components/MuteButton'
 import { AtmosphericBackground }      from '../styles/AtmosphericBackground'
 import { StatFlash }                  from '../components/StatFlash'
 import { StageProgressBar }           from '../components/StageProgressBar'
+import { OnboardingOverlay }          from '../components/OnboardingOverlay'
 import { colors }                     from '../styles/tokens'
+
+const ONBOARDING_KEY = 'fateborn_onboarding_done'
 
 export function GameScreen() {
   const gameState       = useGameStore(s => s.gameState)
@@ -22,7 +25,8 @@ export function GameScreen() {
   const setActiveTab    = useGameStore(s => s.setActiveTab)
   const lastStatChanges = useGameStore(s => s.lastStatChanges)
 
-  const [showStats, setShowStats] = useState(false)
+  const [showStats, setShowStats]         = useState(false)
+  const [onboardingDone, setOnboardingDone] = useState(() => localStorage.getItem(ONBOARDING_KEY) === '1')
 
   const { canStartLiving, isLiving, startLiving, resolveEvent } = useGameEngine()
   const { grouped, pendingEvent }                    = useNarrativeFeed()
@@ -122,6 +126,11 @@ export function GameScreen() {
           events={timelineEvents}
         />
       </div>
+
+      {/* Onboarding */}
+      {!onboardingDone && (
+        <OnboardingOverlay onDone={() => setOnboardingDone(true)} />
+      )}
 
       {/* Overlays */}
       {showStats && (

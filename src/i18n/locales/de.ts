@@ -35,6 +35,10 @@ const de = {
     feed: { title: 'Geschichte', decision: 'Entscheidung', anos: 'Jahre' },
     statsPanel: { title: 'Attribute', groups: { cognitivo: 'Kognitiv', social: 'Sozial', vital: 'Vital' } },
     timeline: { stages: { infancia: 'Kindheit', juventud: 'Jugend', adulto: 'Erwachsen', madurez: 'Reife', ancianidad: 'Alter' } },
+    onboarding: {
+      step1: { title: 'WÄHLE DEINEN LEBENSWEG', sub: 'Bestimme, wo du jedes Quartal deine Zeit investierst', cta: 'VERSTANDEN' },
+      step2: { title: 'DRÜCKE AUF LEBEN', sub: 'Die Zeit schreitet von selbst voran, bis etwas Wichtiges passiert', cta: 'STARTEN' },
+    },
   },
   death: {
     header: '✦ GRABINSCHRIFT ✦', finalProfile: 'Abschlussprofil',

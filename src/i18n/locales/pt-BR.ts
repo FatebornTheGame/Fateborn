@@ -35,6 +35,10 @@ const ptBR = {
     feed: { title: 'História', decision: 'Decisão', anos: 'anos' },
     statsPanel: { title: 'Atributos', groups: { cognitivo: 'Cognitivo', social: 'Social', vital: 'Vital' } },
     timeline: { stages: { infancia: 'Infância', juventud: 'Juventude', adulto: 'Adulto', madurez: 'Maturidade', ancianidad: 'Velhice' } },
+    onboarding: {
+      step1: { title: 'ESCOLHA COMO QUER VIVER', sub: 'Defina onde investe seu tempo a cada trimestre', cta: 'ENTENDIDO' },
+      step2: { title: 'PRESSIONE VIVER', sub: 'O tempo avançará sozinho até que algo importante aconteça', cta: 'COMEÇAR' },
+    },
   },
   death: {
     header: '✦ EPITÁFIO ✦', finalProfile: 'Perfil final',

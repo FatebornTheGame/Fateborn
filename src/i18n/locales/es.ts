@@ -106,6 +106,10 @@ const es = {
         ancianidad:   'Ancianidad',
       },
     },
+    onboarding: {
+      step1: { title: 'ELIGE CÓMO QUIERES VIVIR', sub: 'Define dónde inviertes tu tiempo cada trimestre', cta: 'ENTENDIDO' },
+      step2: { title: 'PULSA VIVIR', sub: 'El tiempo avanzará solo hasta que algo importante ocurra', cta: 'EMPEZAR' },
+    },
   },
   death: {
     header:       '✦ EPITAFIO ✦',

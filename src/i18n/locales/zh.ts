@@ -35,6 +35,10 @@ const zh = {
     feed: { title: '故事', decision: '决定', anos: '岁' },
     statsPanel: { title: '属性', groups: { cognitivo: '认知', social: '社交', vital: '生命' } },
     timeline: { stages: { infancia: '童年', juventud: '青年', adulto: '成年', madurez: '成熟', ancianidad: '晚年' } },
+    onboarding: {
+      step1: { title: '选择你的生活方式', sub: '设定每季度的时间投入', cta: '明白了' },
+      step2: { title: '点击「生活」', sub: '时间将自动推进，直到重要事件发生', cta: '开始' },
+    },
   },
   death: {
     header: '✦ 墓志铭 ✦', finalProfile: '最终档案',

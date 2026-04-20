@@ -35,6 +35,10 @@ const ru = {
     feed: { title: 'История', decision: 'Решение', anos: 'лет' },
     statsPanel: { title: 'Статистика', groups: { cognitivo: 'Когнитивное', social: 'Социальное', vital: 'Витальное' } },
     timeline: { stages: { infancia: 'Детство', juventud: 'Юность', adulto: 'Взрослый', madurez: 'Зрелость', ancianidad: 'Старость' } },
+    onboarding: {
+      step1: { title: 'ВЫБЕРИ КАК ХОЧЕШЬ ЖИТЬ', sub: 'Определи, куда вкладываешь своё время каждый квартал', cta: 'ПОНЯЛ' },
+      step2: { title: 'НАЖМИ ЖИТЬ', sub: 'Время движется само, пока не случится что-то важное', cta: 'НАЧАТЬ' },
+    },
   },
   death: {
     header: '✦ ЭПИТАФИЯ ✦', finalProfile: 'Итоговый профиль',

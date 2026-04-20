@@ -35,6 +35,10 @@ const tr = {
     feed: { title: 'Hikâye', decision: 'Karar', anos: 'yaş' },
     statsPanel: { title: 'İstatistikler', groups: { cognitivo: 'Bilişsel', social: 'Sosyal', vital: 'Yaşamsal' } },
     timeline: { stages: { infancia: 'Çocukluk', juventud: 'Gençlik', adulto: 'Yetişkin', madurez: 'Olgunluk', ancianidad: 'Yaşlılık' } },
+    onboarding: {
+      step1: { title: 'NASIL YAŞAMAK İSTEDİĞİNİ SEÇ', sub: 'Her çeyrekte zamanını nereye yatırdığını belirle', cta: 'ANLADIM' },
+      step2: { title: 'YAŞA BUTONUNA BAS', sub: 'Önemli bir şey olana kadar zaman kendi kendine ilerleyecek', cta: 'BAŞLA' },
+    },
   },
   death: {
     header: '✦ MEZAR TAŞI ✦', finalProfile: 'Son profil',

@@ -35,6 +35,10 @@ const fr = {
     feed: { title: 'Histoire', decision: 'Décision', anos: 'ans' },
     statsPanel: { title: 'Attributs', groups: { cognitivo: 'Cognitif', social: 'Social', vital: 'Vital' } },
     timeline: { stages: { infancia: 'Enfance', juventud: 'Jeunesse', adulto: 'Adulte', madurez: 'Maturité', ancianidad: 'Vieillesse' } },
+    onboarding: {
+      step1: { title: 'CHOISIS COMMENT TU VEUX VIVRE', sub: 'Définis où tu investis ton temps chaque trimestre', cta: 'COMPRIS' },
+      step2: { title: 'APPUIE SUR VIVRE', sub: "Le temps avancera seul jusqu'à ce que quelque chose d'important arrive", cta: 'COMMENCER' },
+    },
   },
   death: {
     header: '✦ ÉPITAPHE ✦', finalProfile: 'Profil final',
