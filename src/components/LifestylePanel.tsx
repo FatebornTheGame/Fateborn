@@ -5,15 +5,14 @@ import type { GameState }               from '../types/game.types'
 import { colors, fonts, transitions }   from '../styles/tokens'
 
 interface Props {
-  gameState:        GameState
-  lifestyle:        Lifestyle | null
-  allLifestyles:    Lifestyle[]
-  canStartLiving:   boolean
-  isLiving:         boolean
-  hasPending:       boolean
-  isFirstVisit?:    boolean
-  onSetLifestyle:   (type: LifestyleType) => void
-  onStartLiving:    () => void
+  gameState:      GameState
+  lifestyle:      Lifestyle | null
+  allLifestyles:  Lifestyle[]
+  canStartLiving: boolean
+  isLiving:       boolean
+  hasPending:     boolean
+  onSetLifestyle: (type: LifestyleType) => void
+  onStartLiving:  () => void
 }
 
 const ALLOC_KEYS = ['trabajo', 'estudios', 'familia', 'social', 'salud', 'ocio'] as const
@@ -48,12 +47,15 @@ export function LifestylePanel({
   canStartLiving,
   isLiving,
   hasPending,
-  isFirstVisit,
   onSetLifestyle,
   onStartLiving,
 }: Props) {
   const { t } = useTranslation()
-  const [isExpanded, setIsExpanded]   = useState(isFirstVisit ?? false)
+
+  // uiState drives all contextual guidance — derived purely from game state
+  const uiState: 1 | 2 | 3 = !lifestyle ? 1 : gameState.feed.length === 0 ? 2 : 3
+
+  const [isExpanded, setIsExpanded]   = useState(uiState === 1)
   const [pendingType, setPendingType] = useState<LifestyleType | null>(null)
 
   const isDisabled = !canStartLiving
@@ -88,9 +90,9 @@ export function LifestylePanel({
         display:       'flex',
         flexDirection: 'column',
         height:        '100%',
-        ...(isFirstVisit ? { animation: 'lp-first-pulse 1.5s ease-in-out infinite' } : {}),
+        ...(uiState === 1 ? { animation: 'lp-first-pulse 1.5s ease-in-out infinite' } : {}),
       }}>
-        {isFirstVisit && (
+        {uiState === 1 && (
           <style>{`
             @keyframes lp-first-pulse {
               0%, 100% { box-shadow: 0 0 0 2px rgba(201,168,76,0.25); }
@@ -103,7 +105,7 @@ export function LifestylePanel({
         <div style={{ flex: 1, overflowY: 'auto' }}>
 
         {/* First-visit header */}
-        {isFirstVisit && (
+        {uiState === 1 && (
           <div style={{
             padding:      '14px 20px 12px',
             textAlign:    'center',
@@ -220,10 +222,10 @@ export function LifestylePanel({
           disabled={!pendingType}
           style={{
             width:         '100%',
-            height:        isFirstVisit ? 52 : undefined,
-            padding:       isFirstVisit ? 0 : 14,
+            height:        uiState === 1 ? 52 : undefined,
+            padding:       uiState === 1 ? 0 : 14,
             fontFamily:    fonts.display,
-            fontSize:      isFirstVisit ? '0.6rem' : '0.65rem',
+            fontSize:      uiState === 1 ? '0.6rem' : '0.65rem',
             letterSpacing: '0.25em',
             fontWeight:    700,
             textTransform: 'uppercase',
@@ -242,7 +244,7 @@ export function LifestylePanel({
             if (pendingType) (e.currentTarget as HTMLButtonElement).style.background = colors.gold
           }}
         >
-          {isFirstVisit ? t('game.lifestyle.confirmFirst') : t('game.lifestyle.confirm')}
+          {uiState === 1 ? t('game.lifestyle.confirmFirst') : t('game.lifestyle.confirm')}
         </button>
       </div>
     )
@@ -359,34 +361,58 @@ export function LifestylePanel({
 
       {/* VIVIR / VIVIENDO button — hidden when there's a pending event */}
       {!hasPending && (
-        <button
-          onClick={isDisabled ? undefined : handleStartLiving}
-          disabled={isDisabled}
-          style={{
-            width:         '100%',
-            padding:       16,
-            fontFamily:    fonts.display,
-            fontSize:      '0.7rem',
-            letterSpacing: '0.25em',
-            fontWeight:    700,
-            textTransform: 'uppercase',
-            border:        isDisabled ? `1px solid ${colors.border.warm}` : 'none',
-            cursor:        isDisabled ? 'not-allowed' : 'pointer',
-            background:    isDisabled ? colors.bg.disabled : colors.gold,
-            color:         isDisabled ? colors.text.muted : colors.bg.primary,
-            opacity:       isDisabled ? 0.45 : 1,
-            minHeight:     44,
-            transition:    `background ${transitions.fast}`,
-          }}
-          onMouseEnter={e => {
-            if (!isDisabled) (e.currentTarget as HTMLButtonElement).style.background = '#d4b05a'
-          }}
-          onMouseLeave={e => {
-            if (!isDisabled) (e.currentTarget as HTMLButtonElement).style.background = colors.gold
-          }}
-        >
-          {isLiving ? t('game.lifestyle.living') : t('game.lifestyle.vivir')}
-        </button>
+        <>
+          {uiState === 2 && (
+            <style>{`
+              @keyframes lp-vivir-pulse {
+                0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.0); }
+                50%       { box-shadow: 0 0 0 6px rgba(201,168,76,0.35); }
+              }
+            `}</style>
+          )}
+          <button
+            onClick={isDisabled ? undefined : handleStartLiving}
+            disabled={isDisabled}
+            style={{
+              width:         '100%',
+              padding:       16,
+              fontFamily:    fonts.display,
+              fontSize:      '0.7rem',
+              letterSpacing: '0.25em',
+              fontWeight:    700,
+              textTransform: 'uppercase',
+              border:        isDisabled ? `1px solid ${colors.border.warm}` : 'none',
+              cursor:        isDisabled ? 'not-allowed' : 'pointer',
+              background:    isDisabled ? colors.bg.disabled : colors.gold,
+              color:         isDisabled ? colors.text.muted : colors.bg.primary,
+              opacity:       isDisabled ? 0.45 : 1,
+              minHeight:     44,
+              transition:    `background ${transitions.fast}`,
+              animation:     uiState === 2 && !isDisabled ? 'lp-vivir-pulse 2s ease-in-out infinite' : 'none',
+            }}
+            onMouseEnter={e => {
+              if (!isDisabled) (e.currentTarget as HTMLButtonElement).style.background = '#d4b05a'
+            }}
+            onMouseLeave={e => {
+              if (!isDisabled) (e.currentTarget as HTMLButtonElement).style.background = colors.gold
+            }}
+          >
+            {isLiving ? t('game.lifestyle.living') : t('game.lifestyle.vivir')}
+          </button>
+          {uiState === 2 && !isDisabled && (
+            <p style={{
+              fontFamily: 'Georgia, serif',
+              fontStyle:  'italic',
+              fontSize:   '0.72rem',
+              color:      '#b09060',
+              textAlign:  'center',
+              margin:     '8px 16px 4px',
+              lineHeight: 1.5,
+            }}>
+              {t('game.lifestyle.vivirHint')}
+            </p>
+          )}
+        </>
       )}
     </div>
   )

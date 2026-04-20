@@ -55,7 +55,9 @@
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(del \"C:\\\\Users\\\\F O R T Y W A N\\\\fateborn\\\\src\\\\components\\\\Onboarding.tsx\")",
+      "Bash(del \"C:\\\\Users\\\\F O R T Y W A N\\\\fateborn\\\\src\\\\components\\\\OnboardingOverlay.tsx\")"
     ]
   }
 }

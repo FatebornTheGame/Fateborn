@@ -13,10 +13,7 @@ import { MuteButton }                 from '../components/MuteButton'
 import { AtmosphericBackground }      from '../styles/AtmosphericBackground'
 import { StatFlash }                  from '../components/StatFlash'
 import { StageProgressBar }           from '../components/StageProgressBar'
-import { Onboarding }                  from '../components/Onboarding'
 import { colors }                     from '../styles/tokens'
-
-const ONBOARDING_KEY = 'fateborn_onboarding_done'
 
 export function GameScreen() {
   const gameState       = useGameStore(s => s.gameState)
@@ -25,13 +22,7 @@ export function GameScreen() {
   const setActiveTab    = useGameStore(s => s.setActiveTab)
   const lastStatChanges = useGameStore(s => s.lastStatChanges)
 
-  const [showStats, setShowStats]       = useState(false)
-  const [showOnboarding, setShowOnboarding] = useState(
-    () => localStorage.getItem(ONBOARDING_KEY) !== 'true'
-  )
-
-  // Panel starts expanded while onboarding hasn't been completed
-  const isFirstVisit = showOnboarding
+  const [showStats, setShowStats] = useState(false)
 
   const { canStartLiving, isLiving, startLiving, resolveEvent } = useGameEngine()
   const { grouped, pendingEvent }                    = useNarrativeFeed()
@@ -46,7 +37,6 @@ export function GameScreen() {
   const eventDisplayState = preEventState ?? gameState
 
   return (
-    <>
     <div style={{ position: 'relative', height: '100vh', overflow: 'hidden', background: colors.bg.primary }}>
       <MuteButton />
       <AtmosphericBackground />
@@ -81,7 +71,7 @@ export function GameScreen() {
               canStartLiving={canStartLiving}
               isLiving={isLiving}
               hasPending={!!pendingEvent}
-              isFirstVisit={isFirstVisit}
+
               onSetLifestyle={setLifestyle}
               onStartLiving={startLiving}
             />
@@ -111,7 +101,7 @@ export function GameScreen() {
                 canStartLiving={canStartLiving}
                 isLiving={isLiving}
                 hasPending={!!pendingEvent}
-                isFirstVisit={isFirstVisit}
+  
                 onSetLifestyle={setLifestyle}
                 onStartLiving={startLiving}
               />
@@ -160,9 +150,5 @@ export function GameScreen() {
         </button>
       </div>
     </div>
-
-    {/* Onboarding: outside overflow:hidden container so position:fixed covers full viewport */}
-    {showOnboarding && <Onboarding onComplete={() => setShowOnboarding(false)} />}
-    </>
   )
 }

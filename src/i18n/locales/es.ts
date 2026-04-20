@@ -77,6 +77,7 @@ const es = {
       confirmFirst: 'CONFIRMAR Y EMPEZAR A VIVIR',
       firstTitle:   'ELIGE TU ESTILO DE VIDA',
       firstSub:     'Define cómo invierte su tiempo',
+      vivirHint: 'El tiempo avanzará hasta que algo importante ocurra',
       quarters: 'trim.',
       alloc: {
         trabajo:  'Trabajo',

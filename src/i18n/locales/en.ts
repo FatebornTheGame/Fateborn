@@ -56,6 +56,7 @@ const en = {
       confirmFirst: 'CHOOSE AND BEGIN',
       firstTitle:   'CHOOSE YOUR LIFESTYLE',
       firstSub:     'Define where you will invest your time each quarter',
+      vivirHint: 'Time will advance until something important happens',
       quarters: 'qtr.',
       alloc: { trabajo: 'Work', estudios: 'Studies', familia: 'Family', social: 'Social', salud: 'Health', ocio: 'Leisure' },
     },
