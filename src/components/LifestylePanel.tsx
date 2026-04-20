@@ -84,7 +84,10 @@ export function LifestylePanel({
   if (isExpanded) {
     return (
       <div style={{
-        fontFamily: fonts.display,
+        fontFamily:    fonts.display,
+        display:       'flex',
+        flexDirection: 'column',
+        height:        '100%',
         ...(isFirstVisit ? { animation: 'lp-first-pulse 1.5s ease-in-out infinite' } : {}),
       }}>
         {isFirstVisit && (
@@ -95,6 +98,9 @@ export function LifestylePanel({
             }
           `}</style>
         )}
+
+        {/* Scrollable area: header + list + bars */}
+        <div style={{ flex: 1, overflowY: 'auto' }}>
 
         {/* First-visit header */}
         {isFirstVisit && (
@@ -206,6 +212,8 @@ export function LifestylePanel({
             </div>
           ) : null
         })()}
+
+        </div>{/* end scrollable area */}
 
         <button
           onClick={pendingType ? handleConfirm : undefined}
