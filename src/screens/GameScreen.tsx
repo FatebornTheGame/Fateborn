@@ -49,11 +49,12 @@ export function GameScreen() {
           ageYears={gameState.ageYears}
         />
         <StatFlash />
+        <StageProgressBar age={gameState.ageYears} />
 
         {/* Desktop layout (md+) */}
         <div
           className="hidden md:flex"
-          style={{ paddingTop: 56, paddingBottom: 48, flex: 1, overflow: 'hidden' }}
+          style={{ paddingTop: 84, paddingBottom: 48, flex: 1, overflow: 'hidden' }}
         >
           <div style={{
             width:       300,
@@ -73,7 +74,6 @@ export function GameScreen() {
             />
           </div>
           <div style={{ flex: 1, overflowY: 'auto', background: 'transparent', display: 'flex', flexDirection: 'column' }}>
-            <StageProgressBar age={gameState.ageYears} />
             <NarrativeFeed
               groups={grouped}
               pendingEvent={pendingEvent}
@@ -86,7 +86,7 @@ export function GameScreen() {
         {/* Mobile layout */}
         <div
           className="flex flex-col w-full md:hidden"
-          style={{ flex: 1, overflow: 'hidden', paddingTop: 56 }}
+          style={{ flex: 1, overflow: 'hidden', paddingTop: 84 }}
         >
           <TabBar activeTab={activeTab} onChange={setActiveTab} />
           <div style={{ flex: 1, overflow: 'hidden', paddingBottom: 48 }}>
@@ -101,18 +101,15 @@ export function GameScreen() {
                 onAdvance={advanceQuarter}
               />
             ) : (
-              <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <StageProgressBar age={gameState.ageYears} />
-                <NarrativeFeed
-                  groups={grouped}
-                  pendingEvent={pendingEvent}
-                  pendingState={eventDisplayState}
-                  onResolve={(id) => {
-                    resolveEvent(id)
-                    setActiveTab('feed')
-                  }}
-                />
-              </div>
+              <NarrativeFeed
+                groups={grouped}
+                pendingEvent={pendingEvent}
+                pendingState={eventDisplayState}
+                onResolve={(id) => {
+                  resolveEvent(id)
+                  setActiveTab('feed')
+                }}
+              />
             )}
           </div>
         </div>

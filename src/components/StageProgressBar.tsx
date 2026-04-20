@@ -38,12 +38,17 @@ export function StageProgressBar({ age }: Props) {
 
   return (
     <div style={{
+      position:       'fixed',
+      top:            56,
+      left:           0,
+      right:          0,
+      zIndex:         90,
       display:        'flex',
       alignItems:     'center',
       gap:            12,
-      padding:        '8px 16px',
-      borderBottom:   `1px solid ${colors.border.default}`,
-      flexShrink:     0,
+      padding:        '4px 16px',
+      background:     colors.bg.primary,
+      borderBottom:   `1px solid ${colors.bg.tertiary}`,
     }}>
       {/* Stage label */}
       <span style={{
