@@ -12,11 +12,11 @@ export const colors = {
   text: {
     primary:   '#C9A84C',
     secondary: '#8a7050',
-    muted:     '#6b6045',
-    faint:     '#4a3a20',
+    muted:     '#a08060',   // raised from #6b6045 — minimum readable
+    faint:     '#a08060',   // raised from #4a3a20 — below #6b6045 threshold
     narrative: '#b09060',
-    passive:   '#7a6040',
-    dim:       '#5a4828',
+    passive:   '#8a7050',   // raised from #7a6040 — minimum readable
+    dim:       '#a08060',   // raised from #5a4828 — below #6b6045 threshold
   },
   border: {
     default: '#2a2620',

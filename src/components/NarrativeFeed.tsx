@@ -11,10 +11,10 @@ interface Props {
   pendingState: import('../types/game.types').GameState | null
 }
 
-const IMPORTANCE_OPACITY: Record<string, number> = {
-  normal:  0.72,
-  alta:    0.9,
-  critica: 1,
+const IMPORTANCE_COLOR: Record<string, string> = {
+  normal:  '#8a7050',
+  alta:    '#a08060',
+  critica: '#b09060',
 }
 
 export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }: Props) {
@@ -46,8 +46,8 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
 
         {/* Empty state — antes del primer trimestre */}
         {groups.length === 0 && !pendingEvent && (
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0', opacity: 0.4 }}>
-            <p style={{ fontFamily: fonts.body, fontStyle: 'italic', fontSize: '0.85rem', color: colors.text.muted, textAlign: 'center', lineHeight: 1.8, margin: 0 }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
+            <p style={{ fontFamily: fonts.body, fontStyle: 'italic', fontSize: '0.85rem', color: colors.text.passive, textAlign: 'center', lineHeight: 1.8, margin: 0 }}>
               {t('game.feed.empty')}
             </p>
           </div>
@@ -83,8 +83,7 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
                       fontStyle:   entry.type === 'memory' ? 'italic' : 'normal',
                       fontSize:    '0.85rem',
                       lineHeight:  1.8,
-                      color:       colors.text.narrative,
-                      opacity:     IMPORTANCE_OPACITY[entry.importance] ?? 0.72,
+                      color:       IMPORTANCE_COLOR[entry.importance] ?? '#8a7050',
                       borderLeft:  `2px solid ${colors.border.default}`,
                       paddingLeft: 12,
                       margin:      '0 0 6px 0',
