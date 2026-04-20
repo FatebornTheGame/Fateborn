@@ -2,8 +2,8 @@ import type { GameState, Economy, GastosDetallados } from '../types/game.types'
 import type { CountryTier } from '../data/countries'
 
 // ─── Base monthly economics per country tier ──────────────────────────────────
-// These represent personal/family finances at game start (age 6).
-// Values grow when career is set; vivienda and telefono start at 0 for children.
+// liquidezInicial represents family background wealth at game start.
+// The tick does not run until age 18 or until a career is active.
 
 interface TierParams {
   liquidezInicial: number
@@ -52,6 +52,10 @@ export function initEconomy(tier: CountryTier): Economy {
 
 // ─── Advance economy one quarter (3 months) ───────────────────────────────────
 export function processQuarterlyEconomy(state: GameState): GameState {
+  // Economy only ticks once the character has real income (career) or is an adult.
+  // Before that the liquidez value represents family background — it stays frozen.
+  if (state.ageYears < 18 && !state.career) return state
+
   const eco = state.economy
 
   // Career salary overrides base income when career is active

@@ -164,7 +164,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const sexualOrientation  = rollSexualOrientation()
 
     const initialState: GameState = {
-      character:           { name, gender, birthYear, country: selectedCountry },
+      character:           { name: name.charAt(0).toUpperCase() + name.slice(1), gender, birthYear, country: selectedCountry },
       ageYears:            6,
       totalQuarters:       6 * 4,
       stats:               inheritedStats,
