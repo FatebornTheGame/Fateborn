@@ -74,9 +74,9 @@ const es = {
       advance:  'Avanzar Trimestre',
       change:   'Cambiar',
       confirm:      'Confirmar Estilo',
-      confirmFirst: 'ELEGIR Y COMENZAR',
+      confirmFirst: 'CONFIRMAR Y EMPEZAR A VIVIR',
       firstTitle:   'ELIGE TU ESTILO DE VIDA',
-      firstSub:     'Define dónde invertirás tu tiempo cada trimestre',
+      firstSub:     'Define cómo invierte su tiempo',
       quarters: 'trim.',
       alloc: {
         trabajo:  'Trabajo',
