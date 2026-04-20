@@ -322,6 +322,14 @@ const schoolConflict: GameEventTemplate = {
         },
         flags: ['school_conflict_fired', 'confronto_acoso'],
       },
+      npcReaction: {
+        npcId:         (state) => hasFlag(state, 'tiene_amigo_infancia') ? (getFirstFriend(state)?.id ?? null) : null,
+        newStatus:     'leal',
+        narrativeLine: (state) => {
+          const fn = npcName(state)
+          return `${fn} no ha dicho nada, pero desde ese día se sienta siempre a tu lado. Hay cosas que no necesitan palabras.`
+        },
+      },
       delayed: [
         {
           triggerAge: 12,
@@ -368,6 +376,14 @@ const schoolConflict: GameEventTemplate = {
         statDeltas: { estabilidad: 0.2, emocional: -0.15 },
         flags:      ['school_conflict_fired', 'evito_acoso'],
       },
+      npcReaction: {
+        npcId:         (state) => hasFlag(state, 'tiene_amigo_infancia') ? (getFirstFriend(state)?.id ?? null) : null,
+        newStatus:     'distante',
+        narrativeLine: (state) => {
+          const fn = npcName(state)
+          return `${fn} no dice nada. Pero durante semanas come solo en el patio. Tu ausencia tiene una forma muy precisa.`
+        },
+      },
       delayed: [
         {
           triggerAge: 16,
@@ -398,6 +414,14 @@ const schoolConflict: GameEventTemplate = {
         },
         statDeltas: { emocional: 0.3, disciplina: 0.15 },
         flags:      ['school_conflict_fired', 'busco_ayuda_adulto'],
+      },
+      npcReaction: {
+        npcId:         (state) => hasFlag(state, 'tiene_amigo_infancia') ? (getFirstFriend(state)?.id ?? null) : null,
+        newStatus:     'cercano',
+        narrativeLine: (state) => {
+          const fn = npcName(state)
+          return `${fn} te busca al día siguiente. "Gracias", dice solo eso. Pero en la forma de decirlo hay mucho más.`
+        },
       },
       delayed: [
         {

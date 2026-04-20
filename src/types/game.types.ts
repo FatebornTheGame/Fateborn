@@ -59,6 +59,7 @@ export interface Friend {
   currentArcStep: number
   alive:          boolean
   relationship:   number             // 0-100
+  status?:        'cercano' | 'distante' | 'leal'
   parallelArc:    ParallelArcStep[]
   lastContactAge: number
   sharedMemories: string[]
@@ -85,6 +86,7 @@ export interface PendingConsequence {
   statDeltas?:  Partial<Stats>
   flags?:       string[]
   unlockEvent?: string
+  entryType?:   'event' | 'consequence' | 'npc' | 'memory' | 'reflection' | 'npc_reaction'
 }
 
 // ─── NPC Template ─────────────────────────────────────────────────────────────
@@ -103,6 +105,12 @@ export function resolveDeltas(d: StatDeltaResolver, state: GameState): Partial<S
   return typeof d === 'function' ? d(state) : d
 }
 
+export interface NpcReaction {
+  npcId:         (state: GameState) => string | null
+  newStatus:     'cercano' | 'distante' | 'leal'
+  narrativeLine: (state: GameState) => string
+}
+
 export interface EventOption {
   id:       string
   text:     (state: GameState) => string
@@ -114,6 +122,7 @@ export interface EventOption {
     generateNPC?: NPCTemplate
   }
   delayed:      DelayedConsequence[]
+  npcReaction?:  NpcReaction
   memory?:      { id: string; text: (state: GameState) => string }
   epitaphSeed?: string
 }
@@ -157,7 +166,7 @@ export interface NarrativeEntry {
   age:        number
   text:       string
   importance: 'normal' | 'alta' | 'critica'
-  type:       'event' | 'consequence' | 'npc' | 'memory' | 'reflection'
+  type:       'event' | 'consequence' | 'npc' | 'memory' | 'reflection' | 'npc_reaction'
 }
 
 // ─── Economy / Career ─────────────────────────────────────────────────────────

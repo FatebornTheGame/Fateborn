@@ -100,7 +100,7 @@ function processPendingConsequences(state: GameState): {
         age,
         text:       narrative,
         importance: 'alta',
-        type:       'consequence',
+        type:       pc.entryType ?? 'consequence',
       }
       s = { ...s, feed: [...s.feed, entry] }
 
@@ -168,6 +168,27 @@ function applyOption(state: GameState, ev: GameEventTemplate, option: EventOptio
       sharedMemories: [],
     }
     s = { ...s, friends: [...s.friends, newFriend] }
+  }
+
+  // NPC reaction: immediate status update + deferred narrative line
+  if (option.npcReaction) {
+    const rx     = option.npcReaction
+    const npcId  = rx.npcId(s)
+    if (npcId) {
+      s = {
+        ...s,
+        friends: s.friends.map(f => f.id === npcId ? { ...f, status: rx.newStatus } : f),
+      }
+      const rxPc: PendingConsequence = {
+        id:          `${ev.id}_${option.id}_npc_rx`,
+        sourceAge:   age,
+        sourceEvent: ev.id,
+        triggerAge:  age,   // fires on the very next quarter (triggerAge <= currentAge)
+        narrative:   rx.narrativeLine,
+        entryType:   'npc_reaction',
+      }
+      s = { ...s, pendingConsequences: [...s.pendingConsequences, rxPc] }
+    }
   }
 
   // Schedule delayed consequences
