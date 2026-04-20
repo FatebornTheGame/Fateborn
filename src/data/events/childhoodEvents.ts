@@ -455,12 +455,12 @@ const familyDynamic: GameEventTemplate = {
     const isPoor = state.economy.liquidez < 200
     const isRich = state.economy.liquidez > 1500
     if (isPoor) {
-      return `Con 11 años, ${state.character.name} entiende por qué sus padres hablan en voz baja por las noches. El dinero escasea. El miedo se palpa.`
+      return `Con 11 años, ${state.character.name} sabe que cuando sus padres bajan la voz al entrar a la cocina, es por algo. La calefacción lleva tres semanas sin encenderse. Nadie ha llamado para arreglarla.`
     }
     if (isRich) {
-      return `Con 11 años, ${state.character.name} vive en una familia que lo tiene todo. Menos tiempo. Las ausencias tienen precio de mercado.`
+      return `Con 11 años, ${state.character.name} tiene cuarto propio, televisión y mando a distancia. Su padre llega a las once. Saluda mirando el teléfono.`
     }
-    return `Con 11 años, ${state.character.name} empieza a ver fisuras en lo que creía sólido. La familia es más complicada de lo que parecía.`
+    return `Con 11 años, ${state.character.name} oye una discusión que sus padres creían susurrada. No entiende todas las palabras. Entiende el tono.`
   },
 
   options: [
@@ -497,7 +497,7 @@ const familyDynamic: GameEventTemplate = {
         narrative: (s) => {
           const isPoor = s.economy.liquidez < 200
           return isPoor
-            ? `La verdad llega: hay deudas, hay miedo. ${s.character.name} ya no puede fingir que todo va bien.`
+            ? `Su padre extiende sobre la mesa un papel con números marcados en rojo. ${s.character.name} no entiende todos, pero reconoce el nombre del banco tres veces. Esa noche cenan sin hablar.`
             : `La respuesta llega a medias. Pero ${s.character.name} ha abierto una puerta que antes estaba cerrada.`
         },
         statDeltas: { riesgo: 0.2, carisma: 0.2 },

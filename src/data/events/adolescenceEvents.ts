@@ -383,8 +383,8 @@ const firstJobDirection: GameEventTemplate = {
     const hasHobby = hasFlag(state, 'hobby_elegido')
     const hobbyRef = hasHobby ? ' Tu hobby podría tener peso en esta decisión.' : ''
     const countryCtx = ['Nigeria', 'India', 'México', 'Brasil'].includes(country)
-      ? 'En tu contexto, trabajar a los 16 no es una opción sino una necesidad para muchos.'
-      : 'Con 16 años, el dinero empieza a tener un significado diferente.'
+      ? `En ${country}, hay compañeros de ${state.character.name} que ya no están en clase. Se fueron a trabajar. Algunos lo eligieron.`
+      : `Con 16 años, ${state.character.name} hace el cálculo cada vez que quiere algo: lo que cuesta, lo que tiene. La diferencia siempre gana.`
     const topStat = Object.entries(s).sort((a, b) => (b[1] as number) - (a[1] as number))[0][0]
     const statCtx = topStat === 'fisico'    ? ' Tu cuerpo es tu mayor activo ahora.' :
                     topStat === 'carisma'   ? ' Sabes relacionarte. Eso tiene mercado.' :
@@ -402,7 +402,7 @@ const firstJobDirection: GameEventTemplate = {
           const jobType = s.stats.fisico > 7 ? 'trabajo físico de almacén'
             : s.stats.carisma > 7 ? 'trabajo de atención al cliente'
             : 'trabajo básico de hostelería'
-          return `${s.character.name} consigue su primer trabajo: ${jobType} en ${country}. El dinero propio cambia algo.`
+          return `${s.character.name} consigue su primer trabajo: ${jobType} en ${country}. El primer sobre con su nombre dentro lo abre en el autobús de vuelta.`
         },
         statDeltas: { ambicion: 0.4, disciplina: 0.3 },
         flags:      ['primer_trabajo_a_16', 'independencia_temprana'],
