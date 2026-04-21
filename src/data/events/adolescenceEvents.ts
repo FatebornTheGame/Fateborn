@@ -115,9 +115,10 @@ const firstLove: GameEventTemplate = {
 
 // ═══ EVENTO 7: DECISIÓN ACADÉMICA (edad 14) ═══════════════════════════════════
 const academicDecision: GameEventTemplate = {
-  id:         'academic_decision',
-  triggerAge: 14,
-  weight:     1,
+  id:           'academic_decision',
+  triggerAge:   14,
+  weight:       1,
+  blockIfFlags: ['direccion_ciencias', 'direccion_humanidades', 'direccion_practica'],
 
   context: (state) => {
     const s = state.stats
@@ -428,9 +429,10 @@ const identityReflection: GameEventTemplate = {
 
 // ═══ EVENTO 10: DIRECCIÓN LABORAL (edad 16) ═══════════════════════════════════
 const firstJobDirection: GameEventTemplate = {
-  id:         'first_job_direction',
-  triggerAge: 16,
-  weight:     1,
+  id:              'first_job_direction',
+  triggerAge:      16,
+  weight:          1,
+  requireAnyFlags: ['direccion_practica', 'trabajo_temprano'],
 
   context: (state) => {
     const s       = state.stats
@@ -530,10 +532,11 @@ const firstJobDirection: GameEventTemplate = {
 
 // ═══ EVENTO 11: PRESIÓN EXAMEN FINAL (edad 17) ════════════════════════════════
 const finalExamPressure: GameEventTemplate = {
-  id:             'final_exam_pressure',
-  triggerAge:     17,
-  triggerFlags:   ['camino_academico_ciencias', 'camino_academico_humanidades'],
-  weight:         0.8,
+  id:              'final_exam_pressure',
+  triggerAge:      17,
+  triggerFlags:    ['camino_academico_ciencias', 'camino_academico_humanidades'],
+  weight:          0.8,
+  requireAnyFlags: ['direccion_ciencias', 'direccion_humanidades'],
 
   context: (state) => {
     const isCiencias = hasFlag(state, 'camino_academico_ciencias')
