@@ -181,6 +181,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       legacyScore:         0,
       sexualOrientation,
       orientationRevealed: false,
+      achievements:        [],
     }
 
     set({ gameState: initialState, screen: 'game' })

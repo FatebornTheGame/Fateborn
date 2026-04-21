@@ -86,7 +86,7 @@ export interface PendingConsequence {
   statDeltas?:  StatDeltaResolver
   flags?:       string[]
   unlockEvent?: string
-  entryType?:   'event' | 'consequence' | 'npc' | 'memory' | 'reflection' | 'npc_reaction'
+  entryType?:   'event' | 'consequence' | 'npc' | 'memory' | 'reflection' | 'npc_reaction' | 'achievement'
 }
 
 // ─── NPC Template ─────────────────────────────────────────────────────────────
@@ -139,6 +139,16 @@ export interface GameEventTemplate {
   options:           [EventOption, EventOption, EventOption]
 }
 
+// ─── Achievement ──────────────────────────────────────────────────────────────
+export interface Achievement {
+  id:          string
+  title:       string
+  description: string
+  age:         number
+  year:        number
+  category:    'economico' | 'social' | 'personal' | 'profesional' | 'vital'
+}
+
 // ─── Epitaph ──────────────────────────────────────────────────────────────────
 export interface EpitaphMoment {
   age:    number
@@ -167,7 +177,7 @@ export interface NarrativeEntry {
   age:             number
   text:            string
   importance:      'normal' | 'alta' | 'critica'
-  type:            'event' | 'consequence' | 'npc' | 'memory' | 'reflection' | 'npc_reaction'
+  type:            'event' | 'consequence' | 'npc' | 'memory' | 'reflection' | 'npc_reaction' | 'achievement'
   emotionalWeight?: number  // 0–10; entries > 7 suppress passive narrative that quarter
 }
 
@@ -227,6 +237,7 @@ export interface GameState {
   legacyScore:         number
   sexualOrientation:   SexualOrientation
   orientationRevealed: boolean
+  achievements:        Achievement[]
 }
 
 // ─── Flag helpers ─────────────────────────────────────────────────────────────
