@@ -131,6 +131,9 @@ export interface EventOption {
   epitaphSeed?: string
 }
 
+// ─── Economy level ────────────────────────────────────────────────────────────
+export type EconomyLevel = 'precario' | 'bajo' | 'medio' | 'alto' | 'rico'
+
 // ─── Game Event Template ──────────────────────────────────────────────────────
 export interface GameEventTemplate {
   id:                string
@@ -140,6 +143,13 @@ export interface GameEventTemplate {
   weight:            number
   context:           (state: GameState) => string
   options:           [EventOption, EventOption, EventOption]
+  // Compound requirements — all present conditions must be satisfied
+  requireAllFlags?:  string[]
+  requireAnyFlags?:  string[]
+  requireStats?:     Partial<Record<keyof Stats, { min?: number; max?: number }>>
+  requireEconomy?:   { nivel?: EconomyLevel }
+  requireCareer?:    { nivel?: number; profesion?: string }
+  blockIfFlags?:     string[]
 }
 
 // ─── Achievement ──────────────────────────────────────────────────────────────
