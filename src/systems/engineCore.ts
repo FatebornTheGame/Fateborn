@@ -23,6 +23,7 @@ import { NAME_POOLS, BEST_FRIEND_PARALLEL_ARC } from '../data/npcs/npcProfiles'
 import { CHILDHOOD_EVENTS } from '../data/events/childhoodEvents'
 import { ADOLESCENCE_EVENTS } from '../data/events/adolescenceEvents'
 import { YOUTH_EVENTS } from '../data/events/youthEvents'
+import { PATH_EVENTS } from '../data/events/pathEvents'
 import { checkAchievements } from './achievementSystem'
 
 // ─── All events pool ─────────────────────────────────────────────────────────
@@ -30,6 +31,7 @@ const ALL_EVENTS: GameEventTemplate[] = [
   ...CHILDHOOD_EVENTS,
   ...ADOLESCENCE_EVENTS,
   ...YOUTH_EVENTS,
+  ...PATH_EVENTS,
 ]
 
 // ─── TurnResult ──────────────────────────────────────────────────────────────
