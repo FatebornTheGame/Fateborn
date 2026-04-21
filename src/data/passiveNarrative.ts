@@ -129,6 +129,11 @@ const JUVENTUD: PassiveNarrativeDef[] = [
     minAge: 24, maxAge: 30,
     text: s => `Por primera vez, ${s.character.name} siente nostalgia de algo que no ha terminado todavía.`,
   },
+  {
+    id:    'juv_planes_cambian',
+    minAge: 25, maxAge: 30,
+    text: s => `Los planes de ${s.character.name} a diez años han cambiado tres veces. Eso también es información.`,
+  },
 ]
 
 // ─── Adultez (31–50) ─────────────────────────────────────────────────────────
@@ -240,6 +245,46 @@ const MADUREZ: PassiveNarrativeDef[] = [
     id:    'mad_legado_silencioso',
     minAge: 60, maxAge: 70,
     text: s => `El legado no siempre hace ruido. A veces es solo la forma en que ${s.character.name} trata a los demás.`,
+  },
+  {
+    id:    'mad_persona_mayor',
+    minAge: 51, maxAge: 70,
+    text: s => `${s.character.name} empieza a ser la persona mayor en algunas conversaciones. Le sorprende cada vez.`,
+  },
+  {
+    id:    'mad_decisiones_veinte',
+    minAge: 51, maxAge: 70,
+    text: s => `Hay decisiones que ${s.character.name} tomó hace veinte años que siguen dando forma a hoy.`,
+  },
+  {
+    id:    'mad_sin_prisa',
+    minAge: 51, maxAge: 70,
+    text: s => `${s.character.name} ya no tiene prisa por demostrar nada. Tardó demasiado en llegar a eso.`,
+  },
+  {
+    id:    'mad_historia_compartida',
+    minAge: 51, maxAge: 70,
+    text: s => `Algunas amistades de ${s.character.name} se han convertido en historia compartida. Eso no tiene precio.`,
+  },
+  {
+    id:    'mad_cuerpo_presenta',
+    minAge: 51, maxAge: 70,
+    text: s => `El cuerpo de ${s.character.name} lleva la cuenta de todo. Algunos días la presenta sin avisar.`,
+  },
+  {
+    id:    'mad_mira_jovenes',
+    minAge: 51, maxAge: 70,
+    text: s => `${s.character.name} mira a los jóvenes y reconoce cosas. No dice nada. No haría falta.`,
+  },
+  {
+    id:    'mad_serenidad_trabajo',
+    minAge: 51, maxAge: 70,
+    text: s => `Hay una serenidad en ${s.character.name} que no existía antes. No fue un regalo. Fue un trabajo.`,
+  },
+  {
+    id:    'mad_lo_que_importa',
+    minAge: 51, maxAge: 70,
+    text: s => `${s.character.name} tiene claro lo que importa. Le costó décadas. Valió la pena.`,
   },
 ]
 
