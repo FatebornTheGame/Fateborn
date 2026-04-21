@@ -71,7 +71,7 @@ export interface DelayedConsequence {
   triggerFlag?:      string
   triggerYearsAfter?: number
   narrative:         (state: GameState) => string
-  statDeltas?:       Partial<Stats>
+  statDeltas?:       StatDeltaResolver
   flags?:            string[]
   unlockEvent?:      string
 }
@@ -83,7 +83,7 @@ export interface PendingConsequence {
   triggerAge?:  number
   triggerFlag?: string
   narrative:    (state: GameState) => string
-  statDeltas?:  Partial<Stats>
+  statDeltas?:  StatDeltaResolver
   flags?:       string[]
   unlockEvent?: string
   entryType?:   'event' | 'consequence' | 'npc' | 'memory' | 'reflection' | 'npc_reaction'
@@ -131,7 +131,7 @@ export interface EventOption {
 // ─── Game Event Template ──────────────────────────────────────────────────────
 export interface GameEventTemplate {
   id:                string
-  triggerAge:        number
+  triggerAge:        number | [number, number]
   triggerFlags?:     string[]
   triggerAntiFlags?: string[]
   weight:            number

@@ -22,11 +22,13 @@ import { processQuarterlyEconomy } from './economySystem'
 import { NAME_POOLS, BEST_FRIEND_PARALLEL_ARC } from '../data/npcs/npcProfiles'
 import { CHILDHOOD_EVENTS } from '../data/events/childhoodEvents'
 import { ADOLESCENCE_EVENTS } from '../data/events/adolescenceEvents'
+import { YOUTH_EVENTS } from '../data/events/youthEvents'
 
 // ─── All events pool ─────────────────────────────────────────────────────────
 const ALL_EVENTS: GameEventTemplate[] = [
   ...CHILDHOOD_EVENTS,
   ...ADOLESCENCE_EVENTS,
+  ...YOUTH_EVENTS,
 ]
 
 // ─── TurnResult ──────────────────────────────────────────────────────────────
@@ -48,10 +50,15 @@ function pickName(country: string, gender: 'hombre' | 'mujer'): string {
 }
 
 // ─── Get eligible events for current age ─────────────────────────────────────
+function ageMatches(triggerAge: number | [number, number], age: number): boolean {
+  if (Array.isArray(triggerAge)) return age >= triggerAge[0] && age <= triggerAge[1]
+  return triggerAge === age
+}
+
 function getEligibleEvents(state: GameState): GameEventTemplate[] {
   const age = state.ageYears
   return ALL_EVENTS.filter(ev => {
-    if (ev.triggerAge !== age) return false
+    if (!ageMatches(ev.triggerAge, age)) return false
     if (state.firedEvents.includes(ev.id)) return false
 
     // triggerFlags: OR logic — at least one must match
@@ -107,7 +114,7 @@ function processPendingConsequences(state: GameState): {
       s = { ...s, feed: [...s.feed, entry] }
 
       if (pc.statDeltas) {
-        s = { ...s, stats: applyStatDeltas(s.stats, pc.statDeltas) }
+        s = { ...s, stats: applyStatDeltas(s.stats, resolveDeltas(pc.statDeltas, s)) }
       }
       if (pc.flags) {
         s = addFlags(s, pc.flags)

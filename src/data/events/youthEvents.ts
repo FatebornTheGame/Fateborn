@@ -399,8 +399,203 @@ const careerChallenge: GameEventTemplate = {
   ],
 }
 
+// ═══ EVENTO 16: EL CARNET DE CONDUCIR (edad 19-20) ════════════════════════════
+// Range trigger: fires any quarter between 19 and 20 unless already in process.
+const drivingLicense: GameEventTemplate = {
+  id:              'driving_license',
+  triggerAge:      [19, 20],
+  triggerAntiFlags: ['carnet_conducir', 'carnet_en_proceso'],
+  weight:          0.85,
+
+  context: (state) => {
+    const hasTrabajo = hasFlag(state, 'primer_empleo_conseguido') || state.career !== null
+    const hasAmigo   = !!getFirstFriend(state)
+    const amigoRef   = hasAmigo ? ` ${npcName(state)} ya tiene el suyo.` : ''
+
+    if (hasTrabajo) {
+      return `Con trabajo y algo de dinero, ${state.character.name} se plantea el carnet de conducir.${amigoRef} La movilidad cambia las opciones que tienes encima de la mesa.`
+    }
+    return `Sacarse el carnet de conducir. Todos lo hacen en algún momento.${amigoRef} ${state.character.name} decide cuándo y cómo enfrentarlo.`
+  },
+
+  options: [
+    {
+      id:   'academia_intensivo',
+      text: (_s) => 'Academia de conducir. Clases intensivas, aprobar cuanto antes.',
+      immediate: {
+        narrative: (s) => `${s.character.name} se apunta a un intensivo. Teoría, prácticas, examen. La autoescuela tiene ese olor particular a ansiedad compartida. Tres semanas después, el carnet está en el bolsillo.`,
+        statDeltas: { disciplina: 0.2, logica: 0.1 },
+        flags:      ['carnet_en_proceso', 'carnet_conducir', 'aprobado_primer_intento'],
+      },
+      delayed: [
+        {
+          triggerAge: 23,
+          narrative: (s) => `El carnet que ${s.character.name} sacó a los ${s.ageYears} años ha abierto puertas que no existían sin él.`,
+          statDeltas: { estabilidad: 0.1 },
+        },
+      ],
+      memory: {
+        id:   'memory_driving_license',
+        text: (_s) => 'El día que sacaste el carnet. La primera vez que condujiste solo. La ciudad de repente era más pequeña.',
+      },
+      epitaphSeed: 'aprendió que la libertad de movimiento también es una forma de libertad',
+    },
+    {
+      id:   'autoestudio_teoria',
+      text: (_s) => 'Estudias la teoría por tu cuenta y vas a la academia solo para las prácticas.',
+      immediate: {
+        narrative: (s) => `${s.character.name} se descarga el temario y empieza a estudiar solo. Más lento, más barato. El examen teórico lo aprueba al segundo intento. Las prácticas, después. El proceso dura cuatro meses pero el resultado es el mismo.`,
+        statDeltas: { disciplina: 0.3, logica: 0.15, estabilidad: -0.05 },
+        flags:      ['carnet_en_proceso', 'carnet_conducir', 'aprendizaje_autonomo'],
+      },
+      delayed: [
+        {
+          triggerAge: 22,
+          narrative: (s) => `La paciencia que ${s.character.name} aplicó al carnet es la misma que aplica a todo lo que importa. Lento pero suyo.`,
+          statDeltas: { disciplina: 0.15 },
+        },
+      ],
+      memory: {
+        id:   'memory_driving_selfStudy',
+        text: (_s) => 'Los meses estudiando teoría de conducción solo, con la aplicación de tests y sin academia. La forma larga de hacer las cosas.',
+      },
+      epitaphSeed: 'prefirió el camino propio aunque fuera más largo',
+    },
+    {
+      id:   'dejarlo_para_despues',
+      text: (_s) => 'Lo dejas para más adelante. Ahora mismo no es prioritario.',
+      immediate: {
+        narrative: (s) => `${s.character.name} decide que el carnet puede esperar. El dinero, el tiempo, otras prioridades. No es una renuncia, es un aplazamiento. Aunque hay cosas que aplazadas demasiado acaban por no hacerse.`,
+        statDeltas: { estabilidad: 0.1 },
+        flags:      ['carnet_aplazado'],
+      },
+      delayed: [
+        {
+          triggerAge: 24,
+          narrative: (s) => {
+            const tieneCarnet = hasFlag(s, 'carnet_conducir')
+            return tieneCarnet
+              ? `${s.character.name} acabó sacando el carnet. Llegó tarde, pero llegó.`
+              : `Con 24, ${s.character.name} sigue sin carnet. No es un drama, pero hay puertas que permanecen cerradas.`
+          },
+          statDeltas: { estabilidad: 0.05 },
+        },
+      ],
+      memory: {
+        id:   'memory_driving_postponed',
+        text: (_s) => 'El año que decidiste que el carnet podía esperar. Cada vez que necesitaste que alguien te llevara, lo recordaste.',
+      },
+      epitaphSeed: 'aprendió que algunas decisiones aplazadas tienen coste real',
+    },
+  ],
+}
+
+// ═══ EVENTO 17: EL PRIMER PISO PROPIO — EXAMEN DE VIDA INDEPENDIENTE (edad 22-23) ═
+// Fires only if already emancipated and living alone or with roommates — the first
+// full reckoning with adult responsibility on your own.
+const independentLifeReckoning: GameEventTemplate = {
+  id:              'independent_life_reckoning',
+  triggerAge:      [22, 23],
+  triggerFlags:    ['emancipado'],
+  triggerAntiFlags: ['vida_independiente_asimilada'],
+  weight:          0.8,
+
+  context: (state) => {
+    const viveSolo     = hasFlag(state, 'vive_solo')
+    const pisoCompartido = hasFlag(state, 'piso_compartido')
+    const hasCarrera   = state.career !== null
+
+    if (viveSolo) {
+      return `${state.character.name} lleva un año o dos viviendo solo. Los primeros meses fueron novedad. Ahora es rutina. Y la rutina es donde de verdad te conoces.`
+    }
+    if (pisoCompartido) {
+      return `La vida en piso compartido tiene sus reglas no escritas. ${state.character.name} las conoce bien ya. Pero la pregunta de cuándo dar el siguiente paso empieza a pesar.`
+    }
+    if (hasCarrera) {
+      return `Con trabajo y piso propio, ${state.character.name} confronta lo que significa vivir de verdad de forma independiente. No hay red, no hay excusas.`
+    }
+    return `La independencia real llegó antes de estar del todo preparado. ${state.character.name} lleva tiempo aprendiendo que nadie lo está del todo.`
+  },
+
+  options: [
+    {
+      id:   'rutinas_solidas',
+      text: (_s) => 'Has construido rutinas sólidas. La independencia ha sido una escuela.',
+      immediate: {
+        narrative: (s) => `${s.character.name} ha encontrado su ritmo. Cocina algo más que pasta, gestiona las facturas sin que se le acumulen, se levanta sin que nadie lo obligue. Pequeñas victorias que suman algo grande: la certeza de que puede.`,
+        statDeltas: { disciplina: 0.35, estabilidad: 0.3, emocional: 0.15 },
+        flags:      ['vida_independiente_asimilada', 'rutinas_adultas_establecidas'],
+      },
+      delayed: [
+        {
+          triggerAge: 27,
+          narrative: (s) => `A los 27, las rutinas que ${s.character.name} construyó a los 22 son la base silenciosa de todo lo que ha logrado.`,
+          statDeltas: { disciplina: 0.2, estabilidad: 0.15 },
+        },
+      ],
+      memory: {
+        id:   'memory_adult_routine',
+        text: (_s) => 'El día que te diste cuenta de que vivir solo ya no era difícil. Que lo habías hecho tuyo.',
+      },
+      epitaphSeed: 'construyó la estabilidad desde dentro, no desde fuera',
+    },
+    {
+      id:   'caos_productivo',
+      text: (_s) => 'Vives en un caos organizado. No es perfecto, pero funciona y es tuyo.',
+      immediate: {
+        narrative: (s) => `El piso de ${s.character.name} no es para revistas, pero tiene su lógica. Las noches largas, las mañanas tardías, los proyectos a medias. El orden que nadie más entendería. Pero funciona.`,
+        statDeltas: { creatividad: 0.3, riesgo: 0.2, estabilidad: -0.1, emocional: 0.2 },
+        flags:      ['vida_independiente_asimilada', 'estilo_vida_caos_productivo'],
+      },
+      delayed: [
+        {
+          triggerAge: 26,
+          narrative: (s) => {
+            const esCreativo = s.stats.creatividad > 6
+            return esCreativo
+              ? `El caos de ${s.character.name} a los 22 tenía semillas. Con 26, algunas han dado fruto.`
+              : `Con 26, ${s.character.name} reconoce que el caos de los 22 le costó más de lo que pensaba.`
+          },
+          statDeltas: (s) => s.stats.creatividad > 6
+            ? { creatividad: 0.2, ambicion: 0.15 }
+            : { estabilidad: 0.25 },
+        },
+      ],
+      memory: {
+        id:   'memory_productive_chaos',
+        text: (_s) => 'Los años del caos organizado. Tu piso, tus reglas, tu desorden. Nadie podía decir nada porque era tuyo.',
+      },
+      epitaphSeed: 'demostró que el orden no es el único camino hacia lo que importa',
+    },
+    {
+      id:   'sobrecarga_soledad',
+      text: (_s) => 'Ha sido más difícil de lo esperado. La independencia tiene un peso que nadie menciona.',
+      immediate: {
+        narrative: (s) => `Nadie te cuenta la parte en que llegas a casa y no hay nadie, y eso pesa diferente a como lo imaginabas. ${s.character.name} ha aprendido que la independencia no es solo libertad — también es cargar con todo.`,
+        statDeltas: { emocional: 0.4, estabilidad: 0.15, riesgo: -0.1 },
+        flags:      ['vida_independiente_asimilada', 'soledad_aprendida'],
+      },
+      delayed: [
+        {
+          triggerYearsAfter: 2,
+          narrative: (s) => `Dos años después, ${s.character.name} lleva la soledad de otra manera. No se va — se integra.`,
+          statDeltas: { emocional: 0.25, estabilidad: 0.2 },
+          flags:      ['soledad_integrada'],
+        },
+      ],
+      memory: {
+        id:   'memory_lonely_independence',
+        text: (_s) => 'Las noches en que la independencia sabía a soledad. Aprendiste a distinguirlas. No siempre son lo mismo.',
+      },
+      epitaphSeed: 'entendió que la soledad y la libertad a veces vienen en el mismo paquete',
+    },
+  ],
+}
+
 export const YOUTH_EVENTS: GameEventTemplate[] = [
   firstJobSearch,
   emancipation,
   careerChallenge,
+  drivingLicense,
+  independentLifeReckoning,
 ]
