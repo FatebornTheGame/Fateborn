@@ -84,12 +84,26 @@ function getEligibleEvents(state: GameState): GameEventTemplate[] {
       if (!ev.requireAnyFlags.some(f => hasFlag(state, f))) return false
     }
 
-    // requireStats: each stat must satisfy its min/max bounds
+    // requireStats: every entry must pass (AND)
     if (ev.requireStats) {
       for (const [key, bounds] of Object.entries(ev.requireStats)) {
         const val = state.stats[key as keyof typeof state.stats]
         if (bounds?.min !== undefined && val < bounds.min) return false
         if (bounds?.max !== undefined && val > bounds.max) return false
+      }
+    }
+
+    // requireAnyStats: at least one entry must pass (OR)
+    if (ev.requireAnyStats) {
+      const entries = Object.entries(ev.requireAnyStats)
+      if (entries.length > 0) {
+        const anyPasses = entries.some(([key, bounds]) => {
+          const val = state.stats[key as keyof typeof state.stats]
+          if (bounds?.min !== undefined && val < bounds.min) return false
+          if (bounds?.max !== undefined && val > bounds.max) return false
+          return true
+        })
+        if (!anyPasses) return false
       }
     }
 

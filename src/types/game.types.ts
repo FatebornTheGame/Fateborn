@@ -146,7 +146,8 @@ export interface GameEventTemplate {
   // Compound requirements — all present conditions must be satisfied
   requireAllFlags?:  string[]
   requireAnyFlags?:  string[]
-  requireStats?:     Partial<Record<keyof Stats, { min?: number; max?: number }>>
+  requireStats?:     Partial<Record<keyof Stats, { min?: number; max?: number }>>   // AND — all must pass
+  requireAnyStats?:  Partial<Record<keyof Stats, { min?: number; max?: number }>>   // OR  — at least one must pass
   requireEconomy?:   { nivel?: EconomyLevel }
   requireCareer?:    { nivel?: number; profesion?: string }
   blockIfFlags?:     string[]

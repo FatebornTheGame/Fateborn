@@ -280,9 +280,10 @@ const hobbyDiscovery: GameEventTemplate = {
 
 // ═══ EVENTO 3: CONFLICTO ESCOLAR (edad 10) ════════════════════════════════════
 const schoolConflict: GameEventTemplate = {
-  id:         'school_conflict',
-  triggerAge: 10,
-  weight:     1,
+  id:              'school_conflict',
+  triggerAge:      10,
+  weight:          1,
+  requireAnyFlags: ['extrovertido_infancia', 'introvertido_infancia'],
 
   context: (state) => {
     const isAgresor  = state.stats.riesgo >= 8 && state.stats.emocional <= 4
@@ -449,9 +450,10 @@ const schoolConflict: GameEventTemplate = {
 
 // ═══ EVENTO 4: DINÁMICA FAMILIAR (edad 11) ════════════════════════════════════
 const familyDynamic: GameEventTemplate = {
-  id:         'family_dynamic',
-  triggerAge: 11,
-  weight:     1,
+  id:           'family_dynamic',
+  triggerAge:   11,
+  weight:       1,
+  blockIfFlags: ['economia_familiar_alta'],
 
   context: (state) => {
     const isPoor = state.economy.liquidez < 200
@@ -569,9 +571,10 @@ const familyDynamic: GameEventTemplate = {
 
 // ═══ EVENTO 5: TALENTO DESCUBIERTO (edad 12) ══════════════════════════════════
 const talentDiscovered: GameEventTemplate = {
-  id:         'talent_discovered',
-  triggerAge: 12,
-  weight:     1,
+  id:              'talent_discovered',
+  triggerAge:      12,
+  weight:          1,
+  requireAnyStats: { logica: { min: 6 }, fisico: { min: 6 }, creatividad: { min: 6 } },
 
   context: (state) => {
     const s = state.stats
