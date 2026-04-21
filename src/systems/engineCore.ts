@@ -153,6 +153,9 @@ function applyOption(state: GameState, ev: GameEventTemplate, option: EventOptio
 
   // Flags
   s = addFlags(s, option.immediate.flags)
+  if (option.immediate.flagsResolver) {
+    s = addFlags(s, option.immediate.flagsResolver(s))
+  }
   if (option.immediate.removeFlags) {
     s = removeFlags(s, option.immediate.removeFlags)
   }
@@ -478,6 +481,19 @@ export function commitEventChoice(
         ...newState.economy,
         liquidez: newState.economy.liquidez + option.immediate.economyDelta,
       },
+    }
+  }
+
+  if (option.immediate.economyDeltaResolver) {
+    const delta = option.immediate.economyDeltaResolver(newState)
+    if (delta !== 0) {
+      newState = {
+        ...newState,
+        economy: {
+          ...newState.economy,
+          liquidez: newState.economy.liquidez + delta,
+        },
+      }
     }
   }
 

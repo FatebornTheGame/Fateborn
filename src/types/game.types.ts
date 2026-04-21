@@ -117,11 +117,13 @@ export interface EventOption {
   immediate: {
     narrative:    (state: GameState) => string
     statDeltas:   StatDeltaResolver
-    flags:         string[]
-    removeFlags?:  string[]
-    generateNPC?:  NPCTemplate
-    career?:       Career
-    economyDelta?: number
+    flags:                  string[]
+    flagsResolver?:         (state: GameState) => string[]
+    removeFlags?:           string[]
+    generateNPC?:           NPCTemplate
+    career?:                Career
+    economyDelta?:          number
+    economyDeltaResolver?:  (state: GameState) => number
   }
   delayed:      DelayedConsequence[]
   npcReaction?:  NpcReaction

@@ -592,10 +592,119 @@ const independentLifeReckoning: GameEventTemplate = {
   ],
 }
 
+// ═══ EVENTO 18: EXAMEN TEÓRICO DE CONDUCIR ════════════════════════════════════
+// Fires when carnet_en_proceso is set. Deterministic pass/fail based on stats
+// + option modifier so narrative, flags, and economyDelta stay consistent.
+function examPass(s: GameState, modifier: number): boolean {
+  // Deterministic hash from totalQuarters — consistent across all immediate functions
+  const seed = Math.abs(Math.sin(s.totalQuarters * 127 + 9999))
+  const prob = Math.min(0.93, Math.max(0.20,
+    0.65 + modifier
+    + (s.stats.logica > 7 ? 0.10 : 0)
+    + (s.stats.disciplina > 7 ? 0.08 : 0),
+  ))
+  return seed < prob
+}
+
+const examTeoricoEvent: GameEventTemplate = {
+  id:              'examen_teorico',
+  triggerAge:      [19, 22],
+  triggerFlags:    ['carnet_en_proceso'],
+  triggerAntiFlags: ['teorico_aprobado', 'examen_teorico_fired'],
+  weight:          1.0,
+
+  context: (_state) => 'El examen teórico. 30 preguntas. Máximo 3 fallos.',
+
+  options: [
+    {
+      id:   'estudiar_intensivo',
+      text: (_s) => 'Estudias a fondo. Tests hasta que los fallos son anecdóticos.',
+      immediate: {
+        narrative: (s) => examPass(s, 0.08)
+          ? `${s.character.name} sale de la sala con dos fallos. Cuarenta minutos, resultado limpio. La preparación no miente.`
+          : `Tres fallos. Cuatro. Suspendido. Con el nivel de preparación que llevaba, duele más que si hubiera ido sin estudiar.`,
+        statDeltas: (s) => examPass(s, 0.08)
+          ? { disciplina: 0.15, logica: 0.10 }
+          : { disciplina: 0.10, estabilidad: -0.15 },
+        flags: ['examen_teorico_fired'],
+        flagsResolver: (s) => examPass(s, 0.08)
+          ? ['teorico_aprobado']
+          : ['teorico_suspendido_1'],
+        economyDeltaResolver: (s) => examPass(s, 0.08) ? 0 : -94,
+      },
+      delayed: [
+        {
+          triggerFlag: 'teorico_aprobado',
+          narrative: (s) => `Con el teórico superado, ${s.character.name} puede empezar las clases prácticas. El carnet ya tiene fecha.`,
+          statDeltas: { estabilidad: 0.05 },
+        },
+      ],
+      memory: {
+        id:   'memory_exam_intensivo',
+        text: (s) => examPass(s, 0.08)
+          ? 'El examen teórico. Habías estudiado hasta hartarte. La sala, la pantalla, el resultado. Superado.'
+          : 'El examen que suspendiste habiendo estudiado más que nadie. Algunos días no salen.',
+      },
+      epitaphSeed: 'demostró que prepararse bien mejora las probabilidades pero no las garantiza',
+    },
+    {
+      id:   'confiar_preparacion',
+      text: (_s) => 'Repasas lo esencial. Tienes una base razonable.',
+      immediate: {
+        narrative: (s) => examPass(s, 0)
+          ? `${s.character.name} aprueba con margen. El repaso fue suficiente — esta vez.`
+          : `Un fallo de más. Suspendido. Hay preguntas que el repaso superficial no cubre. 94€ y vuelta a empezar.`,
+        statDeltas: (s) => examPass(s, 0)
+          ? { estabilidad: 0.10 }
+          : { estabilidad: -0.10 },
+        flags: ['examen_teorico_fired'],
+        flagsResolver: (s) => examPass(s, 0)
+          ? ['teorico_aprobado']
+          : ['teorico_suspendido_1'],
+        economyDeltaResolver: (s) => examPass(s, 0) ? 0 : -94,
+      },
+      delayed: [],
+      memory: {
+        id:   'memory_exam_normal',
+        text: (s) => examPass(s, 0)
+          ? 'El examen teórico. Preparación justa, resultado justo. Superado.'
+          : 'El examen que suspendiste habiendo repasado lo suficiente — o eso creías.',
+      },
+      epitaphSeed: 'aprendió que lo suficiente a veces lo es y a veces no',
+    },
+    {
+      id:   'ir_sin_presion',
+      text: (_s) => 'Vas tranquilo. No te agobia el examen teórico.',
+      immediate: {
+        narrative: (s) => examPass(s, -0.10)
+          ? `Aprobado. ${s.character.name} sale con una sonrisa que no entiende del todo. A veces la calma es la mejor preparación.`
+          : `Suspendido. La despreocupación tiene un precio de 94€ y un mes de espera. ${s.character.name} lo anota.`,
+        statDeltas: (s) => examPass(s, -0.10)
+          ? { riesgo: 0.10, estabilidad: 0.05 }
+          : { estabilidad: -0.20, riesgo: -0.05 },
+        flags: ['examen_teorico_fired'],
+        flagsResolver: (s) => examPass(s, -0.10)
+          ? ['teorico_aprobado']
+          : ['teorico_suspendido_1'],
+        economyDeltaResolver: (s) => examPass(s, -0.10) ? 0 : -94,
+      },
+      delayed: [],
+      memory: {
+        id:   'memory_exam_tranquilo',
+        text: (s) => examPass(s, -0.10)
+          ? 'El examen al que fuiste sin agobiarte. Salió bien. No siempre funciona así.'
+          : 'El examen que suspendiste por ir demasiado tranquilo. La lección costó 94€.',
+      },
+      epitaphSeed: 'descubrió que la calma ante los exámenes es una apuesta, no una estrategia',
+    },
+  ],
+}
+
 export const YOUTH_EVENTS: GameEventTemplate[] = [
   firstJobSearch,
   emancipation,
   careerChallenge,
   drivingLicense,
   independentLifeReckoning,
+  examTeoricoEvent,
 ]
