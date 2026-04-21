@@ -293,25 +293,30 @@ function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
+function getStageKey(age: number): string {
+  if (age <= 12) return 'infancia'
+  if (age <= 18) return 'adolescencia'
+  if (age <= 30) return 'juventud'
+  if (age <= 50) return 'adultez'
+  if (age <= 70) return 'madurez'
+  return 'vejez'
+}
+
+// Tracks used pool indices per stage bucket across the session — prevents repeats until pool exhausted
+const usedByStage = new Map<string, Set<number>>()
+
 /**
  * Devuelve un texto pasivo elegible para la edad actual.
- * Evita repetir los últimos 3 IDs disparados si es posible.
+ * Evita repetir entradas hasta agotar el pool; luego reinicia.
  * El nombre del personaje aparece siempre con primera letra en mayúscula.
  */
 export function getPassiveNarrative(state: GameState): string | null {
   const age = state.ageYears
 
-  // Always capitalize the character name in narrative
   const stateWithCapName: GameState = {
     ...state,
     character: { ...state.character, name: capitalize(state.character.name) },
   }
-
-  // IDs de pasivas ya disparadas en el feed
-  const recentPassiveIds = state.feed
-    .filter(e => e.type === 'reflection')
-    .slice(-3)
-    .map(e => e.id.replace('passive_', '').replace(/_\d+$/, ''))
 
   const isEligible = (p: PassiveNarrativeDef): boolean => {
     if (age < p.minAge || age > p.maxAge) return false
@@ -320,15 +325,16 @@ export function getPassiveNarrative(state: GameState): string | null {
     return true
   }
 
-  const eligible = PASSIVE_NARRATIVES.filter(p => isEligible(p) && !recentPassiveIds.includes(p.id))
-
-  // Si todos están recientes, usar cualquiera elegible por edad/flags
-  const pool = eligible.length > 0
-    ? eligible
-    : PASSIVE_NARRATIVES.filter(isEligible)
-
+  const pool = PASSIVE_NARRATIVES.filter(isEligible)
   if (pool.length === 0) return null
 
-  const chosen = pool[Math.floor(Math.random() * pool.length)]
-  return chosen.text(stateWithCapName)
+  const key = getStageKey(age)
+  if (!usedByStage.has(key)) usedByStage.set(key, new Set())
+  const used = usedByStage.get(key)!
+  const available = pool.map((_, i) => i).filter(i => !used.has(i))
+  const indices = available.length > 0 ? available : pool.map((_, i) => i)
+  if (available.length === 0) usedByStage.set(key, new Set())
+  const chosen = indices[Math.floor(Math.random() * indices.length)]
+  usedByStage.get(key)!.add(chosen)
+  return pool[chosen].text(stateWithCapName)
 }
