@@ -33,7 +33,7 @@ const zh = {
       confirmFirst: '选择并开始', firstTitle: '选择你的生活方式', firstSub: '决定你每季度将把时间投入到哪里',
       alloc: { trabajo: '工作', estudios: '学习', familia: '家庭', social: '社交', salud: '健康', ocio: '休闲' },
     },
-    feed: { title: '故事', decision: '决定', anos: '岁' },
+    feed: { title: '故事', decision: '决定', consequence: '后果', anos: '岁' },
     statsPanel: { title: '属性', groups: { cognitivo: '认知', social: '社交', vital: '生命' } },
     timeline: { stages: { infancia: '童年', juventud: '青年', adulto: '成年', madurez: '成熟', ancianidad: '晚年' } },
     onboarding: {

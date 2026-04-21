@@ -90,7 +90,8 @@ const es = {
     },
     feed: {
       title:    'Historia',
-      decision: 'Decisión',
+      decision:     'Decisión',
+      consequence:  'Consecuencia',
       anos:     'años',
       empty:    'Tu historia comenzará con el primer trimestre.',
     },

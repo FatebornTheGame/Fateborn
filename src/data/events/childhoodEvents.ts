@@ -72,7 +72,8 @@ const firstFriend: GameEventTemplate = {
       id:   'observar',
       text: (_s) => 'Le observas durante días antes de hablar. Cuando lo haces, ya le conoces.',
       immediate: {
-        narrative: (s) => `${s.character.name} espera. Observa. Cuando por fin habla, tiene algo que decir.`,
+        // Strategically watches for days — incompatible with immediate approach
+        narrative: (s) => `${s.character.name} espera. Observa el recreo entero sin moverse. Cuando por fin habla, tres días después, sabe qué decir.`,
         statDeltas:  { emocional: 0.3, logica: 0.2 },
         flags:       ['tiene_amigo_infancia', 'observador_infancia'],
         generateNPC: {
@@ -100,7 +101,8 @@ const firstFriend: GameEventTemplate = {
       id:   'solo',
       text: (_s) => 'Prefieres jugar solo. Los grupos siempre complican las cosas.',
       immediate: {
-        narrative: (s) => `${s.character.name} vuelve a su mundo interior. Hay una calma en eso que los demás no entienden.`,
+        // Turns back and finds a corner — incompatible with both social options
+        narrative: (s) => `${s.character.name} da media vuelta. Encuentra un rincón del patio con gravilla y dibuja líneas con un palo. Solo. Es suficiente.`,
         statDeltas:  { estabilidad: 0.3, logica: 0.25 },
         flags:       ['introvertido_infancia'],
       },
@@ -371,7 +373,7 @@ const schoolConflict: GameEventTemplate = {
           const tieneAmigo = hasFlag(state, 'tiene_amigo_infancia')
           return tieneAmigo
             ? `${state.character.name} mira hacia otro lado. ${npcName(state)} lo nota. Algo se fractura, muy despacio.`
-            : `${state.character.name} baja la cabeza. El conflicto continúa un mes más. Después para. Nadie gana.`
+            : `${state.character.name} baja la cabeza y finge que no oye. El conflicto continúa un mes más. Después para. Nadie gana.`
         },
         statDeltas: { estabilidad: 0.2, emocional: -0.15 },
         flags:      ['school_conflict_fired', 'evito_acoso'],
@@ -468,7 +470,20 @@ const familyDynamic: GameEventTemplate = {
       id:   'escuchar_comprender',
       text: (_s) => 'Escuchas sin decir nada. Aprendes más de lo que crees.',
       immediate: {
-        narrative: (s) => `${s.character.name} aprende que las familias tienen capas. La suya tiene más de lo que ve desde fuera.`,
+        // Listens through the wall — hears specific things. Incompatible with asking directly
+        // or withdrawing: you can't listen through a wall AND ask a direct question in the
+        // same moment, nor listen AND close the door on it.
+        narrative: (s) => {
+          const isPoor = s.economy.liquidez < 200
+          const isRich = s.economy.liquidez > 1500
+          if (isPoor) {
+            return `${s.character.name} se queda inmóvil en el pasillo. Escucha la palabra "embargo" tres veces. No la entiende del todo pero memorizará para siempre la cara de su madre cuando cree que nadie la mira.`
+          }
+          if (isRich) {
+            return `${s.character.name} aprende a leer el silencio de su padre como un idioma. Cuándo significa ocupado, cuándo significa culpa. Nadie le enseñó eso. Se lo enseñó la escucha.`
+          }
+          return `${s.character.name} se queda al otro lado de la pared. Las palabras exactas no importan tanto como el tono — ese tono que no se usa cuando las cosas van bien.`
+        },
         statDeltas: { emocional: 0.35, estabilidad: 0.2 },
         flags:      ['comprende_familia'],
       },
@@ -520,7 +535,14 @@ const familyDynamic: GameEventTemplate = {
       id:   'concentrarse_en_lo_propio',
       text: (_s) => 'Te centras en tus cosas. Los problemas adultos no son los tuyos todavía.',
       immediate: {
-        narrative: (s) => `${s.character.name} cierra la puerta de su cuarto. El mundo de afuera puede esperar.`,
+        // Closes the door and does homework — incompatible with listening (you close the door)
+        // and with asking directly (you deliberately avoid the conversation).
+        narrative: (s) => {
+          const hasHobby = hasFlag(s, 'hobby_elegido')
+          return hasHobby
+            ? `${s.character.name} cierra la puerta y sube el volumen. Afuera hay voces. Aquí dentro hay orden. El hobby espera y el hobby no grita.`
+            : `${s.character.name} abre los deberes encima de la cama. Los problemas del colegio tienen solución conocida. Los de la cocina, no.`
+        },
         statDeltas: { disciplina: 0.3, estabilidad: 0.25 },
         flags:      ['se_aisla_familia'],
       },
@@ -617,7 +639,26 @@ const talentDiscovered: GameEventTemplate = {
       id:   'compartir_con_otros',
       text: (_s) => 'Lo compartes con otros. La admiración te impulsa a más.',
       immediate: {
-        narrative: (s) => `${s.character.name} muestra lo que sabe hacer. La reacción de los demás enciende algo.`,
+        // Shows talent publicly and gets a specific reaction based on what the talent is.
+        // Incompatible with private practice (you're doing the opposite) and with dismissal
+        // (you're treating it as significant rather than irrelevant).
+        narrative: (s) => {
+          const entries = Object.entries(s.stats).sort((a, b) => (b[1] as number) - (a[1] as number))
+          const topKey  = entries[0][0]
+          if (topKey === 'logica' || topKey === 'disciplina') {
+            return `${s.character.name} resuelve en clase algo que nadie más pudo. El profesor se queda callado dos segundos antes de hablar. Esos dos segundos valen más que el aplauso.`
+          }
+          if (topKey === 'creatividad') {
+            return `${s.character.name} enseña algo que hizo — un dibujo, un texto, algo construido. Alguien pregunta "¿cómo lo hiciste?" con una voz diferente. No es educación. Es genuino.`
+          }
+          if (topKey === 'carisma' || topKey === 'emocional') {
+            return `${s.character.name} dice algo en el momento justo y el grupo cambia de temperatura. La gente gira hacia él sin saber por qué. ${s.character.name} lo nota y no sabe qué hacer con eso todavía.`
+          }
+          if (topKey === 'fisico') {
+            return `${s.character.name} hace algo físicamente inesperado y el patio se para. El silencio primero, los comentarios después. La atención tiene un peso que nunca había sentido.`
+          }
+          return `${s.character.name} muestra lo que lleva meses haciendo en privado. La sala cambia de temperatura. Eso no tiene precio todavía.`
+        },
         statDeltas: { carisma: 0.3, ambicion: 0.2 },
         flags:      ['talento_publico'],
       },

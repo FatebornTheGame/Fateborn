@@ -24,11 +24,14 @@ const firstLove: GameEventTemplate = {
       id:   'acercarse',
       text: (_s) => 'Intentas acercarte. La incertidumbre es parte del proceso.',
       immediate: {
+        // Acts on the feeling — invents a pretext, makes a move.
+        // Incompatible with watching from afar (opposite action) and with suppression
+        // (acting on the feeling vs. burying it).
         narrative: (s) => {
           const hasAmigo = hasFlag(s, 'tiene_amigo_infancia')
           return hasAmigo
             ? `${s.character.name} da el paso. ${npcName(s)} lo ve y sonríe. Hay algo que empieza.`
-            : `${s.character.name} da el paso. No sale perfecto. Pero sale.`
+            : `${s.character.name} inventa un pretexto: un libro prestado, una pregunta sobre el examen. La excusa no importa. Lo que importa es que funciona.`
         },
         statDeltas: { carisma: 0.4, emocional: 0.3 },
         flags:      ['primer_amor_activo', 'extrovertido_amoroso'],
@@ -87,7 +90,10 @@ const firstLove: GameEventTemplate = {
       id:   'ignorar_sentimientos',
       text: (_s) => 'Ignoras los sentimientos. Hay cosas más importantes ahora.',
       immediate: {
-        narrative: (s) => `${s.character.name} cierra esa puerta. Hay exámenes, hay cosas que hacer. Los sentimientos pueden esperar.`,
+        // Buries the feeling in productivity — a specific, physical act of suppression.
+        // Incompatible with acting on feelings or watching quietly: this character
+        // actively cancels the feeling with work.
+        narrative: (s) => `${s.character.name} hace lo que sabe hacer cuando algo no cabe: lo comprime. El hueco que deja se llena con listas de tareas y horas de estudio. A los trece años ya sabe fingir que está bien.`,
         statDeltas: { disciplina: 0.35, emocional: -0.1 },
         flags:      ['reprime_emociones_adolescencia'],
       },
@@ -253,7 +259,15 @@ const pressureMoment: GameEventTemplate = {
       id:   'buscar_equilibrio',
       text: (_s) => 'Buscas un equilibrio. No todo puede ser máximo esfuerzo.',
       immediate: {
-        narrative: (s) => `${s.character.name} aprende a gestionar. Perfecto en nada, funcional en todo. Hay sabiduría en eso.`,
+        // Consciously sets a ceiling — refuses to sacrifice everything.
+        // Incompatible with doubling effort (the opposite decision) and with dropping
+        // something (you're not cutting, you're rationing).
+        narrative: (s) => {
+          const isCiencias = hasFlag(s, 'camino_academico_ciencias')
+          return isCiencias
+            ? `${s.character.name} decide que un 7 en física libera tiempo para lo demás. No es rendirse. El 10 es para quien no tiene nada más en la vida.`
+            : `${s.character.name} aprende que hay días en que rendir al 70% es la decisión óptima. No lo llama pereza. Lo llama gestión.`
+        },
         statDeltas: { estabilidad: 0.35, disciplina: 0.15 },
         flags:      ['presion_gestionada_equilibrio'],
       },
@@ -301,7 +315,7 @@ const pressureMoment: GameEventTemplate = {
   ],
 }
 
-// ═══ EVENTO 9: REFLEXIÓN DE IDENTIDAD (edad 15) — solo narrativa ══════════════
+// ═══ EVENTO 9: REFLEXIÓN DE IDENTIDAD (edad 15) ═══════════════════════════════
 const identityReflection: GameEventTemplate = {
   id:         'identity_reflection',
   triggerAge: 15,
@@ -327,7 +341,27 @@ const identityReflection: GameEventTemplate = {
       id:   'aceptar',
       text: (_s) => 'Lo aceptas. Esto es lo que hay. Hay que trabajar con ello.',
       immediate: {
-        narrative: (s) => `${s.character.name} se acepta. No es resignación. Es el comienzo de algo real.`,
+        // Comes to terms with both strengths and limits — names them out loud.
+        // Incompatible with wanting to change (acceptance vs. change plan) and
+        // with avoidance (you face the mirror vs. walk away from it).
+        narrative: (s) => {
+          const entries = Object.entries(s.stats).sort((a, b) => (b[1] as number) - (a[1] as number))
+          const topKey  = entries[0][0]
+          const botKey  = entries[entries.length - 1][0]
+          const FORTES: Record<string, string> = {
+            logica: 'pienso bien', creatividad: 'imagino cosas', disciplina: 'aguanto',
+            carisma: 'caigo bien', emocional: 'siento demasiado', ambicion: 'quiero mucho',
+            fisico: 'tengo el cuerpo', riesgo: 'no me asusta nada', estabilidad: 'no me derrumbo',
+          }
+          const LIMITES: Record<string, string> = {
+            logica: 'el análisis frío no es todo', creatividad: 'la creatividad sin estructura se pierde',
+            disciplina: 'sostener el esfuerzo tiene un precio', carisma: 'conectar con todos no significa conocer a nadie',
+            emocional: 'la sensibilidad sin filtro agota', ambicion: 'querer mucho sin dirección desgasta',
+            fisico: 'el cuerpo no dura igual para siempre', riesgo: 'el riesgo sin cálculo cobra facturas',
+            estabilidad: 'la calma a veces es distancia',
+          }
+          return `${s.character.name} deja el espejo. Escribe dos líneas: "${FORTES[topKey] ?? 'hay algo bueno aquí'}." Y debajo: "${LIMITES[botKey] ?? 'y esto cuesta más'}." Lo guarda. No para cambiarlo. Para no olvidarlo.`
+        },
         statDeltas: { estabilidad: 0.3, emocional: 0.2 },
         flags:      ['autoconocimiento_temprano'],
       },
@@ -338,7 +372,25 @@ const identityReflection: GameEventTemplate = {
       id:   'cambiar',
       text: (_s) => 'Decides cambiar lo que no te gusta. La identidad no está fija.',
       immediate: {
-        narrative: (s) => `${s.character.name} decide que lo que ve puede mejorarse. Esa creencia puede ser su mayor fortaleza o su mayor trampa.`,
+        // Makes a concrete plan to change the weakest stat — writes it down, starts tomorrow.
+        // Incompatible with acceptance (you're rejecting what you are) and with avoidance
+        // (you're not running from the reflection, you're acting on it aggressively).
+        narrative: (s) => {
+          const entries = Object.entries(s.stats).sort((a, b) => (b[1] as number) - (a[1] as number))
+          const botKey  = entries[entries.length - 1][0]
+          const PLANES: Record<string, string> = {
+            logica:       'entrenar la mente con problemas que duelen',
+            creatividad:  'forzarse a crear aunque no salga nada bueno',
+            disciplina:   'levantarse cuando no hay ganas, cada día',
+            carisma:      'hablar con un desconocido cada semana',
+            emocional:    'dejar de enterrar lo que siente',
+            ambicion:     'escribir algo que quiere de verdad y no borrarlo',
+            fisico:       'salir a correr aunque llueva',
+            riesgo:       'decir sí a una cosa que asusta al mes',
+            estabilidad:  'construir una rutina y no romperla tres semanas seguidas',
+          }
+          return `${s.character.name} anota en un papel lo que no le gusta de sí mismo. Lo dobla. Lo guarda. Mañana empieza: ${PLANES[botKey] ?? 'hacer lo que cuesta'}. No sabe cuánto tardará. Sabe que empieza hoy.`
+        },
         statDeltas: { ambicion: 0.3, riesgo: 0.2 },
         flags:      ['busca_cambio_personal'],
       },
@@ -355,7 +407,10 @@ const identityReflection: GameEventTemplate = {
       id:   'ignorar_reflexion',
       text: (_s) => 'Apartas esos pensamientos. Demasiado para un lunes.',
       immediate: {
-        narrative: (s) => `${s.character.name} deja el espejo atrás. Hay tiempo para estas preguntas. Quizás no hoy.`,
+        // Physically escapes the discomfort — opens the phone, loses 20 minutes.
+        // Incompatible with writing acceptance notes or making a change plan:
+        // the character doesn't write anything, just scrolls into numbness.
+        narrative: (s) => `${s.character.name} tira el papel en que había empezado a escribir algo. Abre el móvil. Veinte minutos después no recuerda qué vio. La pregunta sigue ahí, detrás de todo.`,
         statDeltas: { estabilidad: 0.2 },
         flags:      ['evita_introspección'],
       },
@@ -425,7 +480,10 @@ const firstJobDirection: GameEventTemplate = {
       id:   'centrar_estudios',
       text: (_s) => 'Te centras en los estudios. El trabajo puede esperar.',
       immediate: {
-        narrative: (s) => `${s.character.name} invierte en conocimiento. El mercado laboral puede esperar. O eso espera.`,
+        // Turns down real money to stay in class — a specific, costly sacrifice.
+        // Incompatible with working (you rejected the income) and with balancing
+        // (you're not doing both, you're cutting the work side entirely).
+        narrative: (s) => `${s.character.name} rechaza un par de opciones de trabajo ese trimestre. La segunda cuesta más. Abre los apuntes y los cierra con fuerza. Esto tiene que valer.`,
         statDeltas: { logica: 0.3, disciplina: 0.3 },
         flags:      ['prioriza_estudios_16'],
       },
@@ -447,7 +505,10 @@ const firstJobDirection: GameEventTemplate = {
       id:   'equilibrio_estudios_trabajo',
       text: (_s) => 'Compaginas estudios y trabajo. No es fácil pero es posible.',
       immediate: {
-        narrative: (s) => `${s.character.name} aprende a optimizar el tiempo. Unos meses agotadores. Una lección para toda la vida.`,
+        // Lives a specific, brutal daily schedule — not abstract "learning to optimize."
+        // Incompatible with studying only (you're doing both) and with working only
+        // (you're keeping the studies at cost to your body).
+        narrative: (s) => `El horario de ${s.character.name} a los 16: clase de ocho a tres, trabajo de cuatro a nueve, estudio de diez a doce. El cuerpo lo nota en enero. La cabeza, en junio. Ambos lo superan.`,
         statDeltas: { ambicion: 0.25, disciplina: 0.3, fisico: -0.1 },
         flags:      ['compagina_estudios_trabajo'],
       },
@@ -467,7 +528,7 @@ const firstJobDirection: GameEventTemplate = {
   ],
 }
 
-// ═══ EVENTO 11: PRESIÓN EXAMEN FINAL (edad 17) — condicional ══════════════════
+// ═══ EVENTO 11: PRESIÓN EXAMEN FINAL (edad 17) ════════════════════════════════
 const finalExamPressure: GameEventTemplate = {
   id:             'final_exam_pressure',
   triggerAge:     17,
@@ -485,6 +546,9 @@ const finalExamPressure: GameEventTemplate = {
       id:   'estudiar_toda_la_noche',
       text: (_s) => 'Estudias toda la noche. Una noche más no puede cambiar tanto las cosas.',
       immediate: {
+        // Grinds through the night — hits the wall at 4am.
+        // Incompatible with sleeping (you stayed up) and with calling a friend
+        // (you chose to isolate with the books).
         narrative: (s) => `${s.character.name} no duerme. A las 4 de la mañana, el cerebro deja de retener. A las 8, entra al examen.`,
         statDeltas: { disciplina: 0.3, fisico: -0.2 },
         flags:      ['noche_sin_dormir_examen'],
@@ -511,7 +575,10 @@ const finalExamPressure: GameEventTemplate = {
       id:   'dormir_confiar',
       text: (_s) => 'Duermes. Lo que sabes ya está dentro. El descanso también importa.',
       immediate: {
-        narrative: (s) => `${s.character.name} cierra los libros a las once. Mañana el cerebro necesita estar despejado.`,
+        // Deliberately stops and trusts the preparation — a counter-intuitive discipline.
+        // Incompatible with studying all night (you put the books down) and with
+        // calling a friend (you solve the anxiety alone, with silence).
+        narrative: (s) => `${s.character.name} pone el despertador tres veces por si acaso. Luego apaga dos. Cierra los libros a las once. Por la mañana, el camino al examen tiene una calma extraña, casi sospechosa.`,
         statDeltas: { disciplina: 0.2, estabilidad: 0.3 },
         flags:      ['confia_en_preparacion'],
       },
@@ -534,11 +601,13 @@ const finalExamPressure: GameEventTemplate = {
         ? `Llamas a ${npcName(s)}. Necesitas hablar con alguien.`
         : 'Llamas a alguien. Necesitas escuchar una voz conocida.',
       immediate: {
+        // Talks to someone instead of studying or sleeping alone — uses connection
+        // as regulation. Incompatible with solitary grinding or solitary sleep.
         narrative: (s) => {
           const hasAmigo = hasFlag(s, 'tiene_amigo_infancia')
           return hasAmigo
             ? `${npcName(s)} está ahí. Una hora de conversación y ${s.character.name} entra al examen más tranquilo.`
-            : `La conversación nocturna ayuda. ${s.character.name} no está solo en esto.`
+            : `Hablan de todo menos del examen. Eso es exactamente lo que ${s.character.name} necesitaba. Cuelga el teléfono y duerme.`
         },
         statDeltas: { emocional: 0.3, carisma: 0.2 },
         flags:      ['apoyo_social_examen'],
@@ -572,7 +641,15 @@ const adulthoodThreshold: GameEventTemplate = {
       id:   'ambicioso',
       text: (_s) => 'Voy a construir algo grande. El mundo no me espera.',
       immediate: {
-        narrative: (s) => `${s.character.name} entra en la adultez con los ojos abiertos y los puños apretados. Hay mucho por hacer. El tiempo empieza ahora.`,
+        // Has a physical gesture — writes numbers on paper, makes a concrete bet.
+        // Incompatible with caution (you're not measuring, you're charging) and with
+        // freedom-first (you have a specific target, not just a desire to experience).
+        narrative: (s) => {
+          const hasWork = hasFlag(s, 'primer_trabajo_a_16') || hasFlag(s, 'compagina_estudios_trabajo')
+          return hasWork
+            ? `${s.character.name} ya tiene algo construido. Los 18 son el punto de partida, no el de llegada. Dobla la apuesta.`
+            : `${s.character.name} escribe en un papel lo que quiere tener a los 25. Lo repasa. Lo tacha. Lo vuelve a escribir con números más grandes. Guarda el papel.`
+        },
         statDeltas: { ambicion: 0.5, riesgo: 0.2 },
         flags:      ['mentalidad_adulta_ambiciosa'],
       },
@@ -614,7 +691,14 @@ const adulthoodThreshold: GameEventTemplate = {
       id:   'libre',
       text: (_s) => 'Primero quiero vivir. Ya habrá tiempo para ser responsable.',
       immediate: {
-        narrative: (s) => `${s.character.name} elige la experiencia sobre el plan. La vida antes del proyecto de vida. Habrá quien no lo entienda.`,
+        // Makes a list of experiences, then deliberately tears it up — freedom means
+        // refusing to plan even the freedom. Incompatible with the goal-oriented ambition
+        // option (you reject the paper with numbers) and with caution (you're not measuring).
+        narrative: (s) => {
+          const hasAmigo = hasFlag(s, 'tiene_amigo_infancia')
+          const refAmigo = hasAmigo ? ` ${npcName(s)} dice que está loco. ${s.character.name} lo toma como un elogio.` : ''
+          return `${s.character.name} empieza a escribir una lista de lo que quiere antes de los 25. La borra. Las listas son para los planes y esto no es un plan.${refAmigo}`
+        },
         statDeltas: { creatividad: 0.3, emocional: 0.35, riesgo: 0.2 },
         flags:      ['mentalidad_adulta_libre'],
       },

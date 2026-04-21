@@ -65,12 +65,11 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
             {/* Entries */}
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {group.entries.map(entry => {
-                const isPassive = entry.type === 'reflection'
-                return (
-                  <p
-                    key={entry.id}
-                    style={isPassive ? {
-                      // Narrativa pasiva: más tenue, sin border-left, italic
+                const isPassive     = entry.type === 'reflection'
+                const isConsequence = entry.type === 'consequence'
+                if (isPassive) {
+                  return (
+                    <p key={entry.id} style={{
                       fontFamily:  fonts.body,
                       fontStyle:   'italic',
                       fontSize:    '0.8rem',
@@ -78,17 +77,51 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
                       color:       colors.text.passive,
                       margin:      '0 0 8px 0',
                       paddingLeft: 0,
-                    } : {
-                      fontFamily:  fonts.body,
-                      fontStyle:   entry.type === 'memory' ? 'italic' : 'normal',
-                      fontSize:    '0.85rem',
-                      lineHeight:  1.8,
-                      color:       IMPORTANCE_COLOR[entry.importance] ?? '#8a7050',
-                      borderLeft:  `2px solid ${colors.border.default}`,
-                      paddingLeft: 12,
-                      margin:      '0 0 6px 0',
-                    }}
-                  >
+                    }}>
+                      {entry.text}
+                    </p>
+                  )
+                }
+                if (isConsequence) {
+                  return (
+                    <div key={entry.id} style={{
+                      borderLeft:   '3px solid #8B1A2A',
+                      paddingLeft:  12,
+                      margin:       '0 0 10px 0',
+                    }}>
+                      <div style={{
+                        fontFamily:    fonts.display,
+                        fontSize:      '0.55rem',
+                        letterSpacing: '0.2em',
+                        color:         '#8B1A2A',
+                        marginBottom:  4,
+                        textTransform: 'uppercase' as const,
+                      }}>
+                        {t('game.feed.consequence')}
+                      </div>
+                      <p style={{
+                        fontFamily: fonts.body,
+                        fontSize:   '0.85rem',
+                        lineHeight: 1.8,
+                        color:      IMPORTANCE_COLOR[entry.importance] ?? '#8a7050',
+                        margin:     0,
+                      }}>
+                        {entry.text}
+                      </p>
+                    </div>
+                  )
+                }
+                return (
+                  <p key={entry.id} style={{
+                    fontFamily:  fonts.body,
+                    fontStyle:   entry.type === 'memory' ? 'italic' : 'normal',
+                    fontSize:    '0.85rem',
+                    lineHeight:  1.8,
+                    color:       IMPORTANCE_COLOR[entry.importance] ?? '#8a7050',
+                    borderLeft:  `2px solid ${colors.border.default}`,
+                    paddingLeft: 12,
+                    margin:      '0 0 6px 0',
+                  }}>
                     {entry.text}
                   </p>
                 )

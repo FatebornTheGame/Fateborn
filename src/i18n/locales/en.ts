@@ -60,7 +60,7 @@ const en = {
       quarters: 'qtr.',
       alloc: { trabajo: 'Work', estudios: 'Studies', familia: 'Family', social: 'Social', salud: 'Health', ocio: 'Leisure' },
     },
-    feed: { title: 'History', decision: 'Decision', anos: 'years', empty: 'Your story begins with the first quarter.' },
+    feed: { title: 'History', decision: 'Decision', consequence: 'Consequence', anos: 'years', empty: 'Your story begins with the first quarter.' },
     statsPanel: {
       title: 'Attributes',
       groups: { cognitivo: 'Cognitive', social: 'Social', vital: 'Vital' },

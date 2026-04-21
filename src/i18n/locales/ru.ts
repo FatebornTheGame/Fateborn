@@ -33,7 +33,7 @@ const ru = {
       confirmFirst: 'ВЫБРАТЬ И НАЧАТЬ', firstTitle: 'ВЫБЕРИ ОБРАЗ ЖИЗНИ', firstSub: 'Определи, куда будешь вкладывать время каждый квартал',
       alloc: { trabajo: 'Работа', estudios: 'Учёба', familia: 'Семья', social: 'Общение', salud: 'Здоровье', ocio: 'Досуг' },
     },
-    feed: { title: 'История', decision: 'Решение', anos: 'лет' },
+    feed: { title: 'История', decision: 'Решение', consequence: 'Последствие', anos: 'лет' },
     statsPanel: { title: 'Статистика', groups: { cognitivo: 'Когнитивное', social: 'Социальное', vital: 'Витальное' } },
     timeline: { stages: { infancia: 'Детство', juventud: 'Юность', adulto: 'Взрослый', madurez: 'Зрелость', ancianidad: 'Старость' } },
     onboarding: {
