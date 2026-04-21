@@ -102,34 +102,36 @@ export function StatusBar({ character, stats, ageYears, economy }: Props) {
 
       <div className="hidden sm:block" style={{ width: 1, height: 20, background: colors.border.default, flexShrink: 0 }} />
 
-      {/* Economy: liquidez indicator */}
-      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'baseline', gap: 2, flexShrink: 0 }}>
-        <span style={{
-          fontFamily:    fonts.display,
-          fontSize:      '0.5rem',
-          color:         liquidezColor(economy.liquidez),
-          letterSpacing: '0.05em',
-          fontWeight:    700,
-          lineHeight:    1,
-        }}>
-          {economy.liquidez < 0 ? '−' : ''}€
-        </span>
-        <span style={{
-          fontFamily:    fonts.display,
-          fontSize:      '0.72rem',
-          fontWeight:    700,
-          color:         liquidezColor(economy.liquidez),
-          letterSpacing: '0.02em',
-          lineHeight:    1,
-        }}>
-          {formatLiquidez(economy.liquidez)}
-        </span>
-      </div>
+      {/* Economy: liquidez indicator — hidden until the character has real income */}
+      {(economy.liquidez !== 0 || economy.ingresosMensual !== 0) && (
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 2, flexShrink: 0 }}>
+          <span style={{
+            fontFamily:    fonts.display,
+            fontSize:      '0.5rem',
+            color:         liquidezColor(economy.liquidez),
+            letterSpacing: '0.05em',
+            fontWeight:    700,
+            lineHeight:    1,
+          }}>
+            {economy.liquidez < 0 ? '−' : ''}€
+          </span>
+          <span style={{
+            fontFamily:    fonts.display,
+            fontSize:      '0.72rem',
+            fontWeight:    700,
+            color:         liquidezColor(economy.liquidez),
+            letterSpacing: '0.02em',
+            lineHeight:    1,
+          }}>
+            {formatLiquidez(economy.liquidez)}
+          </span>
+        </div>
+      )}
 
       <div className="hidden sm:block" style={{ width: 1, height: 20, background: colors.border.default, flexShrink: 0 }} />
 
-      {/* Vital stat bars */}
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+      {/* Vital stat bars — always pushed to the right */}
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginLeft: 'auto' }}>
         {VITAL_STATS.map(({ key, tKey }) => {
           const value = stats[key]
           return (

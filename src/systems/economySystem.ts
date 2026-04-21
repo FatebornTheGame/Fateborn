@@ -1,72 +1,90 @@
 import type { GameState, Economy, GastosDetallados } from '../types/game.types'
+import { hasFlag } from '../types/game.types'
 import type { CountryTier } from '../data/countries'
 
-// ─── Base monthly economics per country tier ──────────────────────────────────
-// liquidezInicial represents family background wealth at game start.
-// The tick does not run until age 18 or until a career is active.
-
+// ─── Base monthly costs per country tier ─────────────────────────────────────
+// Used when the character becomes economically active (career or emancipated).
+// NOT used at init — economy starts fully zeroed.
 interface TierParams {
-  liquidezInicial: number
-  ingresoBase:     number
-  alimentacion:    number
-  transporte:      number
-  ocio:            number
-  otros:           number
+  alimentacion: number
+  transporte:   number
+  ocio:         number
+  otros:        number
 }
 
 const TIER_BASE: Record<CountryTier, TierParams> = {
-  // Rich (France, Germany, Japan): comfortable family surplus
-  A: { liquidezInicial: 1500, ingresoBase: 280, alimentacion: 120, transporte: 30, ocio: 30, otros: 20 },
-  // Developed (Spain, Portugal, Italy): slight monthly squeeze
-  B: { liquidezInicial: 500,  ingresoBase: 82,  alimentacion: 60,  transporte: 12, ocio: 8,  otros: 6  },
-  // Emerging (LatAm, China, South Africa): ongoing pressure
-  C: { liquidezInicial: 150,  ingresoBase: 33,  alimentacion: 28,  transporte: 6,  ocio: 3,  otros: 3  },
-  // Developing (Nigeria, India): tight survival budget
-  D: { liquidezInicial: 50,   ingresoBase: 17,  alimentacion: 15,  transporte: 3,  ocio: 2,  otros: 2  },
+  A: { alimentacion: 120, transporte: 30, ocio: 30, otros: 20 },
+  B: { alimentacion: 60,  transporte: 12, ocio: 8,  otros: 6  },
+  C: { alimentacion: 28,  transporte: 6,  ocio: 3,  otros: 3  },
+  D: { alimentacion: 15,  transporte: 3,  ocio: 2,  otros: 2  },
 }
 
-// ─── Initialize economy for a new game ───────────────────────────────────────
+// ─── Flags that indicate economic activity ────────────────────────────────────
+const ECONOMIC_FLAGS = [
+  'trabajo_temprano',
+  'primer_trabajo_a_16',
+  'emancipado',
+  'buscando_trabajo_sector',
+  'trabajo_supervivencia',
+]
+
+// ─── Initialize economy for a new game — everything starts at zero ────────────
 export function initEconomy(tier: CountryTier): Economy {
   const t = TIER_BASE[tier]
 
+  // Tier-based gastos are stored so processQuarterlyEconomy can use them once
+  // economic activity begins (career assigned or economic flag set).
   const gastos: GastosDetallados = {
     alimentacion: t.alimentacion,
     transporte:   t.transporte,
-    telefono:     0,    // no phone at age 6
-    vivienda:     0,    // lives with family
+    telefono:     0,
+    vivienda:     0,
     ocio:         t.ocio,
     otros:        t.otros,
   }
 
-  const gastosMensual = gastos.alimentacion + gastos.transporte + gastos.telefono
-    + gastos.vivienda + gastos.ocio + gastos.otros
-
   return {
-    liquidez:          t.liquidezInicial,
-    ingresosMensual:   t.ingresoBase,
-    gastosMensual,
+    liquidez:          0,
+    ingresosMensual:   0,
+    gastosMensual:     0,
     gastos,
-    historialLiquidez: [t.liquidezInicial],
+    historialLiquidez: [0],
   }
+}
+
+// ─── Compute current monthly expenses ────────────────────────────────────────
+// Returns all zeros when the character has no career and no economic activity.
+function calcularGastosMensuales(state: GameState): GastosDetallados {
+  const isEconomicallyActive = state.career !== null
+    || ECONOMIC_FLAGS.some(f => hasFlag(state, f))
+
+  if (!isEconomicallyActive) {
+    return { alimentacion: 0, transporte: 0, telefono: 0, vivienda: 0, ocio: 0, otros: 0 }
+  }
+
+  return state.economy.gastos
 }
 
 // ─── Advance economy one quarter (3 months) ───────────────────────────────────
 export function processQuarterlyEconomy(state: GameState): GameState {
   // Economy only ticks once the character has real income (career) or is an adult.
-  // Before that the liquidez value represents family background — it stays frozen.
   if (state.ageYears < 18 && !state.career) return state
 
   const eco = state.economy
 
-  // Career salary overrides base income when career is active
-  const ingresosMensual = state.career
+  const ingresosActuales = state.career
     ? state.career.salarioMensual
     : eco.ingresosMensual
 
-  const netQuarter      = (ingresosMensual - eco.gastosMensual) * 3
-  const newLiquidez     = Math.round(eco.liquidez + netQuarter)
+  // Recompute expenses every tick — reflects current life situation
+  const gastosActuales    = calcularGastosMensuales(state)
+  const gastosMensual     = gastosActuales.alimentacion + gastosActuales.transporte
+    + gastosActuales.telefono + gastosActuales.vivienda
+    + gastosActuales.ocio     + gastosActuales.otros
 
-  // Rolling window of 20 snapshots (5 years of quarterly data)
+  const netQuarter    = (ingresosActuales - gastosMensual) * 3
+  const newLiquidez   = Math.round(eco.liquidez + netQuarter)
+
   const newHistory = [...eco.historialLiquidez, newLiquidez].slice(-20)
 
   return {
@@ -74,7 +92,9 @@ export function processQuarterlyEconomy(state: GameState): GameState {
     economy: {
       ...eco,
       liquidez:          newLiquidez,
-      ingresosMensual,
+      ingresosMensual:   ingresosActuales,
+      gastosMensual,
+      gastos:            gastosActuales,
       historialLiquidez: newHistory,
     },
   }
