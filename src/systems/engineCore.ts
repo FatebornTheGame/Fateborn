@@ -471,6 +471,16 @@ export function commitEventChoice(
 
   let newState = applyOption(s, event, option)
 
+  if (option.immediate.economyDelta) {
+    newState = {
+      ...newState,
+      economy: {
+        ...newState.economy,
+        liquidez: newState.economy.liquidez + option.immediate.economyDelta,
+      },
+    }
+  }
+
   const newAchievements = checkAchievements(newState, state)
   if (newAchievements.length > 0) {
     newState = {
