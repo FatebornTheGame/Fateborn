@@ -33,7 +33,7 @@ const tr = {
       confirmFirst: 'SEÇ VE BAŞLA', firstTitle: 'YAŞAM TARZINI SEÇ', firstSub: 'Her çeyrekte zamanını nereye yatıracağını belirle',
       alloc: { trabajo: 'İş', estudios: 'Eğitim', familia: 'Aile', social: 'Sosyal', salud: 'Sağlık', ocio: 'Boş Zaman' },
     },
-    feed: { title: 'Hikâye', decision: 'Karar', consequence: 'Sonuç', anos: 'yaş' },
+    feed: { title: 'Hikâye', decision: 'Karar', consequence: 'Sonuç', achievement: 'Başarı', anos: 'yaş' },
     statsPanel: { title: 'İstatistikler', groups: { cognitivo: 'Bilişsel', social: 'Sosyal', vital: 'Yaşamsal' } },
     timeline: { stages: { infancia: 'Çocukluk', juventud: 'Gençlik', adulto: 'Yetişkin', madurez: 'Olgunluk', ancianidad: 'Yaşlılık' } },
     onboarding: {

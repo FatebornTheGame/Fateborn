@@ -65,8 +65,9 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
             {/* Entries */}
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {group.entries.map(entry => {
-                const isPassive     = entry.type === 'reflection'
-                const isConsequence = entry.type === 'consequence'
+                const isPassive      = entry.type === 'reflection'
+                const isConsequence  = entry.type === 'consequence'
+                const isAchievement  = entry.type === 'achievement'
                 if (isPassive) {
                   return (
                     <p key={entry.id} style={{
@@ -80,6 +81,49 @@ export function NarrativeFeed({ groups, pendingEvent, onResolve, pendingState }:
                     }}>
                       {entry.text}
                     </p>
+                  )
+                }
+                if (isAchievement) {
+                  return (
+                    <div key={entry.id} className="animate-fade-in" style={{
+                      background:   '#1a1508',
+                      border:       '1px solid #C9A84C',
+                      borderLeft:   '4px solid #C9A84C',
+                      borderRadius: 2,
+                      padding:      '12px 16px',
+                      margin:       '8px 0',
+                    }}>
+                      <div style={{
+                        fontFamily:    fonts.display,
+                        fontSize:      '0.5rem',
+                        letterSpacing: '0.25em',
+                        color:         '#C9A84C',
+                        textTransform: 'uppercase' as const,
+                        marginBottom:  4,
+                        opacity:       0.7,
+                      }}>
+                        {t('game.feed.achievement')}
+                      </div>
+                      <div style={{
+                        fontFamily:    fonts.display,
+                        fontSize:      '0.75rem',
+                        letterSpacing: '0.08em',
+                        color:         '#C9A84C',
+                        marginBottom:  6,
+                        fontWeight:    700,
+                      }}>
+                        {entry.achievementTitle}
+                      </div>
+                      <p style={{
+                        fontFamily: fonts.body,
+                        fontSize:   '0.82rem',
+                        lineHeight: 1.7,
+                        color:      '#a08050',
+                        margin:     0,
+                      }}>
+                        {entry.text}
+                      </p>
+                    </div>
                   )
                 }
                 if (isConsequence) {

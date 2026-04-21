@@ -23,6 +23,7 @@ import { NAME_POOLS, BEST_FRIEND_PARALLEL_ARC } from '../data/npcs/npcProfiles'
 import { CHILDHOOD_EVENTS } from '../data/events/childhoodEvents'
 import { ADOLESCENCE_EVENTS } from '../data/events/adolescenceEvents'
 import { YOUTH_EVENTS } from '../data/events/youthEvents'
+import { checkAchievements } from './achievementSystem'
 
 // ─── All events pool ─────────────────────────────────────────────────────────
 const ALL_EVENTS: GameEventTemplate[] = [
@@ -468,7 +469,29 @@ export function commitEventChoice(
     }
   }
 
-  return applyOption(s, event, option)
+  let newState = applyOption(s, event, option)
+
+  const newAchievements = checkAchievements(newState, state)
+  if (newAchievements.length > 0) {
+    newState = {
+      ...newState,
+      achievements: [...newState.achievements, ...newAchievements],
+      feed: [
+        ...newState.feed,
+        ...newAchievements.map(a => ({
+          id:               `achievement_${a.id}_${newState.totalQuarters}`,
+          type:             'achievement' as const,
+          importance:       'alta' as const,
+          age:              newState.ageYears,
+          text:             a.description,
+          achievementTitle: a.title,
+          category:         a.category,
+        })),
+      ],
+    }
+  }
+
+  return newState
 }
 
 // ─── Advance multiple quarters (skip) ────────────────────────────────────────

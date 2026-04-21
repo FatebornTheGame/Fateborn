@@ -33,7 +33,7 @@ const de = {
       confirmFirst: 'WÄHLEN UND BEGINNEN', firstTitle: 'WÄHLE DEINEN LEBENSSTIL', firstSub: 'Bestimme, wo du jedes Quartal deine Zeit investierst',
       alloc: { trabajo: 'Arbeit', estudios: 'Studium', familia: 'Familie', social: 'Soziales', salud: 'Gesundheit', ocio: 'Freizeit' },
     },
-    feed: { title: 'Geschichte', decision: 'Entscheidung', consequence: 'Konsequenz', anos: 'Jahre' },
+    feed: { title: 'Geschichte', decision: 'Entscheidung', consequence: 'Konsequenz', achievement: 'Erfolg', anos: 'Jahre' },
     statsPanel: { title: 'Attribute', groups: { cognitivo: 'Kognitiv', social: 'Sozial', vital: 'Vital' } },
     timeline: { stages: { infancia: 'Kindheit', juventud: 'Jugend', adulto: 'Erwachsen', madurez: 'Reife', ancianidad: 'Alter' } },
     onboarding: {

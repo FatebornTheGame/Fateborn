@@ -92,6 +92,7 @@ const es = {
       title:    'Historia',
       decision:     'Decisión',
       consequence:  'Consecuencia',
+      achievement:  'Logro',
       anos:     'años',
       empty:    'Tu historia comenzará con el primer trimestre.',
     },
