@@ -1,4 +1,4 @@
-import type { GameState, Economy, GastosDetallados } from '../types/game.types'
+import type { GameState, Economy, GastosDetallados, EconomyLevel } from '../types/game.types'
 import { hasFlag } from '../types/game.types'
 import type { CountryTier } from '../data/countries'
 
@@ -27,6 +27,16 @@ const ECONOMIC_FLAGS = [
   'buscando_trabajo_sector',
   'trabajo_supervivencia',
 ]
+
+// ─── Economy level from current liquidez ─────────────────────────────────────
+export function getEconomyLevel(state: GameState): EconomyLevel {
+  const { liquidez } = state.economy
+  if (liquidez < 0)      return 'precario'
+  if (liquidez < 500)    return 'bajo'
+  if (liquidez < 5000)   return 'medio'
+  if (liquidez < 20000)  return 'alto'
+  return 'rico'
+}
 
 // ─── Initialize economy for a new game — everything starts at zero ────────────
 export function initEconomy(tier: CountryTier): Economy {

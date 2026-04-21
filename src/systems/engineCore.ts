@@ -18,7 +18,7 @@ import {
 import { checkMemoryTriggers, addMemory, markMemoriesRecalled } from './memorySystem'
 import { updateEpitaph } from './epitaphSystem'
 import { advanceNPCLives } from './npcLifeSystem'
-import { processQuarterlyEconomy } from './economySystem'
+import { processQuarterlyEconomy, getEconomyLevel } from './economySystem'
 import { NAME_POOLS, BEST_FRIEND_PARALLEL_ARC } from '../data/npcs/npcProfiles'
 import { CHILDHOOD_EVENTS } from '../data/events/childhoodEvents'
 import { ADOLESCENCE_EVENTS } from '../data/events/adolescenceEvents'
@@ -72,6 +72,42 @@ function getEligibleEvents(state: GameState): GameEventTemplate[] {
     if (ev.triggerAntiFlags && ev.triggerAntiFlags.length > 0) {
       const hasAny = ev.triggerAntiFlags.some(f => hasFlag(state, f))
       if (hasAny) return false
+    }
+
+    // requireAllFlags: every flag must be present
+    if (ev.requireAllFlags && ev.requireAllFlags.length > 0) {
+      if (!ev.requireAllFlags.every(f => hasFlag(state, f))) return false
+    }
+
+    // requireAnyFlags: at least one flag must be present
+    if (ev.requireAnyFlags && ev.requireAnyFlags.length > 0) {
+      if (!ev.requireAnyFlags.some(f => hasFlag(state, f))) return false
+    }
+
+    // requireStats: each stat must satisfy its min/max bounds
+    if (ev.requireStats) {
+      for (const [key, bounds] of Object.entries(ev.requireStats)) {
+        const val = state.stats[key as keyof typeof state.stats]
+        if (bounds?.min !== undefined && val < bounds.min) return false
+        if (bounds?.max !== undefined && val > bounds.max) return false
+      }
+    }
+
+    // requireEconomy: economy level must match
+    if (ev.requireEconomy?.nivel !== undefined) {
+      if (getEconomyLevel(state) !== ev.requireEconomy.nivel) return false
+    }
+
+    // requireCareer: career must exist and match any specified fields
+    if (ev.requireCareer) {
+      if (state.career === null) return false
+      if (ev.requireCareer.nivel !== undefined && state.career.nivel < ev.requireCareer.nivel) return false
+      if (ev.requireCareer.profesion !== undefined && state.career.profesion !== ev.requireCareer.profesion) return false
+    }
+
+    // blockIfFlags: none must match (explicit block, complement to triggerAntiFlags)
+    if (ev.blockIfFlags && ev.blockIfFlags.length > 0) {
+      if (ev.blockIfFlags.some(f => hasFlag(state, f))) return false
     }
 
     // Probabilistic weight
