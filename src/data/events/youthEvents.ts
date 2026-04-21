@@ -12,6 +12,7 @@ const firstJobSearch: GameEventTemplate = {
   triggerAge:      19,
   triggerAntiFlags: ['primer_empleo_conseguido'],
   weight:          1,
+  blockIfFlags:    ['buscando_trabajo_sector', 'trabajo_supervivencia', 'formacion_extendida'],
 
   context: (state) => {
     const isCiencias    = hasFlag(state, 'camino_academico_ciencias')
@@ -169,9 +170,11 @@ const firstJobSearch: GameEventTemplate = {
 // ═══ EVENTO 14: EMANCIPACIÓN (edad 21) ═══════════════════════════════════════
 // The first time the character faces living independently.
 const emancipation: GameEventTemplate = {
-  id:         'emancipation',
-  triggerAge: 21,
-  weight:     1,
+  id:           'emancipation',
+  triggerAge:   21,
+  weight:       1,
+  requireCareer: { nivel: 1 },
+  blockIfFlags:  ['emancipado'],
 
   context: (state) => {
     const hasTrabajo  = hasFlag(state, 'primer_empleo_conseguido') || state.career !== null
@@ -278,6 +281,8 @@ const careerChallenge: GameEventTemplate = {
   triggerAge:      25,
   triggerAntiFlags: ['crisis_carrera_resuelta'],
   weight:          1,
+  requireCareer:   { nivel: 1 },
+  blockIfFlags:    ['implicacion_laboral_alta', 'rendimiento_estandar', 'dudas_vocacionales'],
 
   context: (state) => {
     const isAmbicioso = hasFlag(state, 'mentalidad_adulta_ambiciosa')
@@ -406,6 +411,7 @@ const drivingLicense: GameEventTemplate = {
   triggerAge:      [19, 20],
   triggerAntiFlags: ['carnet_conducir', 'carnet_en_proceso'],
   weight:          0.85,
+  blockIfFlags:    ['carnet_conducir', 'carnet_en_proceso', 'sin_carnet_decision'],
 
   context: (state) => {
     const hasTrabajo = hasFlag(state, 'primer_empleo_conseguido') || state.career !== null
