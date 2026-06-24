@@ -6,12 +6,12 @@ interface Props {
 }
 
 function stageTint(age: number): string {
-  if (age < 13) return '#221608'  // infancia    — dorado cálido
-  if (age < 19) return '#0a0d14'  // adolescencia — azul frío
-  if (age < 31) return '#1a1408'  // juventud     — ámbar
-  if (age < 51) return '#100d08'  // adultez      — marrón oscuro
-  if (age < 71) return '#0f0e0d'  // madurez      — gris cálido
-  return '#080807'                 // vejez        — casi negro
+  if (age < 13) return '#2e1c04'  // infancia    — ámbar dorado cálido
+  if (age < 19) return '#05091a'  // adolescencia — azul noche profundo
+  if (age < 31) return '#1c1005'  // juventud     — ocre cálido
+  if (age < 51) return '#170608'  // adultez      — carmesí oscuro
+  if (age < 71) return '#070e0e'  // madurez      — verde-gris frío
+  return '#090809'                 // vejez        — violeta casi negro
 }
 
 export function AtmosphericBackground({ variant = 'default' }: Props) {

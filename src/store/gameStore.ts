@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import type { GameState, Stats, SexualOrientation } from '../types/game.types'
 import { defaultStats, clampStat } from '../types/game.types'
 
-export type StatFlash = 'pos' | 'neg'
+export type StatFlash = number  // actual delta value (+0.3, -0.5, etc.)
 import type { Archetype, AncestorSlot } from '../types/archetype.types'
 import type { GameEventTemplate } from '../types/game.types'
 import type { LifestyleType } from '../systems/lifestyleSystem'
@@ -243,7 +243,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     for (const key of Object.keys(oldStats) as (keyof Stats)[]) {
       const delta = newStats[key] - oldStats[key]
       if (Math.abs(delta) >= 0.05) {
-        changes[key] = delta > 0 ? 'pos' : 'neg'
+        changes[key] = parseFloat(delta.toFixed(2))
       }
     }
 

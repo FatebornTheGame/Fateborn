@@ -13,6 +13,8 @@ import { MuteButton }                 from '../components/MuteButton'
 import { AtmosphericBackground }      from '../styles/AtmosphericBackground'
 import { StatFlash }                  from '../components/StatFlash'
 import { StageProgressBar }           from '../components/StageProgressBar'
+import { NPCCards }                   from '../components/NPCCards'
+import { StageTransition }            from '../components/StageTransition'
 import { colors }                     from '../styles/tokens'
 
 export function GameScreen() {
@@ -75,6 +77,7 @@ export function GameScreen() {
               onSetLifestyle={setLifestyle}
               onStartLiving={startLiving}
             />
+            <NPCCards friends={gameState.friends} />
           </div>
           <div style={{ flex: 1, overflowY: 'auto', background: 'transparent', display: 'flex', flexDirection: 'column' }}>
             <NarrativeFeed
@@ -125,6 +128,9 @@ export function GameScreen() {
           events={timelineEvents}
         />
       </div>
+
+      {/* Stage cinematic transition overlay */}
+      <StageTransition />
 
       {/* Overlays */}
       {showStats && (

@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
-import type { Stats }                  from '../types/game.types'
-import type { StatFlash as FlashDir }  from '../store/gameStore'
-import { useGameStore }                from '../store/gameStore'
-import { colors, fonts }               from '../styles/tokens'
+import { useEffect, useRef, useState }  from 'react'
+import type { Stats }                    from '../types/game.types'
+import { useGameStore }                  from '../store/gameStore'
+import { colors, fonts }                 from '../styles/tokens'
 
 const STAT_LABELS: Record<keyof Stats, string> = {
   logica:      'LÓG',
@@ -17,24 +16,24 @@ const STAT_LABELS: Record<keyof Stats, string> = {
 }
 
 interface FlashItem {
-  id:        string
-  stat:      keyof Stats
-  direction: FlashDir
+  id:    string
+  stat:  keyof Stats
+  delta: number
 }
 
 export function StatFlash() {
-  const lastStatChanges                       = useGameStore(s => s.lastStatChanges)
-  const [flashes, setFlashes]                 = useState<FlashItem[]>([])
-  const timersRef                             = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
+  const lastStatChanges                   = useGameStore(s => s.lastStatChanges)
+  const [flashes, setFlashes]             = useState<FlashItem[]>([])
+  const timersRef                         = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
 
   useEffect(() => {
-    const entries = Object.entries(lastStatChanges) as [keyof Stats, FlashDir][]
+    const entries = Object.entries(lastStatChanges) as [keyof Stats, number][]
     if (entries.length === 0) return
 
-    const newFlashes: FlashItem[] = entries.map(([stat, direction]) => ({
+    const newFlashes: FlashItem[] = entries.map(([stat, delta]) => ({
       id: `${stat}-${Date.now()}-${Math.random()}`,
       stat,
-      direction,
+      delta,
     }))
 
     setFlashes(prev => [...prev, ...newFlashes])
@@ -48,7 +47,6 @@ export function StatFlash() {
     }
   }, [lastStatChanges])
 
-  // Cleanup all timers on unmount
   useEffect(() => {
     const timers = timersRef.current
     return () => { for (const t of timers.values()) clearTimeout(t) }
@@ -71,23 +69,26 @@ export function StatFlash() {
       justifyContent: 'flex-end',
     }}>
       {flashes.map(flash => {
-        const isPos = flash.direction === 'pos'
+        const isPos  = flash.delta > 0
+        const prefix = isPos ? '+' : '−'
+        const value  = Math.abs(flash.delta).toFixed(1)
         return (
           <span
             key={flash.id}
             className="animate-stat-badge font-cinzel"
             style={{
               fontSize:      '0.6rem',
-              letterSpacing: '0.12em',
+              letterSpacing: '0.1em',
               fontWeight:    700,
               padding:       '3px 8px',
               borderRadius:  2,
               background:    isPos ? `${colors.gold}1a` : `${colors.crimson}1a`,
               color:         isPos ? colors.gold : '#e05060',
               border:        `1px solid ${isPos ? colors.gold + '55' : colors.crimson + '55'}`,
+              fontFamily:    fonts.display,
             }}
           >
-            {isPos ? '+' : '−'}{STAT_LABELS[flash.stat]}
+            {prefix}{value} {STAT_LABELS[flash.stat]}
           </span>
         )
       })}
