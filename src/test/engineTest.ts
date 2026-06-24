@@ -118,8 +118,8 @@ function main(): void {
   let lastPrintedAge = state.ageYears
   let totalTurns     = 0
 
-  // Simulate from age 6 to age 31 (25 years = 100 quarters)
-  const TARGET_AGE = 31
+  // Simulate from age 6 to age 52 (46 years = 184 quarters)
+  const TARGET_AGE = 52
   const MAX_QUARTERS = (TARGET_AGE - 6) * 4
 
   for (let q = 0; q < MAX_QUARTERS; q++) {
