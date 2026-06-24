@@ -123,6 +123,7 @@ export interface EventOption {
     generateNPC?:           NPCTemplate
     career?:                Career
     careerResolver?:        (state: GameState) => Career
+    friendResolver?:        (state: GameState) => Friend
     economyDelta?:          number
     economyDeltaResolver?:  (state: GameState) => number
   }

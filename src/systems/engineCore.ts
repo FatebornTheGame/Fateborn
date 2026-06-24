@@ -28,6 +28,7 @@ import { ADULTHOOD_EVENTS } from '../data/events/adulthoodEvents'
 import { MATURITY_EVENTS }  from '../data/events/maturityEvents'
 import { OLD_AGE_EVENTS }   from '../data/events/oldAgeEvents'
 import { CAREER_EVENTS }    from '../data/events/careerEvents'
+import { PARTNER_EVENTS }   from '../data/events/partnerEvents'
 import { checkAchievements } from './achievementSystem'
 
 // ─── All events pool ─────────────────────────────────────────────────────────
@@ -40,6 +41,7 @@ const ALL_EVENTS: GameEventTemplate[] = [
   ...MATURITY_EVENTS,
   ...OLD_AGE_EVENTS,
   ...CAREER_EVENTS,
+  ...PARTNER_EVENTS,
 ]
 
 // ─── TurnResult ──────────────────────────────────────────────────────────────
@@ -225,6 +227,12 @@ function applyOption(state: GameState, ev: GameEventTemplate, option: EventOptio
     s = { ...s, career: option.immediate.career }
   } else if (option.immediate.careerResolver) {
     s = { ...s, career: option.immediate.careerResolver(s) }
+  }
+
+  // Friend resolver (dynamic NPC, e.g. romantic partner with orientation-correct gender)
+  if (option.immediate.friendResolver) {
+    const newFriend = option.immediate.friendResolver(s)
+    s = { ...s, friends: [...s.friends, newFriend] }
   }
 
   // Generate NPC
