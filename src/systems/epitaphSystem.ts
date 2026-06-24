@@ -9,12 +9,18 @@ const OPENING_PHRASES = [
   'De aquí pasó',
 ]
 
-const TRANSITION_WORDS = [
-  'Quien', 'El que', 'La que', 'Alguien que',
-]
-
 function pickByAge(arr: string[], age: number): string {
   return arr[age % arr.length]
+}
+
+// Gender-aware transition word — avoids mis-gendering the epitaph subject
+function getTransition(gender: string, index: number): string {
+  const pool = gender === 'hombre'
+    ? ['El que', 'Quien', 'Alguien que']
+    : gender === 'mujer'
+    ? ['La que', 'Quien', 'Alguien que']
+    : ['Quien', 'Alguien que']
+  return pool[index % pool.length]
 }
 
 // ─── Generar texto del epitafio desde seeds ────────────────────────────────────
@@ -26,8 +32,8 @@ export function generateEpitaphText(seeds: string[], state: GameState): string {
     return `${name}. ${state.character.birthYear}. La historia aún se escribe.`
   }
 
-  const opening = pickByAge(OPENING_PHRASES, age)
-  const transition = pickByAge(TRANSITION_WORDS, seeds.length)
+  const opening    = pickByAge(OPENING_PHRASES, age)
+  const transition = getTransition(state.character.gender, seeds.length)
 
   if (seeds.length === 1) {
     return `${opening} ${name}. ${transition} ${seeds[0]}.`

@@ -87,15 +87,19 @@ export function processQuarterlyEconomy(state: GameState): GameState {
     : eco.ingresosMensual
 
   // Recompute expenses every tick — reflects current life situation
-  const gastosActuales    = calcularGastosMensuales(state)
-  const gastosMensual     = gastosActuales.alimentacion + gastosActuales.transporte
+  const gastosActuales = calcularGastosMensuales(state)
+  const gastosMensual  = gastosActuales.alimentacion + gastosActuales.transporte
     + gastosActuales.telefono + gastosActuales.vivienda
     + gastosActuales.ocio     + gastosActuales.otros
 
-  const netQuarter    = (ingresosActuales - gastosMensual) * 3
-  const newLiquidez   = Math.round(eco.liquidez + netQuarter)
+  const netQuarter  = (ingresosActuales - gastosMensual) * 3
+  const newLiquidez = Math.round(eco.liquidez + netQuarter)
 
   const newHistory = [...eco.historialLiquidez, newLiquidez].slice(-20)
+
+  // Only overwrite stored gastos when actually spending — preserves tier-based
+  // init values so they're still active once the character becomes economically active
+  const gastosToStore = gastosMensual > 0 ? gastosActuales : eco.gastos
 
   return {
     ...state,
@@ -104,7 +108,7 @@ export function processQuarterlyEconomy(state: GameState): GameState {
       liquidez:          newLiquidez,
       ingresosMensual:   ingresosActuales,
       gastosMensual,
-      gastos:            gastosActuales,
+      gastos:            gastosToStore,
       historialLiquidez: newHistory,
     },
   }
