@@ -15,6 +15,7 @@ import { StatFlash }                  from '../components/StatFlash'
 import { StageProgressBar }           from '../components/StageProgressBar'
 import { NPCCards }                   from '../components/NPCCards'
 import { StageTransition }            from '../components/StageTransition'
+import { Newsletter }                 from '../components/Newsletter'
 import { colors }                     from '../styles/tokens'
 
 export function GameScreen() {
@@ -131,6 +132,9 @@ export function GameScreen() {
 
       {/* Stage cinematic transition overlay */}
       <StageTransition />
+
+      {/* Annual newspaper */}
+      <Newsletter />
 
       {/* Overlays */}
       {showStats && (
