@@ -129,7 +129,7 @@ const es = {
       hitos:    'Hitos',
     },
     cta:     'NUEVA VIDA',
-    dynasty: 'Modo Dinastía — próximamente',
+    dynasty: 'CONTINUAR DYNASTÍA',
   },
   mute: { mute: 'Silenciar música', unmute: 'Activar música' },
   statLabels: {

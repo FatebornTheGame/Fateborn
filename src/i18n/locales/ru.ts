@@ -44,7 +44,7 @@ const ru = {
   death: {
     header: '✦ ЭПИТАФИЯ ✦', finalProfile: 'Итоговый профиль',
     stats: { legado: 'Наследие', anos: 'Лет', memorias: 'Воспоминания', amigos: 'Друзья', viven: 'Живут', hitos: 'Вехи' },
-    cta: 'НОВАЯ ЖИЗНЬ', dynasty: 'Режим Династии — скоро',
+    cta: 'НОВАЯ ЖИЗНЬ', dynasty: 'ПРОДОЛЖИТЬ ДИНАСТИЮ',
   },
   mute: { mute: 'Выключить музыку', unmute: 'Включить музыку' },
   statLabels: {

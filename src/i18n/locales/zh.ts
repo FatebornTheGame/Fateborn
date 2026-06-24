@@ -44,7 +44,7 @@ const zh = {
   death: {
     header: '✦ 墓志铭 ✦', finalProfile: '最终档案',
     stats: { legado: '遗产', anos: '岁', memorias: '记忆', amigos: '朋友', viven: '在世', hitos: '里程碑' },
-    cta: '新的生命', dynasty: '王朝模式 — 即将推出',
+    cta: '新的生命', dynasty: '继续王朝',
   },
   mute: { mute: '静音', unmute: '开启音乐' },
   statLabels: {

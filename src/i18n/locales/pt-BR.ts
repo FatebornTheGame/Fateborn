@@ -44,7 +44,7 @@ const ptBR = {
   death: {
     header: '✦ EPITÁFIO ✦', finalProfile: 'Perfil final',
     stats: { legado: 'Legado', anos: 'Anos', memorias: 'Memórias', amigos: 'Amigos', viven: 'Vivos', hitos: 'Marcos' },
-    cta: 'NOVA VIDA', dynasty: 'Modo Dinastia — em breve',
+    cta: 'NOVA VIDA', dynasty: 'CONTINUAR DINASTIA',
   },
   mute: { mute: 'Silenciar música', unmute: 'Ativar música' },
   statLabels: {

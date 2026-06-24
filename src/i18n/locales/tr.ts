@@ -44,7 +44,7 @@ const tr = {
   death: {
     header: '✦ MEZAR TAŞI ✦', finalProfile: 'Son profil',
     stats: { legado: 'Miras', anos: 'Yıl', memorias: 'Anılar', amigos: 'Arkadaşlar', viven: 'Yaşıyor', hitos: 'Kilometre Taşları' },
-    cta: 'YENİ HAYAT', dynasty: 'Hanedan Modu — yakında',
+    cta: 'YENİ HAYAT', dynasty: 'HANEDANı SÜRDÜR',
   },
   mute: { mute: 'Müziği kapat', unmute: 'Müziği aç' },
   statLabels: {

@@ -9,6 +9,7 @@ export function DeathScreen() {
   const { t }       = useTranslation()
   const gameState   = useGameStore(s => s.gameState)
   const setScreen   = useGameStore(s => s.setScreen)
+  const startDynasty = useGameStore(s => s.startDynasty)
 
   if (!gameState) return null
 
@@ -155,9 +156,37 @@ export function DeathScreen() {
           {t('death.cta')}
         </button>
 
-        <p style={{ fontFamily: fonts.display, fontSize: '0.5rem', letterSpacing: '0.15em', color: colors.crimson, opacity: 0.2, textTransform: 'uppercase', paddingBottom: '2rem' }}>
+        <button
+          onClick={() => startDynasty()}
+          style={{
+            width:         '100%',
+            padding:       '12px 40px',
+            fontFamily:    fonts.display,
+            fontSize:      '0.7rem',
+            letterSpacing: '0.25em',
+            background:    'transparent',
+            border:        `1px solid ${colors.crimson}44`,
+            color:         `${colors.crimson}77`,
+            cursor:        'pointer',
+            transition:    'all 0.25s cubic-bezier(0.4,0,0.2,1)',
+            paddingBottom: '12px',
+            marginBottom:  '2rem',
+          }}
+          onMouseEnter={e => {
+            const b = e.currentTarget as HTMLButtonElement
+            b.style.borderColor = `${colors.crimson}88`
+            b.style.color       = colors.crimson
+            b.style.boxShadow   = `0 0 20px ${colors.crimson}22`
+          }}
+          onMouseLeave={e => {
+            const b = e.currentTarget as HTMLButtonElement
+            b.style.borderColor = `${colors.crimson}44`
+            b.style.color       = `${colors.crimson}77`
+            b.style.boxShadow   = 'none'
+          }}
+        >
           {t('death.dynasty')}
-        </p>
+        </button>
       </div>
     </div>
   )

@@ -48,6 +48,9 @@ export function AncestorSelection() {
   const confirmAncestors  = useGameStore(s => s.confirmAncestors)
   const setScreen         = useGameStore(s => s.setScreen)
 
+  const dynastyMode       = useGameStore(s => s.dynastyMode)
+  const dynastyParentSlot = useGameStore(s => s.dynastyParentSlot)
+
   const [activeSlot,  setActiveSlot]  = useState<AncestorSlot | null>(null)
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
   const [hoveredSlot, setHoveredSlot] = useState<AncestorSlot | null>(null)
@@ -60,7 +63,12 @@ export function AncestorSelection() {
     if (a) archetypeCount.set(a.id, (archetypeCount.get(a.id) ?? 0) + 1)
   }
 
+  function isDynastySlot(slot: AncestorSlot): boolean {
+    return dynastyMode && dynastyParentSlot === slot
+  }
+
   function handleSlotClick(slot: AncestorSlot) {
+    if (isDynastySlot(slot)) return
     if (selectedAncestors[slot]) {
       removeAncestor(slot)
       if (activeSlot === slot) setActiveSlot(null)
@@ -159,11 +167,12 @@ export function AncestorSelection() {
           <div style={{ padding: '0 24px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
           {([0, 1, 2, 3] as AncestorSlot[]).map(slot => {
-            const accent    = SLOT_ACCENT[slot]
-            const filled    = selectedAncestors[slot]
-            const isActive  = activeSlot === slot
-            const isHovered = hoveredSlot === slot
-            const stats     = filled ? top3Stats(filled) : []
+            const accent     = SLOT_ACCENT[slot]
+            const filled     = selectedAncestors[slot]
+            const isActive   = activeSlot === slot
+            const isHovered  = hoveredSlot === slot
+            const isDynasty  = isDynastySlot(slot)
+            const stats      = filled ? top3Stats(filled) : []
 
             return (
               <div key={slot} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -207,22 +216,40 @@ export function AncestorSelection() {
 
                   {filled ? (
                     <>
-                      <span style={{ fontSize: '2rem', color: accent, lineHeight: 1, marginBottom: 4 }}>
-                        {GLYPH[filled.id] ?? '◆'}
+                      {isDynasty && (
+                        <span style={{
+                          position:     'absolute',
+                          top:          5,
+                          left:         5,
+                          fontFamily:   fonts.display,
+                          fontSize:     '0.4rem',
+                          letterSpacing: '0.1em',
+                          color:        colors.crimson,
+                          background:   `${colors.crimson}22`,
+                          padding:      '1px 4px',
+                          borderRadius: 2,
+                        }}>
+                          ★
+                        </span>
+                      )}
+                      <span style={{ fontSize: '2rem', color: isDynasty ? colors.crimson : accent, lineHeight: 1, marginBottom: 4 }}>
+                        {isDynasty ? '★' : (GLYPH[filled.id] ?? '◆')}
                       </span>
-                      <span style={{ fontFamily: fonts.display, fontSize: '0.65rem', fontWeight: 700, color: '#d4b87a', letterSpacing: '0.1em', textAlign: 'center', marginBottom: 4 }}>
+                      <span style={{ fontFamily: fonts.display, fontSize: '0.65rem', fontWeight: 700, color: isDynasty ? colors.crimson : '#d4b87a', letterSpacing: '0.1em', textAlign: 'center', marginBottom: 4 }}>
                         {filled.name}
                       </span>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, justifyContent: 'center', marginBottom: 4 }}>
                         {stats.map(({ key }) => (
-                          <span key={key} style={{ fontFamily: fonts.display, fontSize: '0.5rem', color: accent, border: `1px solid ${accent}`, opacity: 0.5, padding: '2px 6px', borderRadius: 2 }}>
+                          <span key={key} style={{ fontFamily: fonts.display, fontSize: '0.5rem', color: isDynasty ? colors.crimson : accent, border: `1px solid ${isDynasty ? colors.crimson : accent}`, opacity: 0.5, padding: '2px 6px', borderRadius: 2 }}>
                             {t(`statAbbr.${key}`)}
                           </span>
                         ))}
                       </div>
-                      <span style={{ fontFamily: fonts.display, fontSize: '0.45rem', color: colors.border.warm, marginTop: 4 }}>
-                        {t('ancestors.slotRemove')}
-                      </span>
+                      {!isDynasty && (
+                        <span style={{ fontFamily: fonts.display, fontSize: '0.45rem', color: colors.border.warm, marginTop: 4 }}>
+                          {t('ancestors.slotRemove')}
+                        </span>
+                      )}
                     </>
                   ) : (
                     <>

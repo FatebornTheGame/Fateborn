@@ -44,7 +44,7 @@ const pl = {
   death: {
     header: '✦ EPITAFIUM ✦', finalProfile: 'Profil końcowy',
     stats: { legado: 'Dziedzictwo', anos: 'Lata', memorias: 'Wspomnienia', amigos: 'Przyjaciele', viven: 'Żyją', hitos: 'Kamienie milowe' },
-    cta: 'NOWE ŻYCIE', dynasty: 'Tryb Dynastii — wkrótce',
+    cta: 'NOWE ŻYCIE', dynasty: 'KONTYNUUJ DYNASTIĘ',
   },
   mute: { mute: 'Wycisz muzykę', unmute: 'Włącz muzykę' },
   statLabels: {

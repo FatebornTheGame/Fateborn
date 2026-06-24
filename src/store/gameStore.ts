@@ -95,6 +95,10 @@ interface GameStore {
   setCountry:        (country: string) => void
   confirmAncestors:  () => void
 
+  // Dynasty
+  dynastyMode:       boolean
+  dynastyParentSlot: 0 | 1 | null
+
   // Game
   gameState:    GameState | null
   lifestyle:    LifestyleType | null
@@ -106,6 +110,7 @@ interface GameStore {
   isLiving:         boolean
 
   startNewGame:   (name: string, gender: 'hombre' | 'mujer') => void
+  startDynasty:   () => void
   setLifestyle:   (lifestyle: LifestyleType) => void
   startLiving:    () => void
   stopLiving:     () => void
@@ -147,6 +152,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
     get().setScreen('birth')
   },
 
+  // Dynasty
+  dynastyMode:       false,
+  dynastyParentSlot: null,
+
   // Game
   gameState:        null,
   lifestyle:        null,
@@ -185,6 +194,40 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     set({ gameState: initialState, screen: 'game' })
+  },
+
+  startDynasty: () => {
+    const { gameState } = get()
+    if (!gameState) return
+
+    const { character, stats, epitaph, ageYears } = gameState
+    const loreRaw = epitaph.currentText ?? ''
+    const lore    = loreRaw.length > 80
+      ? loreRaw.slice(0, 80).trimEnd() + '…'
+      : loreRaw || `Vivió ${ageYears} años. Su huella perdura.`
+
+    const dynastyArchetype: Archetype = {
+      id:          'dynasty_parent',
+      name:        character.name,
+      description: `${character.name} · ${character.country} (${character.birthYear}–${character.birthYear + ageYears})`,
+      lore,
+      stats,
+    }
+
+    const slot: 0 | 1     = character.gender === 'hombre' ? 0 : 1
+    const ancestors: AncestorSlots = [null, null, null, null]
+    ancestors[slot] = dynastyArchetype
+
+    set({
+      gameState:         null,
+      dynastyMode:       true,
+      dynastyParentSlot: slot,
+      selectedAncestors: ancestors,
+      selectedCountry:   character.country,
+      inheritedStats:    null,
+      hiddenGenes:       {},
+      screen:            'ancestors',
+    })
   },
 
   setLifestyle: (lifestyle) => set({ lifestyle }),

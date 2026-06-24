@@ -44,7 +44,7 @@ const fr = {
   death: {
     header: '✦ ÉPITAPHE ✦', finalProfile: 'Profil final',
     stats: { legado: 'Héritage', anos: 'Années', memorias: 'Souvenirs', amigos: 'Amis', viven: 'Vivants', hitos: 'Jalons' },
-    cta: 'NOUVELLE VIE', dynasty: 'Mode Dynastie — bientôt disponible',
+    cta: 'NOUVELLE VIE', dynasty: 'CONTINUER LA DYNASTIE',
   },
   mute: { mute: 'Couper la musique', unmute: 'Activer la musique' },
   statLabels: {

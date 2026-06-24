@@ -44,7 +44,7 @@ const it = {
   death: {
     header: '✦ EPITAFFIO ✦', finalProfile: 'Profilo finale',
     stats: { legado: 'Eredità', anos: 'Anni', memorias: 'Ricordi', amigos: 'Amici', viven: 'Vivi', hitos: 'Traguardi' },
-    cta: 'NUOVA VITA', dynasty: 'Modalità Dinastia — prossimamente',
+    cta: 'NUOVA VITA', dynasty: 'CONTINUA LA DINASTIA',
   },
   mute: { mute: 'Silenzia musica', unmute: 'Attiva musica' },
   statLabels: {

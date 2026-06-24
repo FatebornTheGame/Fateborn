@@ -76,7 +76,7 @@ const en = {
     finalProfile: 'Final profile',
     stats: { legado: 'Legacy', anos: 'Years', memorias: 'Memories', amigos: 'Friends', viven: 'Alive', hitos: 'Milestones' },
     cta:     'NEW LIFE',
-    dynasty: 'Dynasty Mode — coming soon',
+    dynasty: 'CONTINUE DYNASTY',
   },
   mute: { mute: 'Mute music', unmute: 'Unmute music' },
   statLabels: {

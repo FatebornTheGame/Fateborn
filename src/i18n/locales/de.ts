@@ -44,7 +44,7 @@ const de = {
   death: {
     header: '✦ GRABINSCHRIFT ✦', finalProfile: 'Abschlussprofil',
     stats: { legado: 'Erbe', anos: 'Jahre', memorias: 'Erinnerungen', amigos: 'Freunde', viven: 'Am Leben', hitos: 'Meilensteine' },
-    cta: 'NEUES LEBEN', dynasty: 'Dynastiemodus — demnächst',
+    cta: 'NEUES LEBEN', dynasty: 'DYNASTIE FORTSETZEN',
   },
   mute: { mute: 'Musik stumm', unmute: 'Musik aktiv' },
   statLabels: {
