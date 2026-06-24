@@ -26,6 +26,7 @@ import { YOUTH_EVENTS } from '../data/events/youthEvents'
 import { PATH_EVENTS } from '../data/events/pathEvents'
 import { ADULTHOOD_EVENTS } from '../data/events/adulthoodEvents'
 import { MATURITY_EVENTS }  from '../data/events/maturityEvents'
+import { OLD_AGE_EVENTS }   from '../data/events/oldAgeEvents'
 import { checkAchievements } from './achievementSystem'
 
 // ─── All events pool ─────────────────────────────────────────────────────────
@@ -36,6 +37,7 @@ const ALL_EVENTS: GameEventTemplate[] = [
   ...PATH_EVENTS,
   ...ADULTHOOD_EVENTS,
   ...MATURITY_EVENTS,
+  ...OLD_AGE_EVENTS,
 ]
 
 // ─── TurnResult ──────────────────────────────────────────────────────────────
