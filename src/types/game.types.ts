@@ -122,6 +122,7 @@ export interface EventOption {
     removeFlags?:           string[]
     generateNPC?:           NPCTemplate
     career?:                Career
+    careerResolver?:        (state: GameState) => Career
     economyDelta?:          number
     economyDeltaResolver?:  (state: GameState) => number
   }

@@ -27,6 +27,7 @@ import { PATH_EVENTS } from '../data/events/pathEvents'
 import { ADULTHOOD_EVENTS } from '../data/events/adulthoodEvents'
 import { MATURITY_EVENTS }  from '../data/events/maturityEvents'
 import { OLD_AGE_EVENTS }   from '../data/events/oldAgeEvents'
+import { CAREER_EVENTS }    from '../data/events/careerEvents'
 import { checkAchievements } from './achievementSystem'
 
 // ─── All events pool ─────────────────────────────────────────────────────────
@@ -38,6 +39,7 @@ const ALL_EVENTS: GameEventTemplate[] = [
   ...ADULTHOOD_EVENTS,
   ...MATURITY_EVENTS,
   ...OLD_AGE_EVENTS,
+  ...CAREER_EVENTS,
 ]
 
 // ─── TurnResult ──────────────────────────────────────────────────────────────
@@ -221,6 +223,8 @@ function applyOption(state: GameState, ev: GameEventTemplate, option: EventOptio
   // Career assignment
   if (option.immediate.career) {
     s = { ...s, career: option.immediate.career }
+  } else if (option.immediate.careerResolver) {
+    s = { ...s, career: option.immediate.careerResolver(s) }
   }
 
   // Generate NPC
